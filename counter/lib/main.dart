@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'app_screens/frist_screen.dart';
+import 'dart:math';
 
 void main() => runApp(MyFirstApp());
 
@@ -14,16 +16,13 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: Material(
-          color: Color.fromARGB(255, 92, 174, 241),
-          child: Center(
-            child: Text(
-              "Hello from Priyal",
-              textDirection: TextDirection.ltr,
-              style: TextStyle(color: Colors.white, fontSize: 40.0),
-            ),
-          ),
-        ),
+        body: Center(
+          child: Container(
+          width: 100,
+          height: 100,
+          color: Colors.blueGrey,
+          child: Text('hello dev.'),
+        )),
       ),
     );
   }
