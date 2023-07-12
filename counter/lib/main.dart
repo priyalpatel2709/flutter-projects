@@ -22,10 +22,6 @@ class MyFirstApp extends StatelessWidget {
       title: "My First App are you ?",
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
-        textTheme: TextTheme(
-          headline1: TextStyle(fontSize: 21,fontFamily: "Demo"),
-          subtitle1: TextStyle(fontSize: 12)
-        )
       ),
       home: HomePage(),
     );

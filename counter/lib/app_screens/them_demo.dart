@@ -13,7 +13,8 @@ const ThemDemo({ Key? key }) : super(key: key);
             margin: EdgeInsets.only(left: 5),
             child: Text('Name')
           ),
-          Text('Priyal',style: Theme.of(context.textTheme.headline1),),
+          // Text('Priyal',style: Theme.of(context.textTheme.headline1),),
+          Text('Priyal',),
           Container(
             width: 100,
             margin: EdgeInsets.only(left: 5),
