@@ -18,13 +18,25 @@ class MyFirstApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "My First App",
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("My First App"),
-        ),
-        body: ListViewBuilder(),
+      title: "My First App are you ?",
+      theme: ThemeData(
+        primarySwatch: Colors.lightGreen
       ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Flutter App"),
+      ),
+      body: ListViewBuilder(),
     );
   }
 }
