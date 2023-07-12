@@ -23,7 +23,7 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: FristScreen(),
+        body: ListViewBuilder(),
       ),
     );
   }

@@ -59,8 +59,8 @@ class ListViewBuilder extends StatelessWidget {
             backgroundImage: AssetImage('assets/img/female-avatar-vector-icon-png_262142.jpg'),
             backgroundColor: const Color.fromARGB(255, 255, 57, 7),
           ),
-          title: Text(NameArray[index]),
-          subtitle: Text('Number'),
+          title: Text(NameArray[index],style: TextStyle(fontFamily: 'Demo'),),
+          subtitle: Text('Number',style: TextStyle(fontFamily: 'Demo'),),
           trailing: Icon(Icons.add_sharp),
         );
       },
