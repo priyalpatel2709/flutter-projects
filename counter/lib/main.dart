@@ -4,6 +4,7 @@ import 'app_screens/button_widget.dart';
 import 'app_screens/text.dart';
 import 'app_screens/images.dart';
 import 'app_screens/row_col.dart';
+import 'app_screens/scroll_view.dart';
 import 'dart:math';
 
 void main() => runApp(MyFirstApp());
@@ -20,7 +21,7 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: image(),
+        body: Scroll(),
       ),
     );
   }
