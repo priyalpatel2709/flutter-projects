@@ -21,7 +21,9 @@ class MyFirstApp extends StatelessWidget {
           width: 100,
           height: 100,
           color: Colors.blueGrey,
-          child: Text('hello dev.'),
+          child: Center(
+            child: Text('hello dev.')
+          ),
         )),
       ),
     );
