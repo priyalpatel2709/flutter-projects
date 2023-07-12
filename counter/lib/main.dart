@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_screens/frist_screen.dart';
+import 'app_screens/button_widget.dart';
 import 'app_screens/text.dart';
 import 'dart:math';
 
@@ -17,7 +18,7 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: TextFile(),
+        body: Buttons(),
       ),
     );
   }
