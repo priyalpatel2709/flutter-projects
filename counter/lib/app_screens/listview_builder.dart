@@ -55,7 +55,10 @@ class ListViewBuilder extends StatelessWidget {
     return ListView.separated(
       itemBuilder: (context, index) {
         return ListTile(
-          leading: Text('${index+1}'),
+          leading: CircleAvatar(
+            backgroundImage: AssetImage('assets/img/female-avatar-vector-icon-png_262142.jpg'),
+            backgroundColor: const Color.fromARGB(255, 255, 57, 7),
+          ),
           title: Text(NameArray[index]),
           subtitle: Text('Number'),
           trailing: Icon(Icons.add_sharp),

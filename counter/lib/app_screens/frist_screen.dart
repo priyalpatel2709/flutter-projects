@@ -11,7 +11,7 @@ class FristScreen extends StatelessWidget {
         child : Center(
           child : Text(luckNumber(),
                   textDirection:TextDirection.ltr,
-                  style: TextStyle(color: const Color.fromARGB(255, 73, 72, 72), fontSize: 40.0),
+                  style: TextStyle(color: const Color.fromARGB(255, 73, 72, 72), fontSize: 40.0,fontFamily: 'Demo'),
                   ),
         ),
       );
