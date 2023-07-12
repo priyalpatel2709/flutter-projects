@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_screens/frist_screen.dart';
+import 'app_screens/text.dart';
 import 'dart:math';
 
 void main() => runApp(MyFirstApp());
@@ -16,7 +17,7 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: FristScreen(),
+        body: TextFile(),
       ),
     );
   }
