@@ -26,7 +26,10 @@ class image extends StatelessWidget {
           height: 358,
           child: Column(
             children: [
-              Image.asset('assets/img/download (1).jpg'),
+              InkWell(
+                onTap: () => print("on img 1"),
+                child: Image.asset('assets/img/download (1).jpg')
+              ),
               Image.asset('assets/img/download (2).jpg'),
               Image.asset('assets/img/download (3).jpg'),
               // Image.asset('assets/img/download.jpg'),
