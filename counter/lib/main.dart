@@ -37,7 +37,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Flutter App"),
       ),
-      body: ThemDemo(),
+      body: FristScreen(),
     );
   }
 }

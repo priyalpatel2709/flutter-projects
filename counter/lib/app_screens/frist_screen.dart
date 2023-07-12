@@ -9,10 +9,14 @@ class FristScreen extends StatelessWidget {
       return Material(
         color : Color.fromARGB(255, 57, 160, 245),
         child : Center(
-          child : Text(luckNumber(),
-                  textDirection:TextDirection.ltr,
-                  style: TextStyle(color: const Color.fromARGB(255, 73, 72, 72), fontSize: 40.0,fontFamily: 'Demo'),
-                  ),
+          child : Card(
+            shadowColor: Color.fromARGB(255, 196, 220, 248),
+            elevation: 5,
+            child: Text(luckNumber(),
+                    textDirection:TextDirection.ltr,
+                    style: TextStyle(color: const Color.fromARGB(255, 73, 72, 72), fontSize: 25.0,fontFamily: 'Demo'),
+                    )
+          ),
         ),
       );
   }

@@ -12,13 +12,16 @@ class Scroll extends StatelessWidget {
           [
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: Colors.amber,),
-                  Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 48, 255, 7),),
-                  Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 7, 255, 131),),
-                  Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 94, 7, 255),),
-                  ]
+              child: Card(
+                shadowColor: Colors.purple,
+                child: Row(
+                  children: [
+                    Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: Colors.amber,),
+                    Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 48, 255, 7),),
+                    Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 7, 255, 131),),
+                    Container(margin: EdgeInsets.all(10),width: 100,height: 100,color: const Color.fromARGB(255, 94, 7, 255),),
+                    ]
+                )
               )
             ),
             Container(margin: EdgeInsets.all(10),width: 500,height: 100,color: const Color.fromARGB(255, 15, 255, 7),),
