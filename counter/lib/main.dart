@@ -16,15 +16,7 @@ class MyFirstApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("My First App"),
         ),
-        body: Center(
-          child: Container(
-          width: 100,
-          height: 100,
-          color: Colors.blueGrey,
-          child: Center(
-            child: Text('hello dev.')
-          ),
-        )),
+        body: FristScreen(),
       ),
     );
   }
