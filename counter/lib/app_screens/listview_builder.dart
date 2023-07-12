@@ -1,45 +1,68 @@
 import 'package:flutter/material.dart';
 
-class ListviewBuilder extends StatelessWidget {
-  const ListviewBuilder({Key? key}) : super(key: key);
+// class ListviewBuilder extends StatelessWidget {
+//   const ListviewBuilder({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     var NameArr = ['maya', 'jaya', 'taya', 'daya', 'taya'];
+
+//     return ListView.builder(
+//       itemBuilder: (context, item) {
+//         return Padding(
+//             padding: EdgeInsets.all(15),
+//             child: Row(
+//               children: [
+//                 Padding(
+//                     padding: EdgeInsets.all(15),
+//                     child: Text(
+//                       NameArr[item],
+//                       style: const TextStyle(
+//                           fontSize: 21, fontWeight: FontWeight.w500),
+//                     )),
+//                 Text(
+//                   NameArr[item],
+//                   style: const TextStyle(
+//                       fontSize: 21, fontWeight: FontWeight.w500),
+//                 ),
+//                 Text(
+//                   NameArr[item],
+//                   style: const TextStyle(
+//                       fontSize: 21, fontWeight: FontWeight.w500),
+//                 ),
+//                 Column(children: [
+//                   Padding(padding: EdgeInsets.all(2),
+//                   child: Text('hwr'),
+//                   )
+//                 ],)
+//               ],
+//             ));
+//       },
+//       itemCount: NameArr.length,
+//       itemExtent: 200,
+//     );
+//   }
+// }
+
+
+class ListViewBuilder extends StatelessWidget {
+  const ListViewBuilder({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var NameArr = ['maya', 'jaya', 'taya', 'daya', 'taya'];
+    var NameArray = ['maya','jaya','daya','chaya','tinu'];
 
-    return ListView.builder(
-      itemBuilder: (context, item) {
-        return Padding(
-            padding: EdgeInsets.all(15),
-            child: Row(
-              children: [
-                Padding(
-                    padding: EdgeInsets.all(15),
-                    child: Text(
-                      NameArr[item],
-                      style: const TextStyle(
-                          fontSize: 21, fontWeight: FontWeight.w500),
-                    )),
-                Text(
-                  NameArr[item],
-                  style: const TextStyle(
-                      fontSize: 21, fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  NameArr[item],
-                  style: const TextStyle(
-                      fontSize: 21, fontWeight: FontWeight.w500),
-                ),
-                Column(children: [
-                  Padding(padding: EdgeInsets.all(2),
-                  child: Text('hwr'),
-                  )
-                ],)
-              ],
-            ));
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        return Text(NameArray[index]);
       },
-      itemCount: NameArr.length,
-      itemExtent: 200,
+      itemCount: NameArray.length,
+      separatorBuilder: (context, index) {
+        return Divider(
+          height: 100,
+          thickness: 2,
+        );
+      },
     );
   }
 }
