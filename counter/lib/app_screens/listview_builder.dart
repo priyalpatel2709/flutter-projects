@@ -54,12 +54,17 @@ class ListViewBuilder extends StatelessWidget {
 
     return ListView.separated(
       itemBuilder: (context, index) {
-        return Text(NameArray[index]);
+        return ListTile(
+          leading: Text('${index+1}'),
+          title: Text(NameArray[index]),
+          subtitle: Text('Number'),
+          trailing: Icon(Icons.add_sharp),
+        );
       },
       itemCount: NameArray.length,
       separatorBuilder: (context, index) {
         return Divider(
-          height: 100,
+          height: 20,
           thickness: 2,
         );
       },
