@@ -11,6 +11,7 @@ import 'app_screens/them_demo.dart';
 import 'app_screens/input_field.dart';
 import 'app_screens/date_time.dart';
 import 'app_screens/date_time_piker.dart';
+import 'app_screens/grid_widset.dart';
 import 'dart:math';
 
 void main() => runApp(MyFirstApp());
@@ -40,7 +41,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Flutter App"),
       ),
-      body: DateTimePicker(),
+      body: GridWidset(),
     );
   }
 }
