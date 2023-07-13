@@ -12,7 +12,8 @@ import 'app_screens/input_field.dart';
 import 'app_screens/date_time.dart';
 import 'app_screens/date_time_piker.dart';
 import 'app_screens/grid_widset.dart';
-import 'dart:math';
+import './widget/rounded_btn.dart';
+import './ui_helper/utli.dart';
 
 void main() => runApp(MyFirstApp());
 
@@ -33,15 +34,31 @@ class MyFirstApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Flutter App"),
+        title: const Text("Flutter App"),
       ),
-      body: GridWidset(),
+      body: Container(
+          width: 200,
+          child: Column(children: [
+            RoundedBtn(
+              btnName: 'login',
+              icon: Icon(Icons.lock),
+              callback: () => print('object'),
+              textStyle: myTextStyle20(),
+            ),
+            RoundedBtn(
+              btnName: 'singup',
+              callback: () => print('hello'),
+            ),
+            RoundedBtn(btnName: 'hello',icon: Icon(Icons.ac_unit_outlined), callback: ()=>print('checking...'))
+          ]
+          )
+          ),
     );
   }
 }

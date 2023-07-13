@@ -5,7 +5,7 @@ const GridWidset({ Key? key }) : super(key: key);
 
   @override
   Widget build(BuildContext context){
-    var colorArray= [
+    const colorArray= [
        Color.fromARGB(255, 206, 192, 0),
        Color.fromARGB(255, 206, 192, 0),
        Color.fromARGB(255, 206, 31, 0),
@@ -43,7 +43,7 @@ const GridWidset({ Key? key }) : super(key: key);
       child: GridView.builder(
         itemBuilder: (context,index) =>Container(color: colorArray[index],),
         itemCount: colorArray.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       mainAxisSpacing: 11,
                       crossAxisSpacing: 11

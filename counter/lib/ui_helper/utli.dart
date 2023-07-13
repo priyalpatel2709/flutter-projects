@@ -17,8 +17,8 @@ TextStyle myTextStyle44(){
 TextStyle myTextStyle20(){
   return TextStyle(
     fontSize: 20,
-    color: Colors.teal,
-    backgroundColor: Colors.amber
+    color: const Color.fromARGB(255, 0, 0, 0),
+    // backgroundColor: Colors.amber
   );
 }
 

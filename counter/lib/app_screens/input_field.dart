@@ -18,6 +18,7 @@ class InputField extends StatelessWidget {
             controller: useremail,
             decoration: InputDecoration(
               hintText: 'Enter yous Email...',
+              labelText: 'Hello',
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
                   borderSide: BorderSide(color: Colors.green, width: 2)),
