@@ -42,23 +42,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Flutter App"),
       ),
-      body: Container(
-          width: 200,
-          child: Column(children: [
-            RoundedBtn(
-              btnName: 'login',
-              icon: Icon(Icons.lock),
-              callback: () => print('object'),
-              textStyle: myTextStyle20(),
-            ),
-            RoundedBtn(
-              btnName: 'singup',
-              callback: () => print('hello'),
-            ),
-            RoundedBtn(btnName: 'hello',icon: Icon(Icons.ac_unit_outlined), callback: ()=>print('checking...'))
-          ]
-          )
-          ),
+      body: InputField(),
     );
   }
 }
