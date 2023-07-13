@@ -17,6 +17,7 @@ class InputField extends StatelessWidget {
           TextField(
             controller: useremail,
             decoration: InputDecoration(
+              hintText: 'Enter yous Email...',
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
                   borderSide: BorderSide(color: Colors.green, width: 2)),
@@ -38,7 +39,9 @@ class InputField extends StatelessWidget {
               // enabled: false,
               controller: userpassword,
               obscureText: true,
+              
               decoration: InputDecoration(
+                  hintText: 'Enter your Password...',
                   focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(11),
                 borderSide: BorderSide(color: Colors.green, width: 2)),
