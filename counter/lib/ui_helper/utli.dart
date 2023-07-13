@@ -21,3 +21,18 @@ TextStyle myTextStyle20(){
     backgroundColor: Colors.amber
   );
 }
+
+InputDecoration input_field(){
+  return InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Colors.green, width: 2)),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 243, 12, 12), width: 2)),
+              disabledBorder:  OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 2)),  
+  );
+}

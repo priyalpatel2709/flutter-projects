@@ -8,6 +8,7 @@ import 'app_screens/scroll_view.dart';
 import 'app_screens/list_view.dart';
 import 'app_screens/listview_builder.dart';
 import 'app_screens/them_demo.dart';
+import 'app_screens/input_field.dart';
 import 'dart:math';
 
 void main() => runApp(MyFirstApp());
@@ -21,7 +22,7 @@ class MyFirstApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "My First App are you ?",
       theme: ThemeData(
-        primarySwatch: Colors.lightGreen,
+        primarySwatch: Colors.blue,
       ),
       home: HomePage(),
     );
@@ -37,7 +38,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Flutter App"),
       ),
-      body: FristScreen(),
+      body: InputField(),
     );
   }
 }
