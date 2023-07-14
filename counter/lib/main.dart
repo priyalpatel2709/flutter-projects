@@ -1,3 +1,4 @@
+import 'package:counter/app_screens/new_page.dart';
 import 'package:flutter/material.dart';
 import 'app_screens/frist_screen.dart';
 import 'app_screens/button_widget.dart';
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Flutter App"),
       ),
-      body: Calutator(),
+      body: NewPage(),
     );
   }
 }

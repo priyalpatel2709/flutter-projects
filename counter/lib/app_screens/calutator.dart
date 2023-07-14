@@ -21,6 +21,8 @@ class _CalutatorState extends State<Calutator> {
     
 
     return Container(
+      width: 100,
+      height: 100,
       child: Center(
         child:
         // TextField()
