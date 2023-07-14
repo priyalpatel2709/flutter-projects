@@ -16,6 +16,7 @@ import 'app_screens/grid_widset.dart';
 import './widget/rounded_btn.dart';
 import './ui_helper/utli.dart';
 import 'app_screens/calutator.dart';
+import 'app_screens/splashscr.dart';
 
 void main() => runApp(MyFirstApp());
 
@@ -30,7 +31,7 @@ class MyFirstApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: Splashscr(),
     );
   }
 }

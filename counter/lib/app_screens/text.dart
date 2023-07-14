@@ -3,18 +3,24 @@
 import 'package:flutter/material.dart';
 
 class TextFile extends StatelessWidget {
-  const TextFile({super.key});
+  var name;
+  TextFile(this.name);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
+      width: 300,
       height: 100,
+      color: Colors.blue,
       child: Center(
-          child: Text(
-        'hello',
-        style: TextStyle(fontSize: 20, color: Colors.cyan),
-      )),
+          child: Container(
+            
+            child: Text(
+                  'hi,$name',
+                  style: TextStyle(fontSize: 50, color: const Color.fromARGB(255, 0, 0, 0)),
+                )
+          )
+      ),
     );
   }
 }
