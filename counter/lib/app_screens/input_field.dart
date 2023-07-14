@@ -43,22 +43,23 @@ class InputField extends StatelessWidget {
               
               decoration: InputDecoration(
                   hintText: 'Enter your Password...',
-                  focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(11),
-                borderSide: BorderSide(color: Colors.green, width: 2)),
-                  enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(11),
-                borderSide: BorderSide(color: Color.fromARGB(255, 243, 12, 12), width: 2)),
-                  disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(11),
-                borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 2)),
-                  suffix: IconButton(
+                focusedBorder: OutlineInputBorder(
+                 borderRadius: BorderRadius.circular(11),
+                 borderSide: BorderSide(color: Colors.green, width: 2)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 243, 12, 12), width: 2)),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 2)),
+                suffix: IconButton(
                     icon: Icon(Icons.remove_red_eye),
                     onPressed: () {
                     print('show password');
                 
-                  },)  ,      
-                  prefixIcon: Icon(Icons.lock)
+                  },
+                )  ,      
+                prefixIcon: Icon(Icons.lock)
           )
           ),
           ElevatedButton(onPressed: (){

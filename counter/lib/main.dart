@@ -14,6 +14,7 @@ import 'app_screens/date_time_piker.dart';
 import 'app_screens/grid_widset.dart';
 import './widget/rounded_btn.dart';
 import './ui_helper/utli.dart';
+import 'app_screens/calutator.dart';
 
 void main() => runApp(MyFirstApp());
 
@@ -42,7 +43,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Flutter App"),
       ),
-      body: InputField(),
+      body: Calutator(),
     );
   }
 }
