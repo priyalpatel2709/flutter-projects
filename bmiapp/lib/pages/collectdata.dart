@@ -100,40 +100,38 @@ class _CollectdataState extends State<Collectdata> {
                       var tm=tcm/100;
                         var bmi= Ikgs/(tm*tm);
 
-                        var msg = '';
-                        if(bmi>25){
+                          var msg = '';
+                          if (bmi > 25) {
                             msg = 'loss weight';
-                            bgcolor = Colors.red.shade100;    
-                        }else if(bmi < 18){
-                          msg = 'eat some food!!!';
-                          bgcolor = Colors.orange.shade100; 
-                        }else{
-                          msg = 'walaa you are fit !!!';
-                          bgcolor = Colors.green.shade100;
+                            bgcolor = Colors.red.shade100;
+                          } else if (bmi < 18) {
+                            msg = 'eat some food!!!';
+                            bgcolor = Colors.orange.shade100;
+                          } else {
+                            msg = 'walaa you are fit !!!';
+                            bgcolor = Colors.green.shade100;
+                          }
+                          setState(() {
+                            result = '$msg  \nYour BMI is $bmi';
+                          });
+                        } else {
+                          setState(() {
+                            result = 'Add Data';
+                          });
                         }
-                        setState(() {
-                        result = '$msg  \nYour BMI is $bmi';
-                      });
-                              
-                    }else{
-                      setState(() {
-                        result = 'Add Data';
-                      });
-                      
-                    }
                     
                         
                    return print('${ininches.text.toString()} ,${infeet.text.toString()} ,${inkgs.text.toString()},$result');
                   },
                 )),
-                SizedBox(height: 10,),
+                 SizedBox(height: 10,),
                 Container(
                   width: 300,
                   height: 100,
                   color: bgcolor,
                   margin: EdgeInsets.all(10),
                   child: 
-                     Card(
+                     result== 'Add Data' || result=='' ? null : Card(
                       elevation: 3,
                       child: Center(
                         
