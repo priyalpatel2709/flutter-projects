@@ -18,6 +18,7 @@ import './ui_helper/utli.dart';
 import 'app_screens/calutator.dart';
 import 'app_screens/splashscr.dart';
 import 'animation/tween.dart';
+import 'animation/animate.dart';
 
 void main() => runApp(MyFirstApp());
 
@@ -46,7 +47,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Flutter App"),
       ),
-      body: TweenWidget(),
+      body: Animate(),
     );
   }
 }
