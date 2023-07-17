@@ -9,6 +9,7 @@ class TweenWidget extends StatefulWidget {
 
 class _TweenWidgetState extends State<TweenWidget> with SingleTickerProviderStateMixin {
   late Animation animation;
+  late Animation colorAnimation;
   late AnimationController animationController;
 
   @override
@@ -17,6 +18,7 @@ class _TweenWidgetState extends State<TweenWidget> with SingleTickerProviderStat
 
     animationController = AnimationController(vsync: this, duration: Duration(seconds: 5));
     animation = Tween(begin: 200.0, end: 100.0).animate(animationController);
+    colorAnimation = ColorTween(begin: Colors.amber, end: Colors.blue).animate(animationController);
 
     animationController.addListener(() {
       // setState(() {}); // Trigger rebuild when animation value changes
@@ -41,7 +43,7 @@ class _TweenWidgetState extends State<TweenWidget> with SingleTickerProviderStat
           return Container(
             width: animation.value,
             height: animation.value,
-            color: const Color.fromARGB(255, 33, 243, 121),
+            color: colorAnimation.value,
           );
         },
       ),
