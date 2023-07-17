@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:counter/app_screens/new_page.dart';
 import 'package:flutter/material.dart';
 import 'app_screens/frist_screen.dart';

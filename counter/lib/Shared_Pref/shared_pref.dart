@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../app_screens/frist_screen.dart';
 
 class SharedPref extends StatefulWidget {
   const SharedPref({Key? key}) : super(key: key);
@@ -92,9 +93,13 @@ class _SharedPrefState extends State<SharedPref> {
               var pref = await SharedPreferences.getInstance();
 
               pref.setString('userName', nameController.text.toString());
-              pref.setString(
-                  'userPassword', passwordController.text.toString());
+              pref.setString('userPassword', passwordController.text.toString());
               pref.setString('userEmail', emailController.text.toString());
+              pref.setBool('islogin', true);
+              setState(() {
+                Navigator.push(context,MaterialPageRoute(builder: (context)=> FristScreen(name: nameController.text.toString())) );
+              });
+              
             },
             child: Text('Save'),
           ),
