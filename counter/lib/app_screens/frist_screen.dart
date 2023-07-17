@@ -15,10 +15,23 @@ class FristScreen extends StatefulWidget {
 }
 
 class _FristScreenState extends State<FristScreen> {
+  var num =0;
+  var bgcolor = [
+    Colors.red,
+    const Color.fromARGB(255, 92, 244, 54),
+    Color.fromARGB(255, 244, 193, 54),
+    Color.fromARGB(255, 15, 245, 103),
+    Color.fromARGB(255, 0, 248, 248),
+    const Color.fromARGB(255, 54, 174, 244),
+    Color.fromARGB(255, 18, 62, 255),
+    const Color.fromARGB(255, 136, 54, 244),
+    const Color.fromARGB(255, 244, 54, 187),
+    const Color.fromARGB(255, 244, 54, 165),
+  ];
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Color.fromARGB(255, 57, 160, 245),
+      color: bgcolor[num],
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -30,7 +43,7 @@ class _FristScreenState extends State<FristScreen> {
                 color: const Color.fromARGB(255, 73, 72, 72),
                 fontSize: 25.0,
                 fontFamily: 'Demo',
-                backgroundColor: Colors.blue,
+                backgroundColor: bgcolor[num],
               ),
             ),
             ElevatedButton(
@@ -51,6 +64,7 @@ class _FristScreenState extends State<FristScreen> {
   String luckNumber() {
     var random = Random();
     int luckNumber = random.nextInt(10);
+    num=luckNumber;
     return '${widget.name}\'s luck number is $luckNumber';
   }
 }
