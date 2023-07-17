@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:async';
 import '../ui_helper/utli.dart';
 
@@ -30,7 +32,11 @@ class _SplashscrState extends State<Splashscr> {
     return Container(
       color: Colors.blue,
       child: Center(
-        child: Text('i am splash screen :)',style: myTextStyle1(),)
+        child: CircleAvatar(
+          backgroundColor: Color(0xffE6E6E6),
+          radius: 30,
+          child: Icon(Icons.home),
+        )
       ),
     );
   }
