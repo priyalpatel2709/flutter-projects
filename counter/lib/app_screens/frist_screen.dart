@@ -50,6 +50,7 @@ class _FristScreenState extends State<FristScreen> {
               onPressed: () async {
                 var preferences = await SharedPreferences.getInstance();
                 await preferences.clear();
+                Navigator.pop(context,MaterialPageRoute(builder: (context) => SharedPref(),));
                 setState(() {
                 });
               },

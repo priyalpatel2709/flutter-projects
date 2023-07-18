@@ -97,7 +97,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Scroll(),
+      body: SharedPref(),
       floatingActionButton: FloatingActionButton(
         //Floating action button on Scaffold
         onPressed: () {
