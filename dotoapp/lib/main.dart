@@ -59,7 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
-            
             context: context, 
             builder: (BuildContext context){
               return AlertDialog(
@@ -85,9 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           Text("Add",style: TextStyle(color: Color.fromRGBO(255, 102, 102,100)),)
                         ] 
                       )  )
-   
-   
-
                     ],
                   )
                   ),
