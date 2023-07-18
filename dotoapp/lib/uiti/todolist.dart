@@ -9,12 +9,14 @@ class Todolist extends StatelessWidget {
   final bool taskcomplated;
   Function(bool?)? onChanged;
   Function(BuildContext)? delfun;
+  Function(BuildContext)? updatefun;
 
  Todolist({ 
   required this.taskName,
   required this.taskcomplated,
   required this.onChanged,
   required this.delfun,
+  required this.updatefun,
  });
  
  
@@ -33,6 +35,15 @@ class Todolist extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           )
         ]),
+        startActionPane:ActionPane(
+        motion: StretchMotion(),
+        children: [
+          SlidableAction(onPressed: updatefun,
+          icon: Icons.update,
+          backgroundColor: Color.fromARGB(255, 66, 148, 255),
+          borderRadius: BorderRadius.circular(12),
+          )
+        ]) ,
         child: Container(
           padding: EdgeInsets.all(4),
           child: Row(

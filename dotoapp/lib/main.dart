@@ -63,12 +63,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void addTolist (){
+    if(_controller.text.toString() != ''){
     setState(() {
       db.dotoList.add([_controller.text.toString(),false]);
       _controller.clear();
     });
     Navigator.of(context).pop();
     db.updateData();
+    }
   }
 
   void delfun (int index){
@@ -76,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
       db.dotoList.removeAt(index);
     });
     db.updateData();
+  }
+
+  void updatefun(int i){
+    print(db.dotoList[i]);
   }
 
   @override
@@ -93,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView.builder(
           itemCount: db.dotoList.length,
           itemBuilder: (context,index){
-            return Todolist(taskName: db.dotoList[index][0],delfun:(context)=> delfun(index), taskcomplated: db.dotoList[index][1], onChanged: (value)=>checkboxclick(value,index));
+            return Todolist(taskName: db.dotoList[index][0],delfun:(context)=> delfun(index), updatefun:(context) => updatefun(index),taskcomplated: db.dotoList[index][1], onChanged: (value)=>checkboxclick(value,index));
           })
       ),
       floatingActionButton: FloatingActionButton(
