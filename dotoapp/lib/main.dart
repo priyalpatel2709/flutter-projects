@@ -81,8 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       TextButton(onPressed: (){}, child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children:[
-                          Icon(Icons.add,color: Color.fromARGB(193, 255, 102, 102)),
-                          Text("Add",style: TextStyle(color: Color.fromARGB(193, 255, 102, 102)),)
+                          Icon(Icons.add,color: Color.fromRGBO(255, 102, 102,100)),
+                          Text("Add",style: TextStyle(color: Color.fromRGBO(255, 102, 102,100)),)
                         ] 
                       )  )
    
