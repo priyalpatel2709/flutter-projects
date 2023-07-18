@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'listbiew.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -15,11 +17,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'DO TO APP',
-      theme: ThemeData(
-        
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 253, 253, 253)),
-        useMaterial3: true,
-      ),
       home: MyHomePage(),
     );
   }
@@ -27,7 +24,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
- 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -38,24 +34,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
-        backgroundColor: const Color.fromRGBO(18, 41, 50,100),
+        backgroundColor: const Color.fromRGBO(24, 58, 55,1),
         elevation: 1.2,
-        title: Text('Do-To List'),
+        title: Center(
+          child: Text('Do-To List',style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)))
+        ),
       ),
-      body: Container(
-        color: Color.fromRGBO(44, 81, 76, 100),
-        child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'Do To App',
-              ),
-              ],
-          ),
-        )
-      ),
+      body: Listbiew(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -80,8 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       TextButton(onPressed: (){}, child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children:[
-                          Icon(Icons.add,color: Color.fromRGBO(255, 102, 102,100)),
-                          Text("Add",style: TextStyle(color: Color.fromRGBO(255, 102, 102,100)),)
+                          Icon(Icons.add,color: Color.fromRGBO(7, 190, 184,50)),
+                          Text("Add",style: TextStyle(color: Color.fromRGBO(7, 190, 184,50)),)
                         ] 
                       )  )
                     ],
@@ -92,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
             });
         },
        child: Icon(Icons.add),
-       backgroundColor: const Color.fromRGBO(255, 102, 102,100)
+       backgroundColor: const Color.fromRGBO(7, 190, 184,50)
        ) ,
     );
   }
