@@ -1,13 +1,19 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'package:dotoapp/data/database.dart';
 import 'package:dotoapp/uiti/dailog_box.dart';
 import 'package:dotoapp/uiti/todolist.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 
 import 'pages/listview.dart';
 
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+
+  var box = await Hive.openBox('todoapp');
+
   runApp(const MyApp());
 }
 
@@ -32,18 +38,44 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  List dotoList = [
-    ['go to temple',true],
-    ['go to office',false],
-    ['go to gym',true],
-    ['go to depo',false],
-    ['go to slpeep',true],
-  ];
+  var _mybox = Hive.box('todoapp');
+  var _controller = TextEditingController();
+
+  ToDoData db = ToDoData();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    if(_mybox.get('TODOLIST') ==null ){
+      db.fristTimeData();
+    }else{
+      db.loadData();
+    }
+    super.initState();
+
+  }
 
   void checkboxclick(bool? value,int index){
     setState(() {
-        dotoList[index][1] = !dotoList[index][1];
+        db.dotoList[index][1] = !db.dotoList[index][1];
     });
+    db.updateData();
+  }
+
+  void addTolist (){
+    setState(() {
+      db.dotoList.add([_controller.text.toString(),false]);
+      _controller.clear();
+    });
+    Navigator.of(context).pop();
+    db.updateData();
+  }
+
+  void delfun (int index){
+    setState(() {
+      db.dotoList.removeAt(index);
+    });
+    db.updateData();
   }
 
   @override
@@ -59,9 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         color: Color.fromRGBO(237, 214, 172, 0.89),
         child: ListView.builder(
-          itemCount: dotoList.length,
+          itemCount: db.dotoList.length,
           itemBuilder: (context,index){
-            return Todolist(taskName: dotoList[index][0], taskcomplated: dotoList[index][1], onChanged: (value)=>checkboxclick(value,index));
+            return Todolist(taskName: db.dotoList[index][0],delfun:(context)=> delfun(index), taskcomplated: db.dotoList[index][1], onChanged: (value)=>checkboxclick(value,index));
           })
       ),
       floatingActionButton: FloatingActionButton(
@@ -69,11 +101,11 @@ class _MyHomePageState extends State<MyHomePage> {
           showDialog(
             context: context, 
             builder: (BuildContext context){
-              return DailogBox();
+              return DailogBox(controller: _controller,addTolist:addTolist);
             });
         },
-       child: Icon(Icons.add),
-       backgroundColor: const Color.fromRGBO(7, 190, 184,50)
+       backgroundColor: const Color.fromRGBO(7, 190, 184,50),
+       child: Icon(Icons.add)
        ) ,
     );
   }

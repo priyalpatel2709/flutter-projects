@@ -3,13 +3,16 @@
 import 'package:flutter/material.dart';
 
 class DailogBox extends StatefulWidget {
-  const DailogBox({Key? key}) : super(key: key);
+  final controller;
+  VoidCallback addTolist;
+  DailogBox({Key? key,required this.controller,required this.addTolist});
 
   @override
   _DailogBoxState createState() => _DailogBoxState();
 }
 
 class _DailogBoxState extends State<DailogBox> {
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -22,6 +25,7 @@ class _DailogBoxState extends State<DailogBox> {
             child: Column(
           children: [
             TextFormField(
+              controller: widget.controller , 
               decoration: const InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -43,7 +47,9 @@ class _DailogBoxState extends State<DailogBox> {
               height: 11,
             ),
             TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  widget.addTolist();
+                },
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.add, color: Color.fromRGBO(0, 0, 0, 0.808)),
