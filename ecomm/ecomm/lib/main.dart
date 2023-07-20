@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:ecomm/pages/fristapi.dart';
 
+import 'pages/product_list.dart';
+
+
+
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +28,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 27, 1, 1),
           title: Text('E-comm',style: TextStyle(color: Colors.white),),
         ),
-        body: Fristapi(),
+        body: ProductList(),
       ),
     );
   }
