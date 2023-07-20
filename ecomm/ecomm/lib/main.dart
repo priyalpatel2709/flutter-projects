@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:ecomm/pages/fristapi.dart';
 
+import 'pages/photos.dart';
 import 'pages/product_list.dart';
+import 'pages/productwithimg.dart';
 
 
 
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 27, 1, 1),
           title: Text('E-comm',style: TextStyle(color: Colors.white),),
         ),
-        body: ProductList(),
+        body: Productwithimg(),
       ),
     );
   }
