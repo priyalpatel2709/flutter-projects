@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 27, 1, 1),
           title: Text('E-comm',style: TextStyle(color: Colors.white),),
         ),
-        body: Singup(),
+        body: Login(),
       ),
     );
   }

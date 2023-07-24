@@ -1,7 +1,11 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import 'login.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);
@@ -44,55 +48,56 @@ class _SingupState extends State<Singup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ListView(
-          children: [
-            Container(
-              width: 300,
-              height: 100,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    controller: namecontoller,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Name",
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: emailcontoller,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Email",
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  TextField(
-                    controller: passwordcontoller,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Password",
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      signUpApi(namecontoller.text.toString(),
-                          emailcontoller.text.toString(),
-                          passwordcontoller.text.toString());
-                      print(
-                          '${emailcontoller.text},${namecontoller.text},${passwordcontoller.text}');
-                    },
-                    child: Text("SignUp"),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
+        body: Center(
+            child: Container(
+      width: 300,
+      // height: 100,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          TextField(
+            controller: namecontoller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Name",
+            ),
+          ),
+          SizedBox(height: 12),
+          TextField(
+            controller: emailcontoller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Email",
+            ),
+          ),
+          SizedBox(height: 12),
+          TextField(
+            controller: passwordcontoller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Password",
+            ),
+          ),
+          SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              signUpApi(
+                  namecontoller.text.toString(),
+                  emailcontoller.text.toString(),
+                  passwordcontoller.text.toString());
+              print(
+                  '${emailcontoller.text},${namecontoller.text},${passwordcontoller.text}');
+            },
+            child: Text("SignUp"),
+          ),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("go to Login"))
+        ],
       ),
-    );
+    )));
   }
 }

@@ -80,7 +80,7 @@ class _CollectdataState extends State<Collectdata> {
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
-                                color: Color.fromARGB(85, 52, 139, 139))),
+                                color: Color.fromARGB(84, 25, 219, 219))),
                         prefixIcon: Icon(Icons.monitor_weight_rounded),
                         labelText: 'kgs')
                       )
