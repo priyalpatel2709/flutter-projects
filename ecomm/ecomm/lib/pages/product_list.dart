@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -28,6 +26,9 @@ class ProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Product List'),
+      ),
       body: FutureBuilder(
         future: getProduct(),
         builder: (context, snapshot) {
@@ -38,50 +39,61 @@ class ProductList extends StatelessWidget {
           } else if (!snapshot.hasData) {
             return Center(child: Text('No data available'));
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length + 1, // +1 for header row
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  // Header Row
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                    ),
-                    child: ListTile(
-                      title: Row(
-                        children: [
-                          Expanded(child: Text('Name')),
-                          Expanded(child: Text('Price')),
-                          Expanded(child: Text('Category')),
-                          Expanded(child: Text('Company')),
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height - kToolbarHeight - 24,
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Text('Name')),
+                      DataColumn(label: Text('Price')),
+                      DataColumn(label: Text('Category')),
+                      DataColumn(label: Text('Company')),
+                      DataColumn(label: Text('Actions')),
+                    ],
+                    rows: List<DataRow>.generate(snapshot.data!.length, (index) {
+                      var product = snapshot.data![index];
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(product.name.toString())),
+                          DataCell(Text(product.price.toString())),
+                          DataCell(Text(product.category.toString())),
+                          DataCell(Text(product.company.toString())),
+                          DataCell(Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => deleteproduct(product.sId.toString()),
+                                child: Text('Delete'),
+                              ),
+                              SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: () => updateproduct(product.sId.toString()),
+                                child: Text('Update'),
+                              ),
+                            ],
+                          )),
                         ],
-                      ),
-                    ),
-                  );
-                } else {
-                  // Data Rows
-                  var product = snapshot.data![index - 1];
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                    ),
-                    child: ListTile(
-                      title: Row(
-                        children: [
-                          Expanded( child: Text(product.name.toString())),
-                          Expanded(child: Text(product.price.toString())),
-                          Expanded(child: Text(product.category.toString())),
-                          Expanded(child: Text(product.company.toString())),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              },
+                      );
+                    }),
+                  ),
+                ),
+              ),
             );
           }
         },
-      )
+      ),
     );
+  }
+
+  deleteproduct(String id) {
+    print(id);
+  }
+
+  updateproduct(String id) {
+    print(id);
   }
 }
