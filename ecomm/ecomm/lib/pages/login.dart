@@ -51,6 +51,8 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Text('Log In',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
+          SizedBox(height: 12,),
           TextField(
             controller: emailcontoller,
             decoration: InputDecoration(

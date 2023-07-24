@@ -5,6 +5,10 @@ import 'package:hive/hive.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../Models/productlist.dart';
+import '../data/database.dart';
+import 'addproduct.dart';
+import 'login.dart';
+import 'singup.dart';
 
 class ProductList extends StatefulWidget {
   const ProductList({Key? key}) : super(key: key);
@@ -21,13 +25,15 @@ class _ProductListState extends State<ProductList> {
   void initState() {
     super.initState();
     print(_mybox.get('USER'));
-    var user =
-        _mybox.get('USER') as List<dynamic>?; // Cast to List<dynamic> or null
+    var user = _mybox.get('USER') as List<dynamic>?; 
+        
     if (user != null && user.isNotEmpty) {
-      name = user[0][1] as String? ?? ''; // Provide default value ''
-      email = user[0][2] as String? ?? ''; // Provide default value ''
+      name = user[0][1] as String? ?? ''; 
+      email = user[0][2] as String? ?? '';
     }
   }
+
+  User userinfo = User();
 
   Future<List<AllProductList>> getProduct() async {
     final response =
@@ -51,8 +57,19 @@ class _ProductListState extends State<ProductList> {
         elevation: 20,
         child: Column(
           children: [
-            UserAccountsDrawerHeader(
-                accountName: Text(name), accountEmail: Text(email))
+            UserAccountsDrawerHeader(accountName: Text(name), accountEmail: Text(email)),
+             ListTile(leading: Icon(Icons.add, ),title: const Text('Add Product'),
+             onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Addproduct()));
+              },
+            ),
+            ListTile(leading:  Icon(Icons.logout),title: const Text('Logout'),
+              onTap: () {
+                userinfo.clearUserData();
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+              }
+            )
+                
           ],
         ),
       ),

@@ -60,10 +60,11 @@ class _SingupState extends State<Singup> {
         // final authJson = jsonData['auth'];
 
         UserSingup user = UserSingup.fromJson(userJson);
-        // AuthData authData = AuthData.fromJson(authJson);
-        print('User Email: ${user.email}');
+        userinfo.userData.add([user.id, user.name, user.email]);
+        userinfo.addUser();
+        // print('User Email: ${user.email}');
         setState(() {
-          userinfo.userData.add([user.id, user.name, user.email]);
+          
         });
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => ProductList()));
@@ -111,6 +112,7 @@ class _SingupState extends State<Singup> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Text('Sing Up',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
           TextField(
             controller: namecontoller,
             decoration: InputDecoration(
