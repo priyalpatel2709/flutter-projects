@@ -27,59 +27,61 @@ class ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getProduct(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
-          return Center(child: Text('No data available'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length + 1, // +1 for header row
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                // Header Row
-                return Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: ListTile(
-                    title: Row(
-                      children: [
-                        Expanded(child: Text('Name')),
-                        Expanded(child: Text('Price')),
-                        Expanded(child: Text('Category')),
-                        Expanded(child: Text('Company')),
-                      ],
+    return Scaffold(
+      body: FutureBuilder(
+        future: getProduct(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('No data available'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length + 1, // +1 for header row
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  // Header Row
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
                     ),
-                  ),
-                );
-              } else {
-                // Data Rows
-                var product = snapshot.data![index - 1];
-                return Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: ListTile(
-                    title: Row(
-                      children: [
-                        Expanded( child: Text(product.name.toString())),
-                        Expanded(child: Text(product.price.toString())),
-                        Expanded(child: Text(product.category.toString())),
-                        Expanded(child: Text(product.company.toString())),
-                      ],
+                    child: ListTile(
+                      title: Row(
+                        children: [
+                          Expanded(child: Text('Name')),
+                          Expanded(child: Text('Price')),
+                          Expanded(child: Text('Category')),
+                          Expanded(child: Text('Company')),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-          );
-        }
-      },
+                  );
+                } else {
+                  // Data Rows
+                  var product = snapshot.data![index - 1];
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: ListTile(
+                      title: Row(
+                        children: [
+                          Expanded( child: Text(product.name.toString())),
+                          Expanded(child: Text(product.price.toString())),
+                          Expanded(child: Text(product.category.toString())),
+                          Expanded(child: Text(product.company.toString())),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+            );
+          }
+        },
+      )
     );
   }
 }

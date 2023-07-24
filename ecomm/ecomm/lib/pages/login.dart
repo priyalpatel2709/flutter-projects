@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 
 import '../Models/user_login.dart';
 import '../data/database.dart';
+import 'demopage.dart';
+import 'product_list.dart';
 import 'singup.dart';
 
 class Login extends StatefulWidget {
@@ -28,9 +30,10 @@ class _LoginState extends State<Login> {
     // TODO: implement initState
     super.initState();
     if(_mybox.get('USER') == null){
-      userinfo.fristTimeuser();
+      userinfo.userlogin();
     }else{
       userinfo.addUser();
+      // Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> Demopage()) );
     }
   }
 

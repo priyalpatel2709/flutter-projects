@@ -1,12 +1,14 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_final_fields
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
 import '../Models/user_login.dart';
 import '../Models/user_singup.dart';
+import '../data/database.dart';
 import 'login.dart';
 
 class Singup extends StatefulWidget {
@@ -17,10 +19,28 @@ class Singup extends StatefulWidget {
 }
 
 class _SingupState extends State<Singup> {
+
+  var _mybox =Hive.box('user');
+
+  User  userinfo = User();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if(_mybox.get('USER') == null ){
+      userinfo.userlogin();
+    }else{
+      userinfo.addUser();
+    }
+  }
+  
+
   var namecontoller = TextEditingController();
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
 
+  @override
   void signUpApi(String name, String email, String password) async {
     try {
       final response = await http.post(
@@ -38,15 +58,19 @@ class _SingupState extends State<Singup> {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         final userJson  = jsonData['user'];
-        final authJson = jsonData['auth'];
+        // final authJson = jsonData['auth'];
 
 
         UserSingup user = UserSingup.fromJson(userJson);
-        AuthData authData = AuthData.fromJson(authJson);
+        // AuthData authData = AuthData.fromJson(authJson);
 
       print('User ID: ${user.id}');
       print('User Name: ${user.name}');
       print('User Email: ${user.email}');
+
+        setState(() {
+          userinfo.userData.add([user.id,user.name,user.email]);
+        });
       
         // print(authData);
       } else {
@@ -141,7 +165,7 @@ class _SingupState extends State<Singup> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("go to Login"))
+              child: Text("go to Login")),
         ],
       ),
     )));
