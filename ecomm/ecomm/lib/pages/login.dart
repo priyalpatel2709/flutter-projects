@@ -110,12 +110,6 @@ class _LoginState extends State<Login> {
                 );
               },
               child: Text('Go To Sing Up')),
-              ElevatedButton(onPressed: (){
-                setState(() {
-                  userinfo.getinfo();
-                });
-                // userinfo.addUser();
-              }, child: Text('ok'))
            ],
           ),
         )
