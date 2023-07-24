@@ -30,7 +30,6 @@ class InputField extends StatelessWidget {
                   borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 2)),
               suffixIcon: Icon(Icons.email),
               prefixIcon: Icon(Icons.person)
-
             ),
           ),
           Container(
@@ -40,7 +39,6 @@ class InputField extends StatelessWidget {
               // enabled: false,
               controller: userpassword,
               obscureText: true,
-              
               decoration: InputDecoration(
                   hintText: 'Enter your Password...',
                 focusedBorder: OutlineInputBorder(
@@ -56,7 +54,6 @@ class InputField extends StatelessWidget {
                     icon: Icon(Icons.remove_red_eye),
                     onPressed: () {
                     print('show password');
-                
                   },
                 )  ,      
                 prefixIcon: Icon(Icons.lock)

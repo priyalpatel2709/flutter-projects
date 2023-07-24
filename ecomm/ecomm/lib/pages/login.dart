@@ -31,15 +31,47 @@ class _LoginState extends State<Login> {
           TextField(
             controller: emailcontoller,
             decoration: InputDecoration(
-                border: OutlineInputBorder(), labelText: "Email"),
+              hintText: 'Enter your Email...',
+              labelText: 'Hello',
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
+              disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
+              suffixIcon: Icon(Icons.email),
+              prefixIcon: Icon(Icons.person)
+            ),
           ),
           SizedBox(
             height: 12,
           ),
           TextField(
-            controller: passwordcontoller,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), labelText: "Password"),
+              // enabled: false,
+              controller: passwordcontoller,
+              obscureText: true,
+              decoration: InputDecoration(
+                  hintText: 'Enter your Password...',
+                focusedBorder: OutlineInputBorder(
+                 borderRadius: BorderRadius.circular(11),
+                 borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
+                suffix: IconButton(
+                    icon: Icon(Icons.remove_red_eye),
+                    onPressed: () {
+                    print('show password');
+                  },
+                )  ,      
+                prefixIcon: Icon(Icons.lock)
+          )
           ),
           SizedBox(
             height: 12,
