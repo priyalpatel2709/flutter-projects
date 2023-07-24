@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../Models/user_login.dart';
 import 'singup.dart';
 
 class Login extends StatefulWidget {
@@ -108,6 +109,13 @@ class _LoginState extends State<Login> {
 
       if (response.statusCode == 200) {
         print('Longin done');
+        final jsonData = jsonDecode(response.body);
+        final userJson = jsonData['user'];
+        UserLonin user = UserLonin.fromJson(userJson);
+
+        print('User ID: ${user.id}');
+        print('User Name: ${user.name}');
+        print('User Email: ${user.email}');
         print(response.body);
       } else {
         print('login failed');

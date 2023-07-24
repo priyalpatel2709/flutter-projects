@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../Models/user_login.dart';
+import '../Models/user_singup.dart';
 import 'login.dart';
 
 class Singup extends StatefulWidget {
@@ -34,8 +36,19 @@ class _SingupState extends State<Singup> {
       );
 
       if (response.statusCode == 200) {
-        print('Sign-up successful!');
-        print('Response: ${response.body}');
+        final jsonData = jsonDecode(response.body);
+        final userJson  = jsonData['user'];
+        final authJson = jsonData['auth'];
+
+
+        UserSingup user = UserSingup.fromJson(userJson);
+        AuthData authData = AuthData.fromJson(authJson);
+
+      print('User ID: ${user.id}');
+      print('User Name: ${user.name}');
+      print('User Email: ${user.email}');
+      
+        // print(authData);
       } else {
         print('Sign-up failed. Status code: ${response.statusCode}');
         print('Error: ${response.body}');
@@ -60,15 +73,18 @@ class _SingupState extends State<Singup> {
             controller: namecontoller,
             decoration: InputDecoration(
               labelText: "Name",
-                focusedBorder: OutlineInputBorder(
+              focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
+                  borderSide: BorderSide(
+                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
               disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
             ),
           ),
           SizedBox(height: 12),
@@ -77,13 +93,16 @@ class _SingupState extends State<Singup> {
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
+                  borderSide: BorderSide(
+                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
               disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
               labelText: "Email",
             ),
           ),
@@ -91,15 +110,18 @@ class _SingupState extends State<Singup> {
           TextField(
             controller: passwordcontoller,
             decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
+              focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
+                  borderSide: BorderSide(
+                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
               disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
               labelText: "Password",
             ),
           ),
