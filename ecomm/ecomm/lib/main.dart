@@ -4,7 +4,6 @@ import 'package:ecomm/pages/fristapi.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'pages/login.dart';
 import 'pages/photos.dart';
-import 'pages/product_list.dart';
 import 'pages/productwithimg.dart';
 import 'pages/singup.dart';
 

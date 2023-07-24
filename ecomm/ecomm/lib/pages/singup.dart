@@ -10,7 +10,7 @@ import '../Models/user_login.dart';
 import '../Models/user_singup.dart';
 import '../data/database.dart';
 import 'login.dart';
-import 'product_list.dart';
+import 'product__list.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);

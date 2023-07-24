@@ -1,12 +1,19 @@
-import 'dart:convert';
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../Models/productlist.dart';
 
-class ProductList extends StatelessWidget {
-  ProductList({Key? key}) : super(key: key);
+class ProductList extends StatefulWidget {
+  const ProductList({ Key? key }) : super(key: key);
+
+  @override
+  _ProductListState createState() => _ProductListState();
+}
+
+class _ProductListState extends State<ProductList> {
+
 
   Future<List<AllProductList>> getProduct() async {
     final response =
@@ -22,10 +29,19 @@ class ProductList extends StatelessWidget {
       return [];
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        elevation: 20,
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(''), 
+              accountEmail: Text(''))
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: Text('Product List'),
       ),
@@ -88,8 +104,7 @@ class ProductList extends StatelessWidget {
       ),
     );
   }
-
-  deleteproduct(String id) {
+    deleteproduct(String id) {
     print(id);
   }
 
