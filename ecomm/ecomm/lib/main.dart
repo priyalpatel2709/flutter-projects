@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:ecomm/pages/fristapi.dart';
-
+import 'package:hive_flutter/adapters.dart';
 import 'pages/login.dart';
 import 'pages/photos.dart';
 import 'pages/product_list.dart';
@@ -11,7 +11,9 @@ import 'pages/singup.dart';
 
 
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  var box = await Hive.openBox('user');
   runApp(const MyApp());
 }
 

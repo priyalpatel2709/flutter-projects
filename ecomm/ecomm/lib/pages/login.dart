@@ -1,11 +1,13 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, use_build_context_synchronously
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:http/http.dart' as http;
 
 import '../Models/user_login.dart';
+import '../data/database.dart';
 import 'singup.dart';
 
 class Login extends StatefulWidget {
@@ -16,6 +18,23 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  var _mybox = Hive.box('user');
+
+  User  userinfo = User();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if(_mybox.get('USER') == null){
+      userinfo.fristTimeuser();
+    }else{
+      userinfo.addUser();
+    }
+  }
+
+
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
 
@@ -90,15 +109,21 @@ class _LoginState extends State<Login> {
                   MaterialPageRoute(builder: (context) => Singup()),
                 );
               },
-              child: Text('Go To Sing Up'))
-        ],
-      ),
-    )));
+              child: Text('Go To Sing Up')),
+              ElevatedButton(onPressed: (){
+                setState(() {
+                  userinfo.getinfo();
+                });
+                // userinfo.addUser();
+              }, child: Text('ok'))
+           ],
+          ),
+        )
+      )
+    );
   }
 
   void login(email, password) async {
-    print('email $email');
-    print('password $password');
     try {
       final response =
           await http.post(Uri.parse('https://srever-ecomm.vercel.app/login'),
@@ -113,15 +138,41 @@ class _LoginState extends State<Login> {
         final userJson = jsonData['user'];
         UserLonin user = UserLonin.fromJson(userJson);
 
-        print('User ID: ${user.id}');
         print('User Name: ${user.name}');
-        print('User Email: ${user.email}');
-        print(response.body);
+        
+        setState(() {
+          userinfo.userData.add([user.id,user.name,user.email]);
+        });
+        userinfo.addUser();
       } else {
-        print('login failed');
+        return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Somethig went wrong..'),
+              actions: [
+                TextButton(onPressed: (){
+                  Navigator.of(context).pop();  
+                }, child: Text('Ok'))
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
-      print('error $e');
+              return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Somethig went wrong.. $e'),
+              actions: [
+                TextButton(onPressed: (){
+                  Navigator.of(context).pop();  
+                }, child: Text('Ok'))
+              ],
+            );
+          },
+        );
     }
   }
 }
