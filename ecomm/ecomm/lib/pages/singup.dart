@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_final_fields
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, use_build_context_synchronously
 
 import 'dart:convert';
 
@@ -10,6 +10,7 @@ import '../Models/user_login.dart';
 import '../Models/user_singup.dart';
 import '../data/database.dart';
 import 'login.dart';
+import 'product_list.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);
@@ -19,22 +20,20 @@ class Singup extends StatefulWidget {
 }
 
 class _SingupState extends State<Singup> {
+  var _mybox = Hive.box('user');
 
-  var _mybox =Hive.box('user');
-
-  User  userinfo = User();
+  User userinfo = User();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(_mybox.get('USER') == null ){
+    if (_mybox.get('USER') == null) {
       userinfo.userlogin();
-    }else{
+    } else {
       userinfo.addUser();
     }
   }
-  
 
   var namecontoller = TextEditingController();
   var emailcontoller = TextEditingController();
@@ -57,28 +56,47 @@ class _SingupState extends State<Singup> {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        final userJson  = jsonData['user'];
+        final userJson = jsonData['user'];
         // final authJson = jsonData['auth'];
-
 
         UserSingup user = UserSingup.fromJson(userJson);
         // AuthData authData = AuthData.fromJson(authJson);
-
-      print('User ID: ${user.id}');
-      print('User Name: ${user.name}');
-      print('User Email: ${user.email}');
-
+        print('User Email: ${user.email}');
         setState(() {
-          userinfo.userData.add([user.id,user.name,user.email]);
+          userinfo.userData.add([user.id, user.name, user.email]);
         });
-      
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => ProductList()));
         // print(authData);
       } else {
-        print('Sign-up failed. Status code: ${response.statusCode}');
-        print('Error: ${response.body}');
+       return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Somethig went wrong.. '),
+              actions: [
+                TextButton(onPressed: (){
+                  Navigator.of(context).pop();  
+                }, child: Text('Ok'))
+              ],
+            );
+          },
+        );
       }
     } catch (e) {
-      print('Error: $e');
+             return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Somethig went wrong.. $e'),
+              actions: [
+                TextButton(onPressed: (){
+                  Navigator.of(context).pop();  
+                }, child: Text('Ok'))
+              ],
+            );
+          },
+        );
     }
   }
 
@@ -156,8 +174,6 @@ class _SingupState extends State<Singup> {
                   namecontoller.text.toString(),
                   emailcontoller.text.toString(),
                   passwordcontoller.text.toString());
-              print(
-                  '${emailcontoller.text},${namecontoller.text},${passwordcontoller.text}');
             },
             child: Text("SignUp"),
           ),

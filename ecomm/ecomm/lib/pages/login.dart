@@ -130,7 +130,6 @@ class _LoginState extends State<Login> {
               body: jsonEncode({'email': email, 'password': password}));
 
       if (response.statusCode == 200) {
-        print('Longin done');
         final jsonData = jsonDecode(response.body);
         final userJson = jsonData['user'];
         UserLonin user = UserLonin.fromJson(userJson);
@@ -141,6 +140,7 @@ class _LoginState extends State<Login> {
           userinfo.userData.add([user.id,user.name,user.email]);
         });
         userinfo.addUser();
+        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> ProductList()) );
       } else {
         return showDialog(
           context: context,
@@ -157,7 +157,7 @@ class _LoginState extends State<Login> {
         );
       }
     } catch (e) {
-              return showDialog(
+       return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
