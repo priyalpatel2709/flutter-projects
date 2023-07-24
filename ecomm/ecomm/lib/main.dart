@@ -6,6 +6,7 @@ import 'pages/login.dart';
 import 'pages/photos.dart';
 import 'pages/productwithimg.dart';
 import 'pages/singup.dart';
+import 'pages/splashscreen.dart';
 
 
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color.fromARGB(255, 27, 1, 1),
           title: Text('E-comm',style: TextStyle(color: Colors.white),),
         ),
-        body: Login(),
+        body: Splashscreen(),
       ),
     );
   }

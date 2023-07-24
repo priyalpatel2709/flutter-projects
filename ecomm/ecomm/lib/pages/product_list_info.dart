@@ -1,34 +1,16 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, prefer_final_fields
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../Models/productlist.dart';
 
-class ProductList extends StatefulWidget {
-  const ProductList({Key? key}) : super(key: key);
-
+class ProductListInfo extends StatefulWidget {
+  const ProductListInfo({ Key? key }) : super(key: key);
   @override
-  _ProductListState createState() => _ProductListState();
+  _ProductListInfoState createState() => _ProductListInfoState();
 }
 
-class _ProductListState extends State<ProductList> {
-  var _mybox = Hive.box('user');
-  String name = '';
-  String email = '';
-  @override
-  void initState() {
-    super.initState();
-    print(_mybox.get('USER'));
-    var user =
-        _mybox.get('USER') as List<dynamic>?; // Cast to List<dynamic> or null
-    if (user != null && user.isNotEmpty) {
-      name = user[0][1] as String? ?? ''; // Provide default value ''
-      email = user[0][2] as String? ?? ''; // Provide default value ''
-    }
-  }
-
+class _ProductListInfoState extends State<ProductListInfo> {
   Future<List<AllProductList>> getProduct() async {
     final response =
         await http.get(Uri.parse('https://srever-ecomm.vercel.app/products'));
@@ -46,20 +28,7 @@ class _ProductListState extends State<ProductList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Drawer(
-        elevation: 20,
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-                accountName: Text(name), accountEmail: Text(email))
-          ],
-        ),
-      ),
-      appBar: AppBar(
-        title: Text('Product List'),
-      ),
-      body: FutureBuilder(
+    return FutureBuilder(
         future: getProduct(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -119,11 +88,10 @@ class _ProductListState extends State<ProductList> {
             );
           }
         },
-      ),
-    );
+      );
   }
 
-  deleteproduct(String id) {
+    deleteproduct(String id) {
     print(id);
   }
 

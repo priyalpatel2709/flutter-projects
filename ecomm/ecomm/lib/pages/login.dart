@@ -107,10 +107,7 @@ class _LoginState extends State<Login> {
               child: Text('Login')),
           TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Singup()),
-                );
+                Navigator.push(context,MaterialPageRoute(builder: (context) => Singup()),);
               },
               child: Text('Go To Sing Up')),
            ],
@@ -135,11 +132,12 @@ class _LoginState extends State<Login> {
         UserLonin user = UserLonin.fromJson(userJson);
 
         print('User Name: ${user.name}');
-        
-        setState(() {
-          userinfo.userData.add([user.id,user.name,user.email]);
-        });
+        userinfo.userData.add([user.id,user.name,user.email]);
         userinfo.addUser();
+        setState(() {
+          
+        });
+        
         Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> ProductList()) );
       } else {
         return showDialog(

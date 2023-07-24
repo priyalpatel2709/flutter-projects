@@ -10,7 +10,7 @@ class User {
 
   void userlogin(){
     print('userlogin');
-    userData = _mybox.get('USER');
+    userData = _mybox.get('USER') ?? []; 
   }
 
   void addUser(){
