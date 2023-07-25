@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../Models/user_login.dart';
 import '../Models/user_singup.dart';
 import '../data/database.dart';
+import '../uiti/uiti.dart';
 import 'login.dart';
 import 'product__list.dart';
 
@@ -115,59 +116,17 @@ class _SingupState extends State<Singup> {
           Text('Sing Up',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
           TextField(
             controller: namecontoller,
-            decoration: InputDecoration(
-              labelText: "Name",
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-              disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-            ),
+            decoration:  myInput(labelText :'Name'),
           ),
           SizedBox(height: 12),
           TextField(
             controller: emailcontoller,
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-              disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              labelText: "Email",
-            ),
+            decoration:  myInput(labelText :'Email'),
           ),
           SizedBox(height: 12),
           TextField(
             controller: passwordcontoller,
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-              disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(
-                      color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              labelText: "Password",
-            ),
+            decoration:  myInput(labelText :'Password'),
           ),
           SizedBox(height: 12),
           ElevatedButton(

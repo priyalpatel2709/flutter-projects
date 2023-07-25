@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import '../Models/user_login.dart';
 import '../data/database.dart';
+import '../uiti/uiti.dart';
 import 'demopage.dart';
 import 'product__list.dart';
 import 'singup.dart';
@@ -40,6 +41,7 @@ class _LoginState extends State<Login> {
 
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
+  var loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -55,21 +57,7 @@ class _LoginState extends State<Login> {
           SizedBox(height: 12,),
           TextField(
             controller: emailcontoller,
-            decoration: InputDecoration(
-              hintText: 'Enter your Email...',
-              labelText: 'Hello',
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-              disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              suffixIcon: Icon(Icons.email),
-              prefixIcon: Icon(Icons.person)
-            ),
+            decoration:  myInput(labelText :'Email'),
           ),
           SizedBox(
             height: 12,
@@ -78,25 +66,7 @@ class _LoginState extends State<Login> {
               // enabled: false,
               controller: passwordcontoller,
               obscureText: true,
-              decoration: InputDecoration(
-                  hintText: 'Enter your Password...',
-                focusedBorder: OutlineInputBorder(
-                 borderRadius: BorderRadius.circular(11),
-                 borderSide: BorderSide(color: const Color.fromARGB(255, 92, 168, 94), width: 1)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  borderSide: BorderSide(color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-                suffix: IconButton(
-                    icon: Icon(Icons.remove_red_eye),
-                    onPressed: () {
-                    print('show password');
-                  },
-                )  ,      
-                prefixIcon: Icon(Icons.lock)
-          )
+              decoration:  myInput(labelText :'PassWord')
           ),
           SizedBox(
             height: 12,
