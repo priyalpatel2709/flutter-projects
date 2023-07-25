@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'pages/homepage.dart';
 import 'package:provider/provider.dart';
+import 'pages/slider_widget.dart';
 import 'provider/counter_provider.dart';
+import 'provider/sliderprovider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,8 +16,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => countProvider(),
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => countProvider()),
+        ChangeNotifierProvider(create: (_) => SliderProvider()),
+      ],
+  
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -23,7 +30,7 @@ class MyApp extends StatelessWidget {
               seedColor: Color.fromARGB(255, 57, 138, 184)),
           useMaterial3: true,
         ),
-        home: const MyHomePage(),
+        home: const SliderWidget(),
       ),
     );
   }
