@@ -76,7 +76,7 @@ class _LoginState extends State<Login> {
                 login(emailcontoller.text.toString(),
                     passwordcontoller.text.toString());
               },
-              child: Text('Login')),
+              child: loading ? CircularProgressIndicator() : Text('Login')),
           TextButton(
               onPressed: () {
                 Navigator.push(context,MaterialPageRoute(builder: (context) => Singup()),);
@@ -90,6 +90,10 @@ class _LoginState extends State<Login> {
   }
 
   void login(email, password) async {
+    loading = true;
+    setState(() {});
+      
+    
     try {
       final response =
           await http.post(Uri.parse('https://srever-ecomm.vercel.app/login'),
@@ -99,6 +103,7 @@ class _LoginState extends State<Login> {
               body: jsonEncode({'email': email, 'password': password}));
 
       if (response.statusCode == 200) {
+        loading = false;
         final jsonData = jsonDecode(response.body);
         final userJson = jsonData['user'];
         UserLonin user = UserLonin.fromJson(userJson);
@@ -112,6 +117,7 @@ class _LoginState extends State<Login> {
         
         Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> ProductList()) );
       } else {
+        loading = false;
         return showDialog(
           context: context,
           builder: (context) {
@@ -127,6 +133,8 @@ class _LoginState extends State<Login> {
         );
       }
     } catch (e) {
+      loading = false;
+      setState(() {});
        return showDialog(
           context: context,
           builder: (context) {

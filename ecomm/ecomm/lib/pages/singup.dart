@@ -39,9 +39,14 @@ class _SingupState extends State<Singup> {
   var namecontoller = TextEditingController();
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
+  var loading = false;
 
   @override
   void signUpApi(String name, String email, String password) async {
+    loading = true;
+    setState(() {});
+      
+    
     try {
       final response = await http.post(
         Uri.parse('https://srever-ecomm.vercel.app/register'),
@@ -56,6 +61,7 @@ class _SingupState extends State<Singup> {
       );
 
       if (response.statusCode == 200) {
+        loading = false;
         final jsonData = jsonDecode(response.body);
         final userJson = jsonData['user'];
         // final authJson = jsonData['auth'];
@@ -71,6 +77,7 @@ class _SingupState extends State<Singup> {
             context, MaterialPageRoute(builder: (context) => ProductList()));
         // print(authData);
       } else {
+        loading = false;
        return showDialog(
           context: context,
           builder: (context) {
@@ -86,6 +93,7 @@ class _SingupState extends State<Singup> {
         );
       }
     } catch (e) {
+      loading = false;
              return showDialog(
           context: context,
           builder: (context) {
@@ -136,7 +144,7 @@ class _SingupState extends State<Singup> {
                   emailcontoller.text.toString(),
                   passwordcontoller.text.toString());
             },
-            child: Text("SignUp"),
+            child: loading ? CircularProgressIndicator() : Text("SignUp"),
           ),
           TextButton(
               onPressed: () {
