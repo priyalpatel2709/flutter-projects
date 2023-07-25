@@ -41,7 +41,7 @@ class _SliderWidgetState extends State<SliderWidget> {
                 children: [
                   Expanded(
                       child: Container(
-                    height: 100,
+                    height: value.value*100,
                     decoration: BoxDecoration(
                       color: Colors.amber.withOpacity(value.value),
                     ),
@@ -51,7 +51,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                   )),
                   Expanded(
                     child: Container(
-                      height: 100,
+                      height: value.value*100,
+                      
                       decoration:
                           BoxDecoration(color: Colors.red.withOpacity(value.value)),
                       child: Center(
