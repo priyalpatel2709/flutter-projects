@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 
+import '../uiti/uiti.dart';
 import 'product__list.dart';
 
 class Addproduct extends StatefulWidget {
@@ -45,87 +46,26 @@ class _AddproductState extends State<Addproduct> {
           children: [
             TextField(
               controller: productName,
-              decoration: InputDecoration(
-                labelText: "productName",
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 92, 168, 94),
-                        width: 1)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-                disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              ),
+              decoration:  myInput(labelText :'product Name'),
             ),
             SizedBox(height: 12),
             TextField(
               keyboardType: TextInputType.number,
               controller: productPrice,
-              decoration: InputDecoration(
-                labelText: "productPrice",
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 92, 168, 94),
-                        width: 1)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-                disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              ),
+              decoration:  myInput(labelText :'product Price'),
             ),
             SizedBox(height: 12),
             TextField(
               controller: productCompany,
-              decoration: InputDecoration(
-                labelText: "productCompany",
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 92, 168, 94),
-                        width: 1)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-                disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              ),
+              decoration:  myInput(labelText :'product Company'),
             ),
             SizedBox(height: 12),
             TextField(
               controller: productCategory,
-              decoration: InputDecoration(
-                labelText: "productCategory",
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 92, 168, 94),
-                        width: 1)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 78, 144, 231), width: 1)),
-                disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(11),
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255, 87, 82, 82), width: 1)),
-              ),
+              decoration:  myInput(labelText :'product Category'),
             ),
             SizedBox(height: 12),
             ElevatedButton(onPressed: (){
-              // print('$productName,$productPrice,$productCategory,$productCompany');
               addProduct(productName.text.toString(),productPrice.text.toString(),productCompany.text.toString(),productCategory.text.toString());
             }, child: Text('Add Product'))
           ],
