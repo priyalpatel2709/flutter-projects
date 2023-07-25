@@ -34,6 +34,13 @@
             "request": "launch",
             "cwd": "ecomm\\ecomm",
             "program": "lib\\main.dart"
+        },
+        {
+            "name": "Flutter (lib\\main.dart)",
+            "type": "dart",
+            "request": "launch",
+            "cwd": "provider",
+            "program": "lib\\main.dart"
         }
     ]
 }
