@@ -42,8 +42,8 @@ class _ProductListState extends State<ProductList> {
   User userinfo = User();
 
   Future<List<AllProductList>> getProduct() async {
-    final response =
-        await http.get(Uri.parse('https://srever-ecomm.vercel.app/products'));
+    final response = await http
+        .get(Uri.parse('https://srever-ecomm.vercel.app/products'));
     var data = jsonDecode(response.body.toString());
     if (response.statusCode == 200) {
       List<AllProductList> productlist = [];
@@ -57,7 +57,7 @@ class _ProductListState extends State<ProductList> {
   }
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
         elevation: 20,
@@ -71,8 +71,8 @@ class _ProductListState extends State<ProductList> {
               ),
               title: const Text('Add Product'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Addproduct()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Addproduct()));
               },
             ),
             ListTile(
@@ -80,8 +80,8 @@ class _ProductListState extends State<ProductList> {
                 title: const Text('Logout'),
                 onTap: () {
                   userinfo.clearUserData();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Login()));
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (context) => Login()));
                 })
           ],
         ),
@@ -99,53 +99,39 @@ class _ProductListState extends State<ProductList> {
           } else if (!snapshot.hasData) {
             return Center(child: Text('No data available'));
           } else {
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight:
-                    MediaQuery.of(context).size.height - kToolbarHeight - 24,
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Price')),
-                      DataColumn(label: Text('Category')),
-                      DataColumn(label: Text('Company')),
-                      DataColumn(label: Text('Actions')),
-                    ],
-                    rows:
-                        List<DataRow>.generate(snapshot.data!.length, (index) {
-                      var product = snapshot.data![index];
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(product.name.toString())),
-                          DataCell(Text(product.price.toString())),
-                          DataCell(Text(product.category.toString())),
-                          DataCell(Text(product.company.toString())),
-                          DataCell(Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () =>
-                                    deleteproduct(product.sId.toString()),
-                                child: Text('Delete'),
-                              ),
-                              SizedBox(width: 10),
-                              ElevatedButton(
-                                onPressed: () =>
-                                    updateproduct(product.name.toString(),product.price.toString(),product.category.toString(),product.company.toString(),product.sId.toString()),
-                                child: Text('Update'),
-                              ),
-                            ],
-                          )),
-                        ],
-                      );
-                    }),
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var product = snapshot.data![index];
+                return Card(
+                  child: ListTile(
+                    title: Text(product.name.toString()),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Price: \$${product.price}'),
+                        Text('Category: ${product.category}'),
+                        Text('Company: ${product.company}'),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () =>
+                              deleteproduct(product.sId.toString()),
+                          child: Text('Delete'),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () => updateproduct(product.name.toString(), product.price.toString(), product.category.toString(), product.company.toString(), product.sId.toString()),
+                          child: Text('Update'),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           }
         },
@@ -160,8 +146,6 @@ class _ProductListState extends State<ProductList> {
         if(responce.statusCode == 200){
           print(responce.body);
           setState(() {
-            
-            
           });
         }else{
           print('error');
