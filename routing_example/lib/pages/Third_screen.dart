@@ -4,7 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ThirdScreen extends StatefulWidget {
-  const ThirdScreen({ Key? key }) : super(key: key);
+  dynamic data;
+  ThirdScreen({ Key? key, required this.data }) : super(key: key);
 
   @override
   _ThirdScreenState createState() => _ThirdScreenState();
@@ -29,8 +30,8 @@ class _ThirdScreenState extends State<ThirdScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-              Text('data form 2nd',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeBlue) ,),
-              Text('more data form 2nd',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeOrange)),
+              Text('Name:- ${widget.data['name']}',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeBlue) ,),
+              Text('City:- ${widget.data['city']}',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeOrange)),
             ],)
           ],
         ),

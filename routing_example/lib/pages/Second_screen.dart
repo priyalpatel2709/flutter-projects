@@ -27,7 +27,11 @@ class _SecondScreenState extends State<SecondScreen> {
           children: <Widget>[
             const Text('I am 2nd page', style: TextStyle(fontSize: 21,color: Color.fromARGB(255, 35, 104, 138)),),
             ElevatedButton(onPressed: (){
-              Navigator.pushNamed(context, RoutesName.ThirdScreen);
+              Navigator.pushNamed(context, RoutesName.ThirdScreen, arguments:{
+                'name' : 'Priyal Patel',
+                'city' : 'Vadodra',
+                
+              });
             }, child: Text('Go To 3nd screen'))
           ],
         ),

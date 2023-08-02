@@ -12,13 +12,16 @@ class Routes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RoutesName.MyHomePage:
-        return MaterialPageRoute(builder: (context) =>  MyHomePage());
+        return MaterialPageRoute(builder: (context) => MyHomePage());
 
       case RoutesName.SecondScreen:
-        return MaterialPageRoute(builder: (context) =>  SecondScreen( data: settings.arguments as Map ));
+        return MaterialPageRoute(
+            builder: (context) =>
+                SecondScreen(data: settings.arguments as Map));
 
       case RoutesName.ThirdScreen:
-        return MaterialPageRoute(builder: (context) =>  ThirdScreen());
+        return MaterialPageRoute(
+            builder: (context) => ThirdScreen(data: settings.arguments as Map));
 
       default:
         return MaterialPageRoute(
