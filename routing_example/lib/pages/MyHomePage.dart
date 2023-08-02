@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/routes_name.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({ Key? key }) : super(key: key);
 
@@ -22,7 +24,11 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'I am home page',style: TextStyle(fontSize: 21,color: Color.fromARGB(255, 35, 104, 138))
             ),
-            ElevatedButton(onPressed: (){}, child: Text('Go To 2nd screen'))
+            ElevatedButton(onPressed: (){
+              Navigator.pushNamed(context, RoutesName.SecondScreen, arguments: {
+                "node" : "amya"
+              });
+            }, child: Text('Go To 2nd screen'))
           ],
         ),
       )
