@@ -3,6 +3,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/routes_name.dart';
+
 class ThirdScreen extends StatefulWidget {
   dynamic data;
   ThirdScreen({ Key? key, required this.data }) : super(key: key);
@@ -17,7 +19,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Center(child: Text("Routing")),
+        title:  Text("Routing"),
       ),
       body: Center(
         child: Column(
@@ -32,6 +34,12 @@ class _ThirdScreenState extends State<ThirdScreen> {
               children: [
               Text('Name:- ${widget.data['name']}',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeBlue) ,),
               Text('City:- ${widget.data['city']}',style: TextStyle(fontSize: 15.5,color: CupertinoColors.activeOrange)),
+              ElevatedButton(onPressed: (){
+                Navigator.pushNamed(context, RoutesName.NewScreen,  arguments: {
+                  'name' : "ja be",
+                  'work' : 'i am not working',
+                }  );
+              }, child: Icon(Icons.trending_neutral_sharp))
             ],)
           ],
         ),

@@ -1,7 +1,9 @@
-// ignore_for_file: prefer_const_constructors
+// import 'dart:js';
+
 import 'package:flutter/material.dart';
 
 import '../pages/MyHomePage.dart';
+import '../pages/NewScreen.dart';
 import '../pages/second_screen.dart';
 import '../pages/third_screen.dart';
 import 'routes_name.dart';
@@ -23,6 +25,9 @@ class Routes {
         return MaterialPageRoute(
             builder: (context) => ThirdScreen(data: settings.arguments as Map));
 
+      case RoutesName.NewScreen :
+        return MaterialPageRoute(
+          builder: (context)=> NewScreen(data : settings.arguments as Map));
       default:
         return MaterialPageRoute(
           builder: (context) => Scaffold(

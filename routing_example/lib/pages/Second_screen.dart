@@ -19,7 +19,7 @@ class _SecondScreenState extends State<SecondScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Center(child: Text(widget.data['node'])),
+        title:  Text(widget.data['node']),
       ),
       body: Center(
         child: Column(
@@ -30,7 +30,6 @@ class _SecondScreenState extends State<SecondScreen> {
               Navigator.pushNamed(context, RoutesName.ThirdScreen, arguments:{
                 'name' : 'Priyal Patel',
                 'city' : 'Vadodra',
-                
               });
             }, child: Text('Go To 3nd screen'))
           ],
