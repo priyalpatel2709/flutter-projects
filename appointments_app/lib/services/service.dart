@@ -74,3 +74,40 @@ Future<dynamic> deleteuser(id) async {
   }
 }
 
+Future<String> updateUser(
+    String id, String name, String slot, String description) async {
+  try {
+    final apiUrl = "$baseUri/update-user/$id";
+    print(apiUrl);
+    final response = await http.put(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': name,
+        'MaxSlots': slot,
+        'description': description,
+      }),
+    );
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+      var data = jsonDecode(response.body);
+      print('data $data');
+      if (data['modifiedCount'] == 1) {
+        return 'update successfully';
+      } else if (data['matchedCount'] != 1) {
+        return 'User not found';
+      }else if(data['modifiedCount'] == 0){
+        return 'make any changes';
+      }
+      else {
+        return "can't able to update";
+      }
+    } else {
+      print('Error during update request: ${response.body}');
+      return 'Error during update request: ${response.body}';
+    }
+  } catch (err) {
+    print('Error during update request: $err');
+    return 'Error during update request: $err';
+  }
+}

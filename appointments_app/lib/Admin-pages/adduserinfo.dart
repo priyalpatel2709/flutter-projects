@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
+import 'package:appointments_app/utilits/uitis.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -48,17 +49,17 @@ class _AdduserinfoState extends State<Adduserinfo> {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: InputDecoration(labelText: 'Name'),
+                      decoration: myInput(labelText: 'Name'),
                     ),
                     SizedBox(height: 8),
                     TextField(
                       controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
+                      decoration: myInput(labelText: 'Description'),
                     ),
                     SizedBox(height: 8),
                     TextField(
                       controller: maxSlotController,
-                      decoration: InputDecoration(labelText: 'Max-Slot'),
+                      decoration: myInput(labelText: 'Max-Slot'),
                     ),
                     SizedBox(height: 8),
                     TextField(
