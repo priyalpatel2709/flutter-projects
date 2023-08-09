@@ -101,7 +101,7 @@ class _ProductListState extends State<ProductList> {
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
+              itemBuilder: (context, index) { 
                 var product = snapshot.data![index];
                 return Card(
                   child: ListTile(

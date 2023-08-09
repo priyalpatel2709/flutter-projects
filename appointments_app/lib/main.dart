@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'Admin-pages/adduserinfo.dart';
+import 'Admin-pages/getuser.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,10 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text('appointments'),
       ),
-      body: Center(
-        
-        child: Adduserinfo(),
-      ),
+      body: Getuser(),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

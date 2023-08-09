@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../model/usermodel.dart';
+
 var baseUri = 'https://appointments-backend.vercel.app';
 
-Future<Map<String, dynamic>?> addUser(name, description, maxSlots, dates) async {
+Future<Map<String, dynamic>?> addUser(
+    name, description, maxSlots, dates) async {
   final apiUrl = "$baseUri/add-user";
 
   final Map<String, dynamic> data = {
@@ -26,5 +29,22 @@ Future<Map<String, dynamic>?> addUser(name, description, maxSlots, dates) async 
   } else {
     print("Failed to add user. Error: ${response.body}");
     return null; // Return null in case of failure
+  }
+}
+
+Future<List<UserModel>> getUserInfo() async {
+  final apiUrl = "$baseUri/get-user";
+
+  final responce = await http.get(Uri.parse(apiUrl));
+  var data = jsonDecode(responce.body.toString());
+
+  if (responce.statusCode == 200) {
+    List<UserModel> userinfolist = [];
+    for (var i in data) {
+      userinfolist.add(UserModel.fromJson(i));
+    }
+    return userinfolist;
+  } else {
+    return [];
   }
 }
