@@ -10,7 +10,7 @@ Future<Map<String, dynamic>?> addUser(name, description, maxSlots, dates) async 
     "name": name,
     "description": description,
     "MaxSlots": maxSlots,
-    "date": [dates],
+    "date": dates,
   };
 
   final response = await http.post(

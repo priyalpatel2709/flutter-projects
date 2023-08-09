@@ -128,16 +128,26 @@ class _AdduserinfoState extends State<Adduserinfo> {
                                 builder: (BuildContext context) {
                                   return ErrorDialog(
                                     title: 'Fail',
-                                    message:
-                                        '${result['result']}',
+                                    message: '${result['result']}',
                                   );
                                 },
                               );
                             }
                           } else {
-                            print('me ');
+                            isLoading = false;
+                            setState(() {});
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return ErrorDialog(
+                                  title: 'Fail',
+                                  message: 'Error Form Back-end',
+                                );
+                              },
+                            );
                           }
                         } catch (err) {
+                          print('or me also');
                           print(err);
                         }
                       },
