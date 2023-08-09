@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../Admin-pages/adduserinfo.dart';
-import '../Admin-pages/getuser.dart';
+import '../pages/Admin-pages/adduserinfo.dart';
+import '../pages/Admin-pages/getuser.dart';
 import 'routes_name.dart';
 
 class Routes {

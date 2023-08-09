@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../services/service.dart';
-import '../utilits/alert_dailog.dart';
+import '../../services/service.dart';
+import '../../utilits/alert_dailog.dart';
 
 class Adduserinfo extends StatefulWidget {
   const Adduserinfo({Key? key}) : super(key: key);

@@ -1,11 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import '../model/usermodel.dart';
-import '../services/service.dart';
-import '../utilits/alert_dailog.dart';
-import '../utilits/routes_name.dart';
-import '../utilits/uitis.dart'; // Make sure you have the correct import here
+import '../../model/usermodel.dart';
+import '../../services/service.dart';
+import '../../utilits/alert_dailog.dart';
+import '../../utilits/routes_name.dart';
+import '../../utilits/uitis.dart'; // Make sure you have the correct import here
 
 class Getuser extends StatefulWidget {
   const Getuser({Key? key}) : super(key: key);

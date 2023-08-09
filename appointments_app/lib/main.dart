@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'Admin-pages/adduserinfo.dart';
-import 'Admin-pages/getuser.dart';
+import 'pages/Admin-pages/adduserinfo.dart';
+import 'pages/Admin-pages/getuser.dart';
 import 'utilits/route.dart';
 import 'utilits/routes_name.dart';
 
