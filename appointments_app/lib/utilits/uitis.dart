@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 
-InputDecoration myInput({required String labelText, String? hintText}) {
+InputDecoration myInput({required String labelText, String? hintText,IconData? iconData,}) {
   return InputDecoration(
+    icon: iconData != null ? Icon(iconData) : null,
     labelText: labelText,
     hintText : hintText,
     focusedBorder: OutlineInputBorder(

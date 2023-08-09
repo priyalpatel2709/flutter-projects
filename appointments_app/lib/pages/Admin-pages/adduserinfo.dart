@@ -63,8 +63,8 @@ class _AdduserinfoState extends State<Adduserinfo> {
                     ),
                     SizedBox(height: 8),
                     TextField(
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.calendar_today),
+                      decoration: myInput(
+                        iconData: Icons.calendar_today,
                         labelText: "Enter Date",
                       ),
                       readOnly: true,

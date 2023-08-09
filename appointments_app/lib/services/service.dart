@@ -96,10 +96,9 @@ Future<String> updateUser(
         return 'update successfully';
       } else if (data['matchedCount'] != 1) {
         return 'User not found';
-      }else if(data['modifiedCount'] == 0){
+      } else if (data['modifiedCount'] == 0) {
         return 'make any changes';
-      }
-      else {
+      } else {
         return "can't able to update";
       }
     } else {
@@ -109,5 +108,37 @@ Future<String> updateUser(
   } catch (err) {
     print('Error during update request: $err');
     return 'Error during update request: $err';
+  }
+}
+
+Future<Map<String, dynamic>> addSubscriptions() async {
+  final apiUrl = "$baseUri/subscriptions";
+  
+  try {
+    final Map<String, dynamic> data = {
+      "name": 'maya',
+      "gridDetails": [
+        {"date": "2023-08-09", "startTime": "19:01", "endTime": "19:03"}
+      ],
+      "slotname": 'priyal',
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      // Do any additional processing if needed
+      return jsonData; // Return the jsonData
+    } else {
+      print("Failed to add subscription. Error: ${response.body}");
+      throw Exception("Failed to add subscription"); // Throw an exception for better error handling
+    }
+  } catch (error) {
+    print("Error during subscription request: $error");
+    throw Exception("Error during subscription request"); // Throw an exception for better error handling
   }
 }
