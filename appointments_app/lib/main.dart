@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'Admin-pages/adduserinfo.dart';
 import 'Admin-pages/getuser.dart';
+import 'utilits/route.dart';
+import 'utilits/routes_name.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +23,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 58, 164, 183)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: RoutesName.Getuser,
+      onGenerateRoute: Routes.generateRoute,
     );
   }
 }
@@ -47,8 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text('appointments'),
       ),
-      body: Getuser(),
-      
     );
   }
 }
