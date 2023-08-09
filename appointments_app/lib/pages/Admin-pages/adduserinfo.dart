@@ -38,7 +38,7 @@ class _AdduserinfoState extends State<Adduserinfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add user'),),
+      appBar: AppBar(title: Text('Add user'),backgroundColor: Theme.of(context).colorScheme.inversePrimary,),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Center(

@@ -22,6 +22,10 @@ class _GetuserState extends State<Getuser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('User Info'),
+      ),
       body: Column(
         children: [
           FutureBuilder<List<UserModel>>(
@@ -104,14 +108,13 @@ class _GetuserState extends State<Getuser> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(onPressed: (){
-          Navigator.pushNamed(
-                    context, RoutesName.Adduserinfo);
-      } ,
-      child: Icon(Icons.person_add_alt_1),),
-    )
-   
-    ;
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, RoutesName.Adduserinfo);
+        },
+        child: Icon(Icons.person_add_alt_1),
+      ),
+    );
   }
 
   void updateUserinfo(Oname, Odescription, OmaxSlots, sId) async {
