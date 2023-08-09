@@ -3,24 +3,28 @@ import 'package:http/http.dart' as http;
 
 var baseUri = 'https://appointments-backend.vercel.app';
 
+Future<Map<String, dynamic>?> addUser(
+    name, description, maxSlots, dates) async {
+  final apiUrl = "$baseUri/add-user";
 
-var postUserInfo = ({name, description, maxSlots,date}) async {
+  final Map<String, dynamic> data = {
+    "name": name,
+    "description": description,
+    "MaxSlots": maxSlots,
+    "date": dates,
+  };
+
   final response = await http.post(
-    Uri.parse('$baseUri/add-user'),
-    body: jsonEncode({
-      "name": name,
-      "description": description,
-      "MaxSlots": maxSlots,
-      "date": date
-    }),
+    Uri.parse(apiUrl),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode(data),
   );
 
   if (response.statusCode == 200) {
-    print('User info added successfully');
-    return response;
+    final jsonData = jsonDecode(response.body);
+    return jsonData;
   } else {
-    print('Failed to add user info');
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    print("Failed to add user. Error: ${response.body}");
+    return null; // Return null in case of failure
   }
-};
+}

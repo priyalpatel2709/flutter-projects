@@ -2,6 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import '../services/service.dart';
 
 class Adduserinfo extends StatefulWidget {
   const Adduserinfo({Key? key}) : super(key: key);
@@ -24,6 +28,8 @@ class _AdduserinfoState extends State<Adduserinfo> {
     datePicker.dispose();
     super.dispose();
   }
+
+  List<String> datesInfo = [];
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +68,11 @@ class _AdduserinfoState extends State<Adduserinfo> {
                 lastDate: DateTime(2025),
               );
               if (pickedDate != null) {
-                String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-                    .format(pickedDate.toUtc());
+                String formattedDate =
+                    DateFormat("yyyy-MM-dd").format(pickedDate);
                 setState(() {
                   datePicker.text = formattedDate;
+                  datesInfo.add(formattedDate);
                 });
               }
             },
@@ -77,16 +84,36 @@ class _AdduserinfoState extends State<Adduserinfo> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  print('${nameController.text}');
-                  print('${descriptionController.text}');
-                  print('${maxSlotController.text}');
-                  print('datePicker: ${datePicker.text}');
+                onPressed: () async {
+                  var result = await addUser(
+                      nameController.text,
+                      descriptionController.text,
+                      maxSlotController.text,
+                      datesInfo);
+                  print(result);
                 },
                 child: Text('Submit'),
               ),
-              ElevatedButton(onPressed: (){}, child: Text('Add MoreDates'))
+              ElevatedButton(
+                  onPressed: () {
+                    datePicker.clear();
+                  },
+                  child: Text('Add MoreDates'))
             ],
+          ),
+          Visibility(
+            visible: datesInfo.isNotEmpty,
+            child: Text(
+              'Selected Dates:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: datesInfo.length,
+            itemBuilder: (context, index) {
+              return Text(datesInfo[index].toString());
+            },
           ),
         ],
       ),
