@@ -111,22 +111,14 @@ Future<String> updateUser(
   }
 }
 
-Future<Map<String, dynamic>> addSubscriptions() async {
+Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
   final apiUrl = "$baseUri/subscriptions";
   
   try {
-    final Map<String, dynamic> data = {
-      "name": 'maya',
-      "gridDetails": [
-        {"date": "2023-08-09", "startTime": "19:01", "endTime": "19:03"}
-      ],
-      "slotname": 'priyal',
-    };
-
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(data),
+      body: jsonEncode(Subscription),
     );
 
     if (response.statusCode == 200) {
