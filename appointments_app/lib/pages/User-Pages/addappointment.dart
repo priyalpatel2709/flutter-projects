@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../services/service.dart';
 import '../../utilits/alert_dailog.dart';
 import '../../utilits/date-time-alert.dart';
+import '../../utilits/routes_name.dart';
 
 class Addappointment extends StatefulWidget {
   const Addappointment({Key? key}) : super(key: key);
@@ -158,15 +159,13 @@ class _AddappointmentState extends State<Addappointment> {
                               print("Error:- ${result['error']}");
                               // print("Dates:- ${result['result']}");
                               List<dynamic> dynamicTimeSlots = result['result'];
-                                print(dynamicTimeSlots);
+                              print(dynamicTimeSlots);
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return 
-                                     DateTimeAlert(
-                                      data: dynamicTimeSlots,
-                                    );
-                                 
+                                  return DateTimeAlert(
+                                    data: dynamicTimeSlots,
+                                  );
                                 },
                               );
                             }
@@ -178,6 +177,12 @@ class _AddappointmentState extends State<Addappointment> {
                   ],
                 ),
               ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, RoutesName.Getuser);
+        },
+        child: Icon(Icons.person),
       ),
     );
   }

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import '../../model/usermodel.dart';
@@ -6,6 +6,12 @@ import '../../services/service.dart';
 import '../../utilits/alert_dailog.dart';
 import '../../utilits/routes_name.dart';
 import '../../utilits/uitis.dart'; // Make sure you have the correct import here
+
+enum SampleItem {
+  checkAppoinment,
+  update,
+  delete,
+}
 
 class Getuser extends StatefulWidget {
   const Getuser({Key? key}) : super(key: key);
@@ -18,6 +24,42 @@ class _GetuserState extends State<Getuser> {
   var nameController = TextEditingController();
   var slotController = TextEditingController();
   var descriptionController = TextEditingController();
+
+  SampleItem? selectedMenu;
+
+  void handleItemSelected(SampleItem item, UserModel user) async {
+    setState(() {
+      selectedMenu = item;
+    });
+
+    // Perform actions based on the selected item
+    switch (item) {
+      case SampleItem.checkAppoinment:
+        // Perform action for Item 1
+        print('ckeck appoinment clicked');
+        break;
+      case SampleItem.update:
+        // Perform action for Item 2
+        updateUserinfo(user.name, user.description, user.maxSlots, user.sId);
+        break;
+      case SampleItem.delete:
+        var deleteuserwithid = await deleteuser(user.sId.toString());
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: deleteuserwithid['result'] ==
+                      '${user.name} deleted successfully'
+                  ? 'successfully'
+                  : 'Fail',
+              message: "${deleteuserwithid['result'].toString()}",
+            );
+          },
+        );
+        setState(() {});
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,52 +93,85 @@ class _GetuserState extends State<Getuser> {
                           return Card(
                             child: ListTile(
                                 title: Text(user.name.toString()),
-                                subtitle: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                subtitle: Column(
+                                  // mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(user.description.toString()),
-                                    SizedBox(width: 5),
+                                    user.description == ''
+                                        ? SizedBox(
+                                            height: 1,
+                                          )
+                                        : Text(user.description.toString()),
+                                    // SizedBox(width: 5),
                                     Text(
                                         'Max-Slot ${user.maxSlots.toString()}'),
                                   ],
                                 ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        var deleteuserwithid = await deleteuser(
-                                            user.sId.toString());
-                                        print(deleteuserwithid['result']
-                                            .toString());
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return ErrorDialog(
-                                              title: 'successfully',
-                                              message:
-                                                  "${deleteuserwithid['result'].toString()}",
-                                            );
-                                          },
-                                        );
-
-                                        setState(() {});
-                                      },
-                                      child: Text('Delete'),
+                                trailing: PopupMenuButton<SampleItem>(
+                                  initialValue: selectedMenu,
+                                  onSelected: (item) =>
+                                      handleItemSelected(item, user),
+                                  itemBuilder: (BuildContext context) =>
+                                      <PopupMenuEntry<SampleItem>>[
+                                    PopupMenuItem<SampleItem>(
+                                      value: SampleItem.checkAppoinment,
+                                      child: Text('Check-Appoiments'),
                                     ),
-                                    SizedBox(width: 10),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        updateUserinfo(
-                                            user.name,
-                                            user.description,
-                                            user.maxSlots,
-                                            user.sId);
-                                      },
+                                    PopupMenuItem<SampleItem>(
+                                      value: SampleItem.update,
                                       child: Text('Update'),
                                     ),
+                                    PopupMenuItem<SampleItem>(
+                                      value: SampleItem.delete,
+                                      child: Text('Delete'),
+                                      // onTap: () {
+                                      //   handleItemSelected(
+                                      //       SampleItem.delete, user);
+                                      // },
+                                    ),
                                   ],
-                                )),
+                                )
+
+                                //  Row(
+                                //   mainAxisSize: MainAxisSize.min,
+                                //   children: [
+                                //     ElevatedButton(
+                                // onPressed: () async {
+                                //   var deleteuserwithid = await deleteuser(
+                                //       user.sId.toString());
+                                //   print(deleteuserwithid['result']
+                                //       .toString());
+                                //   showDialog(
+                                //     context: context,
+                                //     builder: (BuildContext context) {
+                                //       return ErrorDialog(
+                                //         title: 'successfully',
+                                //         message:
+                                //             "${deleteuserwithid['result'].toString()}",
+                                //       );
+                                //     },
+                                //   );
+
+                                //         setState(() {});
+                                //       },
+                                //       child: Text('Delete'),
+                                //     ),
+                                //     SizedBox(width: 10),
+                                //     ElevatedButton(
+                                //       onPressed: () {
+                                //         updateUserinfo(
+                                //             user.name,
+                                //             user.description,
+                                //             user.maxSlots,
+                                //             user.sId);
+                                //       },
+                                //       child: Text('Update'),
+                                //     ),
+                                //   ],
+                                // )
+
+                                ),
                           );
                         },
                       ),
