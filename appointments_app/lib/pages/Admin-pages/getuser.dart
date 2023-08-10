@@ -1,9 +1,12 @@
 // ignore_for_file: use_build_context_synchronously, prefer_const_constructors
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import '../../model/usermodel.dart';
 import '../../services/service.dart';
 import '../../utilits/alert_dailog.dart';
+import '../../utilits/ckeck_appoinments_dailog.dart';
 import '../../utilits/routes_name.dart';
 import '../../utilits/uitis.dart'; // Make sure you have the correct import here
 
@@ -26,7 +29,7 @@ class _GetuserState extends State<Getuser> {
   var descriptionController = TextEditingController();
 
   SampleItem? selectedMenu;
-
+  String? selectedAppointmentDate;
   void handleItemSelected(SampleItem item, UserModel user) async {
     setState(() {
       selectedMenu = item;
@@ -36,7 +39,30 @@ class _GetuserState extends State<Getuser> {
     switch (item) {
       case SampleItem.checkAppoinment:
         // Perform action for Item 1
+        List<String> availableDates = [];
         print('ckeck appoinment clicked');
+        for (var i = 0; i < user.bookedSlots!.length; i++) {
+          
+          availableDates.add("${user.bookedSlots![i].date}");
+          
+        }
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AppointmentDialog(
+                availableDates: availableDates,
+                onCheck: (date) async {
+                  if (date != null) {
+                    selectedAppointmentDate = date;
+                    print('date $date');
+                    var result = await fetchUserAppointments(date,user.name);
+                    // Navigator.of(context).pop();
+                  }
+                },
+              );
+            });
+        print('availableDates $availableDates');
+        // print(user.bookedSlots!.length);
         break;
       case SampleItem.update:
         // Perform action for Item 2

@@ -127,10 +127,21 @@ Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
       return jsonData; // Return the jsonData
     } else {
       print("Failed to add subscription. Error: ${response.body}");
-      throw Exception("Failed to add subscription"); // Throw an exception for better error handling
+      throw Exception("Failed to add subscription"); 
     }
   } catch (error) {
     print("Error during subscription request: $error");
-    throw Exception("Error during subscription request"); // Throw an exception for better error handling
+    throw Exception("Error during subscription request"); 
   }
+}
+
+
+Future <dynamic> fetchUserAppointments(date,name) async {
+   final apiUrl = "$base64Url/booked-time-slots";
+   try{
+     
+   }catch(err){
+    print("Error during subscription request: $err");
+    throw Exception("Error during subscription request");
+   }
 }
