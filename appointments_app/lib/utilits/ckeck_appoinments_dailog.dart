@@ -15,10 +15,10 @@ class AppointmentDialog extends StatefulWidget {
 }
 
 class _AppointmentDialogState extends State<AppointmentDialog> {
+  String? selectedDate;
+  List<dynamic>? bookedTimeSlots;
   @override
   Widget build(BuildContext context) {
-    String? selectedDate;
-    List<dynamic>? bookedTimeSlots;
     print('bookedTimeSlots-22 $bookedTimeSlots');
     return AlertDialog(
       title: Text('Check Appointments'),
