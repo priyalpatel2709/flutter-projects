@@ -62,7 +62,7 @@ class _GetuserState extends State<Getuser> {
                       var result =
                           await fetchUserAppointments(formattedDate, user.name!);
 
-                      print('result-60 $result');
+                      return result['bookedTimeSlots'];
                     } else {
                       showDialog(
                         context: context,

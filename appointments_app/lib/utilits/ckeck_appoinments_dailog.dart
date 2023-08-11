@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AppointmentDialog extends StatelessWidget {
+class AppointmentDialog extends StatefulWidget {
   final List<String> availableDates;
   final Function(String?) onCheck;
-  
 
   AppointmentDialog({
     required this.availableDates,
     required this.onCheck,
-    
   });
 
   @override
+  State<AppointmentDialog> createState() => _AppointmentDialogState();
+}
+
+class _AppointmentDialogState extends State<AppointmentDialog> {
+  @override
   Widget build(BuildContext context) {
     String? selectedDate;
-
+    List<dynamic>? bookedTimeSlots;
+    print('bookedTimeSlots-22 $bookedTimeSlots');
     return AlertDialog(
       title: Text('Check Appointments'),
       content: StatefulBuilder(
@@ -30,9 +34,8 @@ class AppointmentDialog extends StatelessWidget {
                     selectedDate = newValue;
                   });
                 },
-                items: availableDates.map((date) {
-                  DateTime parsedDate = DateTime.parse(
-                      date);
+                items: widget.availableDates.map((date) {
+                  DateTime parsedDate = DateTime.parse(date);
                   String formattedDate =
                       DateFormat("dd-MM-yyyy").format(parsedDate);
 
@@ -42,7 +45,20 @@ class AppointmentDialog extends StatelessWidget {
                   );
                 }).toList(),
               ),
+              if (bookedTimeSlots != null && bookedTimeSlots!.isNotEmpty)
+                Column(
+                  children: bookedTimeSlots!.map((slot) {
+                    String startTime = slot['startTime'];
+                    String endTime = slot['endTime'];
+                    String name = slot['name'];
 
+                    return ListTile(
+                      title: Text('Name: $name'),
+                      subtitle:
+                          Text('Start Time: $startTime\nEnd Time: $endTime'),
+                    );
+                  }).toList(),
+                ),
             ],
           );
         },
@@ -50,8 +66,20 @@ class AppointmentDialog extends StatelessWidget {
       actions: [
         TextButton(
           child: Text('Check'),
-          onPressed: () {
-            onCheck(selectedDate);
+          onPressed: () async {
+            final result = await widget.onCheck(selectedDate);
+            print('result -65 $result');
+            if (result is List<dynamic>) {
+              print('i am ?');
+              bookedTimeSlots = result;
+              setState(() {});
+            } else {
+              print('or me?');
+              bookedTimeSlots = null; // Clear the bookedTimeSlots list
+              setState(() {});
+            }
+
+            //  bookedTimeSlots=result;
           },
         ),
         TextButton(
