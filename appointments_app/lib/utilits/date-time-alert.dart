@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 class DateTimeAlert extends StatelessWidget {
-  final List data;
+  final List? data;
+  final String message;
 
-  DateTimeAlert({Key? key, required this.data}) : super(key: key);
-
+  DateTimeAlert({Key? key,this.data,required this.message }) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
+    print('data $data');
     return AlertDialog(
-      title: Text('Booked Time'),
+      title: Text(message),
       actions: [
         TextButton(
           child: Text('Dismiss'),
@@ -21,7 +23,8 @@ class DateTimeAlert extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var slot in data)
+            if(data != null)
+            for (var slot in data!)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

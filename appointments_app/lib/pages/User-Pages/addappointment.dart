@@ -187,7 +187,8 @@ class _AddappointmentState extends State<Addappointment> {
                           };
                           if (nameController.text != '' &&
                               startTimeController.text != '' &&
-                              dateController.text != '') {
+                              dateController.text != '' &&
+                              _chosenValue != '') {
                             var result = await addSubscriptions(Subscription);
                             if (result != null) {
                               loading = false;
@@ -207,20 +208,19 @@ class _AddappointmentState extends State<Addappointment> {
                                 loading = false;
                                 setState(() {});
                                 print("Error:- ${result['error']}");
-                                // print(result['result']['dates']['RestOfDates']);
                                 List<String> restOfDates = List<String>.from(
                                     result['result']['dates']['RestOfDates']);
 
-                                List<String> dynamicTimeSlots = restOfDates
-                                    .map((date) => "['$date']")
-                                    .toList();
+                                List<String> dynamicTimeSlots = [
+                                  "'${restOfDates.first}'"
+                                ];
 
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return DateTimeAlert(
                                       data: dynamicTimeSlots,
-                                      // message: result['result']['message'],
+                                      message: result['result']['message'],
                                     );
                                   },
                                 );
