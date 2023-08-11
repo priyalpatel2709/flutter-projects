@@ -41,7 +41,7 @@ class _GetuserState extends State<Getuser> {
       case SampleItem.checkAppoinment:
         // Perform action for Item 1
         List<String> availableDates = [];
-        print('ckeck appoinment clicked');
+        // print('ckeck appoinment clicked');
         for (var i = 0; i < user.bookedSlots!.length; i++) {
           availableDates.add("${user.bookedSlots![i].date}");
         }
@@ -57,7 +57,7 @@ class _GetuserState extends State<Getuser> {
                         date);
                     String formattedDate =
                         DateFormat("yyyy-MM-dd").format(parsedDate);
-                        print('formattedDate $formattedDate');
+                        // print('formattedDate $formattedDate');
                     if (user.name != null) {
                       var result =
                           await fetchUserAppointments(formattedDate, user.name!);
@@ -80,7 +80,7 @@ class _GetuserState extends State<Getuser> {
                 },
               );
             });
-        print('availableDates $availableDates');
+        // print('availableDates $availableDates');
         // print(user.bookedSlots!.length);
         break;
       case SampleItem.update:
@@ -290,7 +290,7 @@ class _GetuserState extends State<Getuser> {
                       slot,
                       description,
                     );
-                    print('result $result');
+                    // print('result $result');
 
                     if (result == 'update successfully') {
                       nameController.clear();

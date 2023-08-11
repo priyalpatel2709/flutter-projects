@@ -17,9 +17,10 @@ class AppointmentDialog extends StatefulWidget {
 class _AppointmentDialogState extends State<AppointmentDialog> {
   String? selectedDate;
   List<dynamic>? bookedTimeSlots;
+  var noApponments = false;
   @override
   Widget build(BuildContext context) {
-    print('bookedTimeSlots-22 $bookedTimeSlots');
+    // print('bookedTimeSlots-22 $bookedTimeSlots');
     return AlertDialog(
       title: Text('Check Appointments'),
       content: StatefulBuilder(
@@ -59,6 +60,9 @@ class _AppointmentDialogState extends State<AppointmentDialog> {
                     );
                   }).toList(),
                 ),
+
+               if(noApponments)
+               Center(child: Text('No Appointments :)'),) 
             ],
           );
         },
@@ -68,16 +72,22 @@ class _AppointmentDialogState extends State<AppointmentDialog> {
           child: Text('Check'),
           onPressed: () async {
             final result = await widget.onCheck(selectedDate);
-            print('result -65 $result');
-            if (result is List<dynamic>) {
-              print('i am ?');
-              bookedTimeSlots = result;
-              setState(() {});
-            } else {
-              print('or me?');
-              bookedTimeSlots = null; // Clear the bookedTimeSlots list
+            // print('result -65 $result');
+          
+            
+             bookedTimeSlots = result;
+            print(bookedTimeSlots!.length);
+            if(bookedTimeSlots!.isEmpty){
+              noApponments = true;
+              setState(() {
+                
+              });
+              print('ja be bc');
+            }else{
+              noApponments = false;
               setState(() {});
             }
+            setState(() {});
 
             //  bookedTimeSlots=result;
           },

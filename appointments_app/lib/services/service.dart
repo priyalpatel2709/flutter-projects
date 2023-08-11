@@ -145,10 +145,10 @@ Future<dynamic> fetchUserAppointments(
 
   final Uri uri = Uri.https(
       'appointments-backend.vercel.app', '/booked-time-slots', queryParameters);
-  print(uri);
+  // print(uri);
   try {
     final http.Response response = await http.get(uri);
-    print('response-151 ${response.body}');
+    // print('response-151 ${response.body}');
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       return jsonData;
