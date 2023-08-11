@@ -7,19 +7,16 @@ class AppointmentsOfUser {
   AppointmentsOfUser.fromJson(Map<String, dynamic> json) {
     user = json['user'];
     if (json['bookedTimeSlots'] != null) {
-      bookedTimeSlots = <BookedTimeSlots>[];
-      json['bookedTimeSlots'].forEach((v) {
-        bookedTimeSlots!.add(new BookedTimeSlots.fromJson(v));
-      });
+      var slotsJson = json['bookedTimeSlots'] as List<dynamic>;
+      bookedTimeSlots = slotsJson.map((slot) => BookedTimeSlots.fromJson(slot)).toList();
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user'] = this.user;
-    if (this.bookedTimeSlots != null) {
-      data['bookedTimeSlots'] =
-          this.bookedTimeSlots!.map((v) => v.toJson()).toList();
+    data['user'] = user;
+    if (bookedTimeSlots != null) {
+      data['bookedTimeSlots'] = bookedTimeSlots!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -32,17 +29,19 @@ class BookedTimeSlots {
 
   BookedTimeSlots({this.startTime, this.endTime, this.name});
 
-  BookedTimeSlots.fromJson(Map<String, dynamic> json) {
-    startTime = json['startTime'];
-    endTime = json['endTime'];
-    name = json['name'];
+  factory BookedTimeSlots.fromJson(Map<String, dynamic> json) {
+    return BookedTimeSlots(
+      startTime: json['startTime'],
+      endTime: json['endTime'],
+      name: json['name'],
+    );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['startTime'] = this.startTime;
-    data['endTime'] = this.endTime;
-    data['name'] = this.name;
+    data['startTime'] = startTime;
+    data['endTime'] = endTime;
+    data['name'] = name;
     return data;
   }
 }

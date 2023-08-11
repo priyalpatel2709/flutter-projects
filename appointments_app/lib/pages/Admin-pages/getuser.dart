@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../model/usermodel.dart';
 import '../../services/service.dart';
 import '../../utilits/alert_dailog.dart';
@@ -42,9 +43,7 @@ class _GetuserState extends State<Getuser> {
         List<String> availableDates = [];
         print('ckeck appoinment clicked');
         for (var i = 0; i < user.bookedSlots!.length; i++) {
-          
           availableDates.add("${user.bookedSlots![i].date}");
-          
         }
         showDialog(
             context: context,
@@ -55,7 +54,28 @@ class _GetuserState extends State<Getuser> {
                   if (date != null) {
                     selectedAppointmentDate = date;
                     print('date $date');
-                    var result = await fetchUserAppointments(date,user.name);
+                    DateTime parsedDate = DateTime.parse(
+                        date); // Parse the ISO 8601 formatted string
+                    String formattedDate =
+                        DateFormat("yyyy-MM-dd").format(parsedDate);
+                        print('formattedDate $formattedDate');
+                    if (user.name != null) {
+                      var result =
+                          await fetchUserAppointments(formattedDate, user.name!);
+
+                      print('result-60 $result');
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ErrorDialog(
+                            title: 'Fail',
+                            message: "some thing went wrong !!!",
+                          );
+                        },
+                      );
+                    }
+
                     // Navigator.of(context).pop();
                   }
                 },
