@@ -53,9 +53,8 @@ class _GetuserState extends State<Getuser> {
                 onCheck: (date) async {
                   if (date != null) {
                     selectedAppointmentDate = date;
-                    print('date $date');
                     DateTime parsedDate = DateTime.parse(
-                        date); // Parse the ISO 8601 formatted string
+                        date);
                     String formattedDate =
                         DateFormat("yyyy-MM-dd").format(parsedDate);
                         print('formattedDate $formattedDate');

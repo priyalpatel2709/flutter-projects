@@ -4,10 +4,12 @@ import 'package:intl/intl.dart';
 class AppointmentDialog extends StatelessWidget {
   final List<String> availableDates;
   final Function(String?) onCheck;
+  
 
   AppointmentDialog({
     required this.availableDates,
     required this.onCheck,
+    
   });
 
   @override
@@ -28,18 +30,19 @@ class AppointmentDialog extends StatelessWidget {
                     selectedDate = newValue;
                   });
                 },
-                items: availableDates
-      .map((date) {
-        DateTime parsedDate = DateTime.parse(date); // Parse the ISO 8601 formatted string
-        String formattedDate = DateFormat("dd-MM-yyyy").format(parsedDate);
-        
-        return DropdownMenuItem<String>(
-          value: date,
-          child: Text(formattedDate),
-        );
-      })
-      .toList(),
+                items: availableDates.map((date) {
+                  DateTime parsedDate = DateTime.parse(
+                      date);
+                  String formattedDate =
+                      DateFormat("dd-MM-yyyy").format(parsedDate);
+
+                  return DropdownMenuItem<String>(
+                    value: date,
+                    child: Text(formattedDate),
+                  );
+                }).toList(),
               ),
+
             ],
           );
         },

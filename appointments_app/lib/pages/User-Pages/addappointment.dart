@@ -123,11 +123,6 @@ class _AddappointmentState extends State<Addappointment> {
                         onPressed: () async {
                           loading = true;
                           setState(() {});
-                          print(nameController.text);
-                          print(startTimeController.text);
-                          print(endTimeController.text);
-                          print(dateController.text);
-
                           var Subscription = {
                             "name": nameController.text,
                             "gridDetails": [
@@ -139,39 +134,67 @@ class _AddappointmentState extends State<Addappointment> {
                             ],
                             "slotname": 'Jaya',
                           };
-
-                          var result = await addSubscriptions(Subscription);
-                          if (result != null) {
-                            loading = false;
-                            setState(() {});
-                            if (result['name'] != null) {
+                          if (nameController.text != '' &&
+                              startTimeController.text != '' &&
+                              dateController.text != '') {
+                            var result = await addSubscriptions(Subscription);
+                            if (result != null) {
+                              loading = false;
+                              setState(() {});
+                              if (result['name'] != null) {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return ErrorDialog(
+                                      title: 'successfully',
+                                      message:
+                                          '${result['name']} Your  Appointment Booked successfully :)',
+                                    );
+                                  },
+                                );
+                              } else {
+                                loading = false;
+                                setState(() {});
+                                print("Error:- ${result['error']}");
+                                List<dynamic> dynamicTimeSlots =
+                                    result['result'];
+                                print(dynamicTimeSlots);
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return DateTimeAlert(
+                                      data: dynamicTimeSlots,
+                                    );
+                                  },
+                                );
+                              }
+                            } else {
+                              loading = false;
+                              setState(() {});
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return ErrorDialog(
-                                    title: 'successfully',
+                                    title: 'Fail',
                                     message:
-                                        '${result['name']} Your  Appointment Booked successfully :)',
-                                  );
-                                },
-                              );
-                            } else {
-                              print("Error:- ${result['error']}");
-                              // print("Dates:- ${result['result']}");
-                              List<dynamic> dynamicTimeSlots = result['result'];
-                              print(dynamicTimeSlots);
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return DateTimeAlert(
-                                    data: dynamicTimeSlots,
+                                        'some thing went wrong !! not able to get responce form backend',
                                   );
                                 },
                               );
                             }
+                          } else {
+                            loading = false;
+                            setState(() {});
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return ErrorDialog(
+                                  title: 'Fail',
+                                  message: 'Add details !!!',
+                                );
+                              },
+                            );
                           }
-                          print(result);
-                          print(result['name']);
                         },
                         child: Text('Book Appointment')),
                   ],
