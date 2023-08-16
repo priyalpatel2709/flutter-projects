@@ -258,6 +258,9 @@ class _AddappointmentState extends State<Addappointment> {
                           }
                         },
                         child: Text('Book Appointment')),
+                        TextButton(onPressed: (){
+                          Navigator.pushNamed(context, RoutesName.GetAppointments);
+                        }, child: Text('Nagigat To Appointments'))
                   ],
                 ),
               ),

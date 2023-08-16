@@ -28,7 +28,12 @@ class _GetAppointmentsState extends State<GetAppointments> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Column(
+                    children: [
+                      Text('Error: ${snapshot.error}'),
+                      Text('No Data in DB'),
+                    ],
+                  ));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No data available'));
                 } else {
@@ -36,7 +41,7 @@ class _GetAppointmentsState extends State<GetAppointments> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final appointment = snapshot.data![index];
-
+                        print(snapshot.data);
                       return Card(
                         child: ListTile(
                           title: Text(
@@ -93,6 +98,7 @@ class _GetAppointmentsState extends State<GetAppointments> {
                               setState(() {});
                               final deleteAppointment =
                                   await DeleteAppointment(appointment.sId);
+                                  print('deleteAppointment $deleteAppointment');
                               if (deleteAppointment['result'] ==
                                   'Subscription deleted successfully.') {
                                     showLoading = false;
