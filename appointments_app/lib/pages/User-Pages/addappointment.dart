@@ -14,7 +14,8 @@ import '../../utilits/date-time-alert.dart';
 import '../../utilits/routes_name.dart';
 
 class Addappointment extends StatefulWidget {
-  const Addappointment({Key? key}) : super(key: key);
+  dynamic data;
+  Addappointment({Key? key, required this.data}) : super(key: key);
 
   @override
   _AddappointmentState createState() => _AddappointmentState();
@@ -39,6 +40,8 @@ class _AddappointmentState extends State<Addappointment> {
     getUserNames();
   }
 
+  
+
   @override
   void didPopNext() {
     // super.didPopNext();
@@ -55,6 +58,7 @@ class _AddappointmentState extends State<Addappointment> {
 
   @override
   Widget build(BuildContext context) {
+    print('name ${widget.data['name']}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

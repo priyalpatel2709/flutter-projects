@@ -21,7 +21,7 @@ class Routes {
         return MaterialPageRoute(builder: (context) => Adduserinfo());
 
       case RoutesName.Addappointment:
-        return MaterialPageRoute(builder: (context) => Addappointment());
+        return MaterialPageRoute(builder: (context) => Addappointment(data: settings.arguments as Map));
 
       case RoutesName.GetAppointments:
         return MaterialPageRoute(builder: (context) => GetAppointments());

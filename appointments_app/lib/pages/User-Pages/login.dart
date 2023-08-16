@@ -13,7 +13,6 @@ import '../../utilits/uitis.dart';
 import 'addappointment.dart';
 import 'singup.dart';
 
-
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -22,23 +21,21 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
   var _mybox = Hive.box('user');
 
-  User  userinfo = User();
+  User userinfo = User();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(_mybox.get('USER') == null){
+    if (_mybox.get('USER') == null) {
       userinfo.userloging();
-    }else{
+    } else {
       userinfo.userAdd();
       // Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> Demopage()) );
     }
   }
-
 
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
@@ -54,11 +51,16 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('Log In',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
-          SizedBox(height: 12,),
+          Text(
+            'Log In',
+            style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(
+            height: 12,
+          ),
           TextField(
             controller: emailcontoller,
-            decoration:  myInput(labelText :'Email'),
+            decoration: myInput(labelText: 'Email'),
           ),
           SizedBox(
             height: 12,
@@ -67,8 +69,7 @@ class _LoginState extends State<Login> {
               // enabled: false,
               controller: passwordcontoller,
               obscureText: true,
-              decoration:  myInput(labelText :'PassWord')
-          ),
+              decoration: myInput(labelText: 'PassWord')),
           SizedBox(
             height: 12,
           ),
@@ -80,21 +81,21 @@ class _LoginState extends State<Login> {
               child: loading ? CircularProgressIndicator() : Text('Login')),
           TextButton(
               onPressed: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context) => Singup()),);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Singup()),
+                );
               },
               child: Text('Go To Sing Up')),
-           ],
-          ),
-        )
-      )
-    );
+        ],
+      ),
+    )));
   }
 
   void login(email, password) async {
     loading = true;
     setState(() {});
-      
-    
+
     try {
       final response =
           await http.post(Uri.parse('https://srever-ecomm.vercel.app/login'),
@@ -110,14 +111,13 @@ class _LoginState extends State<Login> {
         UserLonin user = UserLonin.fromJson(userJson);
 
         print('User Name: ${user.name}');
-        userinfo.userData.add([user.id,user.name,user.email]);
+        userinfo.userData.add([user.id, user.name, user.email]);
         userinfo.userAdd();
-        setState(() {
-          
-        });
-        
-        Navigator.pushReplacementNamed(context,RoutesName.Addappointment );
-              } else {
+        setState(() {});
+
+        Navigator.pushReplacementNamed(context, RoutesName.Addappointment,
+            arguments: {'name': user.name});
+      } else {
         loading = false;
         return showDialog(
           context: context,
@@ -125,9 +125,11 @@ class _LoginState extends State<Login> {
             return AlertDialog(
               title: Text('Somethig went wrong..'),
               actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Ok'))
               ],
             );
           },
@@ -136,19 +138,21 @@ class _LoginState extends State<Login> {
     } catch (e) {
       loading = false;
       setState(() {});
-       return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Somethig went wrong.. $e'),
-              actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
-              ],
-            );
-          },
-        );
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Somethig went wrong.. $e'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Ok'))
+            ],
+          );
+        },
+      );
     }
   }
 }

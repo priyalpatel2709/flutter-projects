@@ -18,10 +18,14 @@ class User {
     _mybox.put(key, userData);
   }
 
-  void getinfo(){
+  String getinfo(){
     var data = _mybox.get(key);
-    print(data);
+    // print(data);
+    return data;
+    
   }
+
+  List get userData12 => _mybox.get(key) ?? [];
 
   void clearUserData() {
     _mybox.clear();

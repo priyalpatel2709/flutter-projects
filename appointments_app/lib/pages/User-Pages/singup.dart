@@ -69,7 +69,7 @@ class _SingupState extends State<Singup> {
         userinfo.userAdd();
         // print('User Email: ${user.email}');
         setState(() {});
-        Navigator.pushReplacementNamed(context,RoutesName.Addappointment );
+        Navigator.pushReplacementNamed(context,RoutesName.Addappointment,arguments: {'name': name} );
         // print(authData);
       } else {
         loading = false;
