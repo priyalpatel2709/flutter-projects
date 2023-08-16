@@ -109,8 +109,6 @@ class _LoginState extends State<Login> {
         final jsonData = jsonDecode(response.body);
         final userJson = jsonData['user'];
         UserLonin user = UserLonin.fromJson(userJson);
-
-        print('User Name: ${user.name}');
         userinfo.userData.add([user.id, user.name, user.email]);
         userinfo.userAdd();
         setState(() {});

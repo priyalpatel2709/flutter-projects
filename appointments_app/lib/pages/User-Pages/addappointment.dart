@@ -40,20 +40,6 @@ class _AddappointmentState extends State<Addappointment> {
     getUserNames();
   }
 
-  
-
-  @override
-  void didPopNext() {
-    // super.didPopNext();
-    if (_needApiCall) {
-      print('did it work?');
-      // Call your API here
-      print('Calling API because page is revealed again');
-      // After calling API, set _needApiCall to false to avoid repeated calls
-      _needApiCall = false;
-    }
-  }
-
   User userinfo = User();
 
   @override
@@ -295,7 +281,6 @@ class _AddappointmentState extends State<Addappointment> {
   void getUserNames() async {
     List<UserModel> userModels = await getUserInfo();
     for (UserModel user in userModels) {
-      print(user.name);
       items.add(user.name);
     }
   }

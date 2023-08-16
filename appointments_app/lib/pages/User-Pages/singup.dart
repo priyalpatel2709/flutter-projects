@@ -67,10 +67,10 @@ class _SingupState extends State<Singup> {
         UserSingup user = UserSingup.fromJson(userJson);
         userinfo.userData.add([user.id, user.name, user.email]);
         userinfo.userAdd();
-        // print('User Email: ${user.email}');
+        
         setState(() {});
         Navigator.pushReplacementNamed(context,RoutesName.Addappointment,arguments: {'name': name} );
-        // print(authData);
+     
       } else {
         loading = false;
         return showDialog(
