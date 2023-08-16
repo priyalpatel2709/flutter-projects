@@ -68,7 +68,7 @@ class _AppointmentsListState extends State<AppointmentsList> {
                         if (gridDetail.date != null) {
                           final parsedDate = DateTime.tryParse(gridDetail.date!);
                           if (parsedDate != null) {
-                            formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+                            formattedDate = DateFormat("dd-MM-yyyy").format(parsedDate);
                           }
                         }
 
