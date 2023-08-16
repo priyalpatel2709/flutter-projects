@@ -44,9 +44,6 @@ class _AddappointmentState extends State<Addappointment> {
 
   @override
   Widget build(BuildContext context) {
-    print('name ${widget.data['name']}');
-    print(_chosenValue != '');
-    print('_chosenValue $_chosenValue');
 
     return Scaffold(
       appBar: AppBar(
