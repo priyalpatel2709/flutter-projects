@@ -1,7 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../model/AppointmentsOfUser_model.dart';
 import '../../services/service.dart';
+import '../../utilits/alert_dailog.dart';
 
 class GetAppointments extends StatefulWidget {
   const GetAppointments({Key? key}) : super(key: key);
@@ -47,19 +50,25 @@ class _GetAppointmentsState extends State<GetAppointments> {
                         String formattedEndTime = 'N/A';
 
                         if (gridDetail.date != null) {
-                          final parsedDate = DateTime.tryParse(gridDetail.date!);
+                          final parsedDate =
+                              DateTime.tryParse(gridDetail.date!);
                           if (parsedDate != null) {
-                            formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+                            formattedDate =
+                                DateFormat("yyyy-MM-dd").format(parsedDate);
                           }
                         }
 
                         if (gridDetail.startTime != null) {
-                          final parsedStartTime = TimeOfDay.fromDateTime(DateTime.parse("2023-01-01 " + gridDetail.startTime!));
+                          final parsedStartTime = TimeOfDay.fromDateTime(
+                              DateTime.parse(
+                                  "2023-01-01 " + gridDetail.startTime!));
                           formattedStartTime = parsedStartTime.format(context);
                         }
 
                         if (gridDetail.endTime != null) {
-                          final parsedEndTime = TimeOfDay.fromDateTime(DateTime.parse("2023-01-01 " + gridDetail.endTime!));
+                          final parsedEndTime = TimeOfDay.fromDateTime(
+                              DateTime.parse(
+                                  "2023-01-01 " + gridDetail.endTime!));
                           formattedEndTime = parsedEndTime.format(context);
                         }
 
@@ -75,8 +84,26 @@ class _GetAppointmentsState extends State<GetAppointments> {
                       }).toList(),
                     ),
                     trailing: ElevatedButton(
-                      onPressed: () {
-                        print(appointment.sId);
+                      onPressed: () async {
+                        final deleteAppointment =
+                            await DeleteAppointment(appointment.sId);
+                        print(
+                            'deleteAppointment ${deleteAppointment['result']}');
+                        if (deleteAppointment['result'] ==
+                            'Subscription deleted successfully.') {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ErrorDialog(
+                                title: 'successfully',
+                                message: 'appointment deleted successfully.',
+                              );
+                            },
+                          );
+                          setState(() {});
+                        }
+
+                        // print(appointment.sId);
                       },
                       child: const Text('Delete'),
                     ),

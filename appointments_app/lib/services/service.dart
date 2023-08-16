@@ -185,3 +185,20 @@ Future <List<appointmentsOfUser>> getAppointmentsOfUser() async {
     throw Exception("Error during subscription request");
   }
 }
+
+Future <dynamic> DeleteAppointment(id) async {
+  var apiUrl = "$baseUri/subscriptions-delete/$id";
+  try{
+      final response = await http.delete(Uri.parse(apiUrl));
+      if(response.statusCode == 200){
+        return json.decode(response.body);
+      }else{
+       print('Delete request failed with status code ${response.statusCode}');
+       print('Delete request failed with body  ${response.body}');
+      return 'Delete operation failed'; 
+      }
+  }catch(err){
+    print("Error during subscription request: $err");
+    throw Exception("Error during subscription request");
+  }
+}
