@@ -29,6 +29,7 @@ class _GetAppointmentsState extends State<GetAppointments> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Error: ${snapshot.error}'),
                       Text('No Data in DB'),
