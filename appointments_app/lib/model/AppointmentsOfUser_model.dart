@@ -19,8 +19,8 @@ class appointmentsOfUser {
     name = json['name'];
     if (json['gridDetails'] != null) {
       gridDetails = <GridDetails>[];
-      json['gridDetails'].forEach((v) {
-        gridDetails!.add(GridDetails.fromJson(v));
+      (json['gridDetails'] as List<dynamic>).forEach((v) {
+        gridDetails!.add(GridDetails.fromJson(v as Map<String, dynamic>));
       });
     }
     iV = json['__v'];
