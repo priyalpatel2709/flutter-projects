@@ -1,4 +1,9 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+
+// import 'dart:js_util';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DateTimeAlert extends StatelessWidget {
   final List? data;
@@ -24,6 +29,9 @@ class DateTimeAlert extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text('You Can Check On...',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),), 
+            Divider(),
+            // divide(first, second)
             if (data != null && data is List) // Check if data is a List
               if (data!.isNotEmpty)
                 for (var slot in data!)
@@ -31,20 +39,44 @@ class DateTimeAlert extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text("Start Time: ${slot['startTime']}"),
-                        Text("End Time: ${slot['endTime']}"),
+                        Text("Start Time: ${formatTime(slot['startTime'])}"),
+                        Text("End Time: ${formatTime(slot['endTime'])}"),
                       ],
                     )
                   else // Response type 2 and 3
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
                       children: [
-                        Text("Date: ${DateTime.parse(slot).toLocal()}"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 
+                            Text("Date: ${formatDate(slot)}"),
+                          ],
+                        ),
                       ],
                     ),
           ],
         ),
       ),
     );
+  }
+
+  String formatTime(String time) {
+    final parsedTime = TimeOfDay(
+      hour: int.parse(time.split(':')[0]),
+      minute: int.parse(time.split(':')[1]),
+    );
+    return DateFormat.jm().format(DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      parsedTime.hour,
+      parsedTime.minute,
+    ));
+  }
+
+  String formatDate(String date) {
+    final parsedDate = DateTime.parse(date);
+    return DateFormat('dd-MM-yyyy').format(parsedDate);
   }
 }

@@ -56,8 +56,7 @@ class _GetuserState extends State<Getuser> {
                     DateTime parsedDate = DateTime.parse(
                         date);
                     String formattedDate =
-                        DateFormat("yyyy-MM-dd").format(parsedDate);
-                        // print('formattedDate $formattedDate');
+                        DateFormat("dd-MM-yyyy").format(parsedDate);
                     if (user.name != null) {
                       var result =
                           await fetchUserAppointments(formattedDate, user.name!);
