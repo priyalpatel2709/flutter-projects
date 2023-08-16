@@ -6,4 +6,5 @@ static const String GetAppointments = 'Get_Appointments';
 static const String Login = 'Login';
 static const String Singup = 'Singup';
 static const String Splashscreen = 'Splash_screen';
+static const String Onlyuserappointments = 'Onlyuser_appointments';
 }

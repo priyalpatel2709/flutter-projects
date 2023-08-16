@@ -5,6 +5,7 @@ import '../pages/Admin-pages/getuser.dart';
 import '../pages/User-Pages/addappointment.dart';
 import '../pages/Admin-pages/getAppointments.dart';
 import '../pages/User-Pages/login.dart';
+import '../pages/User-Pages/onlyuserappointments.dart';
 import '../pages/User-Pages/singup.dart';
 import '../pages/User-Pages/splashscreen.dart';
 import 'routes_name.dart';
@@ -34,6 +35,9 @@ class Routes {
 
       case RoutesName.Splashscreen:
         return MaterialPageRoute(builder: (context) => Splashscreen());
+
+      case RoutesName.Onlyuserappointments:
+        return MaterialPageRoute(builder: (context) => Onlyuserappointments());  
       default:
         return MaterialPageRoute(
           builder: (context) => Scaffold(

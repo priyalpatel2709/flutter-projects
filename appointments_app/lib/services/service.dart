@@ -148,7 +148,6 @@ Future<dynamic> fetchUserAppointments(String date, String name) async {
   // print(uri);
   try {
     final http.Response response = await http.get(uri);
-    // print('response-151 ${response.body}');
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       return jsonData;
@@ -194,6 +193,29 @@ Future<dynamic> DeleteAppointment(id) async {
       print('Delete request failed with status code ${response.statusCode}');
       print('Delete request failed with body  ${response.body}');
       return 'Delete operation failed';
+    }
+  } catch (err) {
+    print("Error during subscription request: $err");
+    throw Exception("Error during subscription request");
+  }
+}
+
+Future<dynamic> onlyUserAppointment(name) async {
+  final Map<String, String> queryParameters = {
+    'name': name,
+  };
+
+  final Uri uri = Uri.https(
+      'appointments-backend.vercel.app', '/user-appointments', queryParameters);
+
+  try {
+    final http.Response response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print("Request failed with status: ${response.statusCode}");
+      throw Exception("Error during subscription request");
     }
   } catch (err) {
     print("Error during subscription request: $err");
