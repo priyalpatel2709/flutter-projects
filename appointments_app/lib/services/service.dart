@@ -200,7 +200,7 @@ Future<dynamic> DeleteAppointment(id) async {
   }
 }
 
-Future<dynamic> onlyUserAppointment(name) async {
+Future<List<appointmentsOfUser>> onlyUserAppointment(name) async {
   final Map<String, String> queryParameters = {
     'name': name,
   };
@@ -210,9 +210,13 @@ Future<dynamic> onlyUserAppointment(name) async {
 
   try {
     final http.Response response = await http.get(uri);
+    var data = jsonDecode(response.body.toString());
     if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      return jsonData;
+      List<appointmentsOfUser> AppointmentsList = [];
+      for (var i in data) {
+        AppointmentsList.add(appointmentsOfUser.fromJson(i));
+      }
+      return AppointmentsList;
     } else {
       print("Request failed with status: ${response.statusCode}");
       throw Exception("Error during subscription request");

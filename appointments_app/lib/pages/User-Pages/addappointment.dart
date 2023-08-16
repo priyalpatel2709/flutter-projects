@@ -45,6 +45,9 @@ class _AddappointmentState extends State<Addappointment> {
   @override
   Widget build(BuildContext context) {
     print('name ${widget.data['name']}');
+    print(_chosenValue != '');
+    print('_chosenValue $_chosenValue');
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -189,7 +192,7 @@ class _AddappointmentState extends State<Addappointment> {
                             };
                             if (startTimeController.text != '' &&
                                 dateController.text != '' &&
-                                _chosenValue != '') {
+                                _chosenValue != null) {
                               var result = await addSubscriptions(Subscription);
                               if (result != null) {
                                 loading = false;
@@ -248,9 +251,17 @@ class _AddappointmentState extends State<Addappointment> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
+                                  var temp = '';
+                                  if (_chosenValue == null) {
+                                    temp = 'Select User';
+                                  } else if (dateController.text == '') {
+                                    temp = 'Select Date';
+                                  } else {
+                                    temp = 'Select Time';
+                                  }
                                   return ErrorDialog(
                                     title: 'Fail',
-                                    message: 'Add details !!!',
+                                    message: temp,
                                   );
                                 },
                               );
@@ -273,7 +284,11 @@ class _AddappointmentState extends State<Addappointment> {
               widget.data['name'] == 're'
           ? FloatingActionButton(
               onPressed: () {
-                Navigator.pushNamed(context, RoutesName.Getuser);
+                Navigator.pushNamed(context, RoutesName.Getuser
+                // ,arguments: {
+                //   'name' : widget.data['name'] 
+                // }
+                );
               },
               child: Icon(Icons.person),
             )
