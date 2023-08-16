@@ -6,6 +6,7 @@ import 'package:appointments_app/utilits/uitis.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/database.dart';
 import '../../model/usermodel.dart';
 import '../../services/service.dart';
 import '../../utilits/alert_dailog.dart';
@@ -50,84 +51,68 @@ class _AddappointmentState extends State<Addappointment> {
     }
   }
 
+  User userinfo = User();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Add Appointment'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                userinfo.clearUserData();
+                Navigator.pushReplacementNamed(context, RoutesName.Login);
+              },
+              icon: Icon(Icons.logout))
+        ],
       ),
       body: Center(
         child: loading
             ? CircularProgressIndicator()
-            : Container(
-                width: 300,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: DropdownButton<String>(
-                        value: _chosenValue,
-                        //elevation: 5,
-                        style: TextStyle(color: Colors.black),
-
-                        items: items.map<DropdownMenuItem<String>>((value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        hint: Text(
-                          "Please choose a User",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
+            : SingleChildScrollView(
+              child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DropdownButton<String>(
+                          value: _chosenValue,
+                          //elevation: 5,
+                          style: TextStyle(color: Colors.black),
+            
+                          items: items.map<DropdownMenuItem<String>>((value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          hint: Text(
+                            "Please choose a User",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          onChanged: (value) async {
+                            setState(() {
+                              _chosenValue = value;
+                            });
+                          },
                         ),
-                        onChanged: (value) async {
-                          setState(() {
-                            _chosenValue = value;
-                          });
-                        },
                       ),
-                    ),
-                    TextField(
-                      controller: nameController, // Use the controller
-                      decoration: myInput(
-                          labelText: 'name', iconData: Icons.person_sharp),
-                    ),
-                    SizedBox(height: 8),
-                    TextField(
-                      controller: startTimeController, // Use the controller
-                      decoration: myInput(
-                          labelText: 'Start-Time',
-                          iconData: Icons.timelapse_sharp),
-                      onTap: () async {
-                        final TimeOfDay? pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (pickedTime != null) {
-                          String formattedTime = DateFormat.Hm().format(
-                            DateTime(
-                                DateTime.now().year,
-                                DateTime.now().month,
-                                DateTime.now().day,
-                                pickedTime.hour,
-                                pickedTime.minute),
-                          );
-                          setState(() {
-                            startTimeController.text = formattedTime;
-                          });
-                        }
-                      },
-                    ),
-                    SizedBox(height: 8),
-                    TextField(
-                        controller: endTimeController, // Use the controller
+                      TextField(
+                        controller: nameController, // Use the controller
                         decoration: myInput(
-                            labelText: 'End-Time',
+                            labelText: 'name', iconData: Icons.person_sharp),
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: startTimeController, // Use the controller
+                        decoration: myInput(
+                            labelText: 'Start-Time',
                             iconData: Icons.timelapse_sharp),
                         onTap: () async {
                           final TimeOfDay? pickedTime = await showTimePicker(
@@ -144,87 +129,126 @@ class _AddappointmentState extends State<Addappointment> {
                                   pickedTime.minute),
                             );
                             setState(() {
-                              endTimeController.text = formattedTime;
+                              startTimeController.text = formattedTime;
                             });
                           }
-                        }),
-                    SizedBox(height: 8),
-                    TextField(
-                      controller: dateController,
-                      decoration: myInput(
-                          labelText: 'Date', iconData: Icons.date_range),
-                      onTap: () async {
-                        final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(DateTime.now().year + 1),
-                        );
-                        if (pickedDate != null) {
-                          String formattedDate =
-                              DateFormat('yyyy-MM-dd').format(pickedDate);
-                          setState(() {
-                            dateController.text = formattedDate;
-                          });
-                        }
-                      },
-                    ),
-                    SizedBox(height: 8),
-                    ElevatedButton(
-                        onPressed: () async {
-                          loading = true;
-                          setState(() {});
-                          var Subscription = {
-                            "name": nameController.text,
-                            "gridDetails": [
-                              {
-                                "date": dateController.text,
-                                "startTime": startTimeController.text,
-                                "endTime": endTimeController.text
-                              }
-                            ],
-                            "slotname": _chosenValue,
-                          };
-                          if (nameController.text != '' &&
-                              startTimeController.text != '' &&
-                              dateController.text != '' &&
-                              _chosenValue != '') {
-                            var result = await addSubscriptions(Subscription);
-                            if (result != null) {
-                              loading = false;
-                              setState(() {});
-                              if (result['name'] != null) {
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                          controller: endTimeController, // Use the controller
+                          decoration: myInput(
+                              labelText: 'End-Time',
+                              iconData: Icons.timelapse_sharp),
+                          onTap: () async {
+                            final TimeOfDay? pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (pickedTime != null) {
+                              String formattedTime = DateFormat.Hm().format(
+                                DateTime(
+                                    DateTime.now().year,
+                                    DateTime.now().month,
+                                    DateTime.now().day,
+                                    pickedTime.hour,
+                                    pickedTime.minute),
+                              );
+                              setState(() {
+                                endTimeController.text = formattedTime;
+                              });
+                            }
+                          }),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: dateController,
+                        decoration: myInput(
+                            labelText: 'Date', iconData: Icons.date_range),
+                        onTap: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(DateTime.now().year + 1),
+                          );
+                          if (pickedDate != null) {
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                            setState(() {
+                              dateController.text = formattedDate;
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                          onPressed: () async {
+                            loading = true;
+                            setState(() {});
+                            var Subscription = {
+                              "name": nameController.text,
+                              "gridDetails": [
+                                {
+                                  "date": dateController.text,
+                                  "startTime": startTimeController.text,
+                                  "endTime": endTimeController.text
+                                }
+                              ],
+                              "slotname": _chosenValue,
+                            };
+                            if (nameController.text != '' &&
+                                startTimeController.text != '' &&
+                                dateController.text != '' &&
+                                _chosenValue != '') {
+                              var result = await addSubscriptions(Subscription);
+                              if (result != null) {
+                                loading = false;
+                                setState(() {});
+                                if (result['name'] != null) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return ErrorDialog(
+                                        title: 'successfully',
+                                        message:
+                                            '${result['name']} Your  Appointment Booked successfully :)',
+                                      );
+                                    },
+                                  );
+                                  nameController.clear();
+                                  endTimeController.clear();
+                                  startTimeController.clear();
+                                } else {
+                                  loading = false;
+                                  setState(() {});
+                                  print("Error:- ${result['error']}");
+                                  List<String> restOfDates = List<String>.from(
+                                      result['result']['dates']['RestOfDates']);
+            
+                                  List<String> dynamicTimeSlots = [
+                                    "'${restOfDates.first}'"
+                                  ];
+            
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return DateTimeAlert(
+                                        data: dynamicTimeSlots,
+                                        message: result['result']['message'],
+                                      );
+                                    },
+                                  );
+                                }
+                              } else {
+                                loading = false;
+                                setState(() {});
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return ErrorDialog(
-                                      title: 'successfully',
+                                      title: 'Fail',
                                       message:
-                                          '${result['name']} Your  Appointment Booked successfully :)',
-                                    );
-                                  },
-                                );
-                                nameController.clear();
-                                endTimeController.clear();
-                                startTimeController.clear();
-
-                              } else {
-                                loading = false;
-                                setState(() {});
-                                print("Error:- ${result['error']}");
-                                List<String> restOfDates = List<String>.from(
-                                    result['result']['dates']['RestOfDates']);
-
-                                List<String> dynamicTimeSlots = [
-                                  "'${restOfDates.first}'"
-                                ];
-
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return DateTimeAlert(
-                                      data: dynamicTimeSlots,
-                                      message: result['result']['message'],
+                                          'some thing went wrong !! not able to get responce form backend',
                                     );
                                   },
                                 );
@@ -237,33 +261,23 @@ class _AddappointmentState extends State<Addappointment> {
                                 builder: (BuildContext context) {
                                   return ErrorDialog(
                                     title: 'Fail',
-                                    message:
-                                        'some thing went wrong !! not able to get responce form backend',
+                                    message: 'Add details !!!',
                                   );
                                 },
                               );
                             }
-                          } else {
-                            loading = false;
-                            setState(() {});
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return ErrorDialog(
-                                  title: 'Fail',
-                                  message: 'Add details !!!',
-                                );
-                              },
-                            );
-                          }
-                        },
-                        child: Text('Book Appointment')),
-                        TextButton(onPressed: (){
-                          Navigator.pushNamed(context, RoutesName.GetAppointments);
-                        }, child: Text('Nagigat To Appointments'))
-                  ],
+                          },
+                          child: Text('Book Appointment')),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                                context, RoutesName.GetAppointments);
+                          },
+                          child: Text('Nagigat To Appointments'))
+                    ],
+                  ),
                 ),
-              ),
+            ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -279,7 +293,6 @@ class _AddappointmentState extends State<Addappointment> {
     for (UserModel user in userModels) {
       print(user.name);
       items.add(user.name);
-      setState(() {});
     }
   }
 }

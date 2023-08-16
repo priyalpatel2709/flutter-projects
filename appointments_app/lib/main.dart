@@ -1,13 +1,14 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 
-import 'pages/Admin-pages/adduserinfo.dart';
-import 'pages/Admin-pages/getuser.dart';
 import 'utilits/route.dart';
 import 'utilits/routes_name.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  var box = await Hive.openBox('user');
   runApp(const MyApp());
 }
 
@@ -20,10 +21,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 58, 164, 183)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 58, 164, 183)),
         useMaterial3: true,
       ),
-      initialRoute: RoutesName.Addappointment,
+      initialRoute: RoutesName.Splashscreen,
       onGenerateRoute: Routes.generateRoute,
     );
   }
@@ -38,16 +40,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
         title: Text('appointments'),
       ),
     );
