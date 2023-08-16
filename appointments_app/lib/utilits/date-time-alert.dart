@@ -8,7 +8,7 @@ class DateTimeAlert extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('data $data');
+    print('data--------------> $data');
     return AlertDialog(
       title: Text(message),
       actions: [

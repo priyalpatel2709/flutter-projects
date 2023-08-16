@@ -80,7 +80,6 @@ Future<String> updateUser(
     String id, String name, String slot, String description) async {
   try {
     final apiUrl = "$baseUri/update-user/$id";
-    print(apiUrl);
     final response = await http.put(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -91,9 +90,7 @@ Future<String> updateUser(
       }),
     );
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
       var data = jsonDecode(response.body);
-      print('data $data');
       if (data['modifiedCount'] == 1) {
         return 'update successfully';
       } else if (data['matchedCount'] != 1) {
@@ -125,7 +122,6 @@ Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      print(jsonData);
       return jsonData;
     } else {
       print("Failed to add subscription. Error: ${response.body}");
