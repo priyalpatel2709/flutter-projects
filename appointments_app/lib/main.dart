@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 58, 164, 183)),
         useMaterial3: true,
       ),
-      initialRoute: RoutesName.Addappointment,
+      initialRoute: RoutesName.GetAppointments,
       onGenerateRoute: Routes.generateRoute,
     );
   }

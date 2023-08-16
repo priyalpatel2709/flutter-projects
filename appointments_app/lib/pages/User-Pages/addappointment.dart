@@ -204,6 +204,10 @@ class _AddappointmentState extends State<Addappointment> {
                                     );
                                   },
                                 );
+                                nameController.clear();
+                                endTimeController.clear();
+                                startTimeController.clear();
+
                               } else {
                                 loading = false;
                                 setState(() {});

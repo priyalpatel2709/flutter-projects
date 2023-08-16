@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../model/AppointmentsOfUser_model.dart';
 import '../model/Appointments_model.dart';
 import '../model/usermodel.dart';
 
@@ -37,7 +38,7 @@ Future<Map<String, dynamic>?> addUser(
   }
 }
 
-Future<List<UserModel>> getUserInfo() async {
+Future<List<UserModel>>   getUserInfo() async {
   final apiUrl = "$baseUri/get-user";
   try {
     final response = await http.get(Uri.parse(apiUrl));
@@ -157,6 +158,29 @@ Future<dynamic> fetchUserAppointments(
       throw Exception("Error during subscription request");
     }
   } catch (err) {
+    print("Error during subscription request: $err");
+    throw Exception("Error during subscription request");
+  }
+}
+
+
+Future <List<appointmentsOfUser>> getAppointmentsOfUser() async {
+  var apiUrl = "$baseUri/subscriptions";
+  try{
+    final response = await http.get(Uri.parse(apiUrl));
+    var data = jsonDecode(response.body.toString());
+    if (response.statusCode == 200) {
+      List<appointmentsOfUser> AppointmentsList = [];
+      for (var i in data) {
+        AppointmentsList.add(appointmentsOfUser.fromJson(i));
+      }
+      
+      return AppointmentsList;
+    } else {
+      print("Request failed with status: ${response.statusCode}");
+      throw Exception("Error during subscription request");
+    }
+  }catch(err){
     print("Error during subscription request: $err");
     throw Exception("Error during subscription request");
   }

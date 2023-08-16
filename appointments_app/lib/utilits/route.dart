@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../pages/Admin-pages/adduserinfo.dart';
 import '../pages/Admin-pages/getuser.dart';
 import '../pages/User-Pages/addappointment.dart';
+import '../pages/User-Pages/getAppointments.dart';
 import 'routes_name.dart';
 
 class Routes {
@@ -19,6 +20,8 @@ class Routes {
       case RoutesName.Addappointment:
         return MaterialPageRoute(builder: (context) => Addappointment());
 
+      case RoutesName.GetAppointments:
+        return MaterialPageRoute(builder: (context) => GetAppointments());
 
       default:
         return MaterialPageRoute(
