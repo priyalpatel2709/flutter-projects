@@ -118,6 +118,9 @@ class _AppointmentsListState extends State<AppointmentsList> {
                                     );
                                   },
                                 );
+                                setState(() {
+                                  widget.future;
+                                });
                               } else {
                                 showDialog(
                                   context: context,

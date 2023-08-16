@@ -44,7 +44,6 @@ class _AddappointmentState extends State<Addappointment> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -207,22 +206,32 @@ class _AddappointmentState extends State<Addappointment> {
                                   );
                                   endTimeController.clear();
                                   startTimeController.clear();
+                                  dateController.clear();
                                 } else {
                                   loading = false;
                                   setState(() {});
-                                  print("Error:- ${result['error']}");
-                                  List<String> restOfDates = List<String>.from(
-                                      result['result']['dates']['RestOfDates']);
 
-                                  List<String> dynamicTimeSlots = [
-                                    "'${restOfDates.first}'"
-                                  ];
+                                  // List<Map<String, dynamic>> restOfDates =
+                                  //     List<Map<String, dynamic>>.from(
+                                  //         result['result']['dates']
+                                  //             ['RestOfDates']);
+
+                                  // List<String> restOfDates = List<String>.from(result['result']['dates']['RestOfDates']);
+                                  var check = result['result']['message'] ==
+                                      'Time slot is not availabele for booking';
+                                  print('check0-0-----------------> $check');
+                                  List<dynamic> restOfDates = check
+                                      ? List<Map<String, dynamic>>.from(
+                                          result['result']['dates']
+                                              ['RestOfDates'])
+                                      : List<String>.from(result['result']
+                                          ['dates']['RestOfDates']);
 
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return DateTimeAlert(
-                                        data: dynamicTimeSlots,
+                                        data: restOfDates,
                                         message: result['result']['message'],
                                       );
                                     },
@@ -282,10 +291,10 @@ class _AddappointmentState extends State<Addappointment> {
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.pushNamed(context, RoutesName.Getuser
-                // ,arguments: {
-                //   'name' : widget.data['name'] 
-                // }
-                );
+                    // ,arguments: {
+                    //   'name' : widget.data['name']
+                    // }
+                    );
               },
               child: Icon(Icons.person),
             )
@@ -295,6 +304,7 @@ class _AddappointmentState extends State<Addappointment> {
 
   void getUserNames() async {
     List<UserModel> userModels = await getUserInfo();
+    print(userModels.length);
     for (UserModel user in userModels) {
       items.add(user.name);
     }

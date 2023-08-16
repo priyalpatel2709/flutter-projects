@@ -115,7 +115,7 @@ Future<String> updateUser(
 
 Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
   final apiUrl = "$baseUri/subscriptions";
-  print(Subscription);
+  // print(Subscription);
   try {
     final response = await http.post(
       Uri.parse(apiUrl),
