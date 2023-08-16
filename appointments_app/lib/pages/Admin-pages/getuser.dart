@@ -170,56 +170,19 @@ class _GetuserState extends State<Getuser> {
                                     PopupMenuItem<SampleItem>(
                                       value: SampleItem.delete,
                                       child: Text('Delete'),
-                                      // onTap: () {
-                                      //   handleItemSelected(
-                                      //       SampleItem.delete, user);
-                                      // },
                                     ),
                                   ],
                                 )
-
-                                //  Row(
-                                //   mainAxisSize: MainAxisSize.min,
-                                //   children: [
-                                //     ElevatedButton(
-                                // onPressed: () async {
-                                //   var deleteuserwithid = await deleteuser(
-                                //       user.sId.toString());
-                                //   print(deleteuserwithid['result']
-                                //       .toString());
-                                //   showDialog(
-                                //     context: context,
-                                //     builder: (BuildContext context) {
-                                //       return ErrorDialog(
-                                //         title: 'successfully',
-                                //         message:
-                                //             "${deleteuserwithid['result'].toString()}",
-                                //       );
-                                //     },
-                                //   );
-
-                                //         setState(() {});
-                                //       },
-                                //       child: Text('Delete'),
-                                //     ),
-                                //     SizedBox(width: 10),
-                                //     ElevatedButton(
-                                //       onPressed: () {
-                                //         updateUserinfo(
-                                //             user.name,
-                                //             user.description,
-                                //             user.maxSlots,
-                                //             user.sId);
-                                //       },
-                                //       child: Text('Update'),
-                                //     ),
-                                //   ],
-                                // )
-
                                 ),
                           );
                         },
                       ),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                                context, RoutesName.GetAppointments);
+                          },
+                          child: Text('Nagigat To Appointments'))
                     ],
                   ),
                 );

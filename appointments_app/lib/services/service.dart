@@ -38,7 +38,7 @@ Future<Map<String, dynamic>?> addUser(
   }
 }
 
-Future<List<UserModel>>   getUserInfo() async {
+Future<List<UserModel>> getUserInfo() async {
   final apiUrl = "$baseUri/get-user";
   try {
     final response = await http.get(Uri.parse(apiUrl));
@@ -115,7 +115,7 @@ Future<String> updateUser(
 
 Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
   final apiUrl = "$baseUri/subscriptions";
-
+  print(Subscription);
   try {
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -125,8 +125,8 @@ Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      // Do any additional processing if needed
-      return jsonData; // Return the jsonData
+      print(jsonData);
+      return jsonData;
     } else {
       print("Failed to add subscription. Error: ${response.body}");
       throw Exception("Failed to add subscription");
@@ -137,8 +137,7 @@ Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
   }
 }
 
-Future<dynamic> fetchUserAppointments(
-    String date, String name) async {
+Future<dynamic> fetchUserAppointments(String date, String name) async {
   final Map<String, String> queryParameters = {
     'date': date,
     'user': name,
@@ -163,10 +162,9 @@ Future<dynamic> fetchUserAppointments(
   }
 }
 
-
-Future <List<appointmentsOfUser>> getAppointmentsOfUser() async {
+Future<List<appointmentsOfUser>> getAppointmentsOfUser() async {
   var apiUrl = "$baseUri/subscriptions";
-  try{
+  try {
     final response = await http.get(Uri.parse(apiUrl));
     var data = jsonDecode(response.body.toString());
     if (response.statusCode == 200) {
@@ -174,30 +172,30 @@ Future <List<appointmentsOfUser>> getAppointmentsOfUser() async {
       for (var i in data) {
         AppointmentsList.add(appointmentsOfUser.fromJson(i));
       }
-      
+
       return AppointmentsList;
     } else {
       print("Request failed with status: ${response.statusCode}");
       throw Exception("Error during subscription request");
     }
-  }catch(err){
+  } catch (err) {
     print("Error during subscription request: $err");
     throw Exception("Error during subscription request");
   }
 }
 
-Future <dynamic> DeleteAppointment(id) async {
+Future<dynamic> DeleteAppointment(id) async {
   var apiUrl = "$baseUri/subscriptions-delete/$id";
-  try{
-      final response = await http.delete(Uri.parse(apiUrl));
-      if(response.statusCode == 200){
-        return json.decode(response.body);
-      }else{
-       print('Delete request failed with status code ${response.statusCode}');
-       print('Delete request failed with body  ${response.body}');
-      return 'Delete operation failed'; 
-      }
-  }catch(err){
+  try {
+    final response = await http.delete(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      print('Delete request failed with status code ${response.statusCode}');
+      print('Delete request failed with body  ${response.body}');
+      return 'Delete operation failed';
+    }
+  } catch (err) {
     print("Error during subscription request: $err");
     throw Exception("Error during subscription request");
   }

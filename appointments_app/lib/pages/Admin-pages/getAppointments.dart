@@ -20,7 +20,7 @@ class _GetAppointmentsState extends State<GetAppointments> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Add Appointment'),
+        title: const Text('Check All Appointment'),
       ),
       body: FutureBuilder<List<appointmentsOfUser>>(
               future: getAppointmentsOfUser(),

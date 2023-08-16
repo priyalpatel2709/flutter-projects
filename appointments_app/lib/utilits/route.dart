@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../pages/Admin-pages/adduserinfo.dart';
 import '../pages/Admin-pages/getuser.dart';
 import '../pages/User-Pages/addappointment.dart';
-import '../pages/User-Pages/getAppointments.dart';
+import '../pages/Admin-pages/getAppointments.dart';
 import '../pages/User-Pages/login.dart';
 import '../pages/User-Pages/singup.dart';
 import '../pages/User-Pages/splashscreen.dart';

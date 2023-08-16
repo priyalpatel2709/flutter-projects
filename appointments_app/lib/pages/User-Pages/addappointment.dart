@@ -62,7 +62,7 @@ class _AddappointmentState extends State<Addappointment> {
         child: loading
             ? CircularProgressIndicator()
             : SingleChildScrollView(
-              child: Container(
+                child: Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -72,7 +72,7 @@ class _AddappointmentState extends State<Addappointment> {
                           value: _chosenValue,
                           //elevation: 5,
                           style: TextStyle(color: Colors.black),
-            
+
                           items: items.map<DropdownMenuItem<String>>((value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -93,14 +93,15 @@ class _AddappointmentState extends State<Addappointment> {
                           },
                         ),
                       ),
-                      TextField(
-                        controller: nameController, // Use the controller
-                        decoration: myInput(
-                            labelText: 'name', iconData: Icons.person_sharp),
+                      SizedBox(height: 8),
+                      Text(
+                        '${widget.data['name']} Book your Appointment',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                       SizedBox(height: 8),
                       TextField(
-                        controller: startTimeController, // Use the controller
+                        controller: startTimeController,
                         decoration: myInput(
                             labelText: 'Start-Time',
                             iconData: Icons.timelapse_sharp),
@@ -176,7 +177,7 @@ class _AddappointmentState extends State<Addappointment> {
                             loading = true;
                             setState(() {});
                             var Subscription = {
-                              "name": nameController.text,
+                              "name": widget.data['name'],
                               "gridDetails": [
                                 {
                                   "date": dateController.text,
@@ -186,8 +187,7 @@ class _AddappointmentState extends State<Addappointment> {
                               ],
                               "slotname": _chosenValue,
                             };
-                            if (nameController.text != '' &&
-                                startTimeController.text != '' &&
+                            if (startTimeController.text != '' &&
                                 dateController.text != '' &&
                                 _chosenValue != '') {
                               var result = await addSubscriptions(Subscription);
@@ -205,7 +205,6 @@ class _AddappointmentState extends State<Addappointment> {
                                       );
                                     },
                                   );
-                                  nameController.clear();
                                   endTimeController.clear();
                                   startTimeController.clear();
                                 } else {
@@ -214,11 +213,11 @@ class _AddappointmentState extends State<Addappointment> {
                                   print("Error:- ${result['error']}");
                                   List<String> restOfDates = List<String>.from(
                                       result['result']['dates']['RestOfDates']);
-            
+
                                   List<String> dynamicTimeSlots = [
                                     "'${restOfDates.first}'"
                                   ];
-            
+
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -267,14 +266,18 @@ class _AddappointmentState extends State<Addappointment> {
                     ],
                   ),
                 ),
-            ),
+              ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, RoutesName.Getuser);
-        },
-        child: Icon(Icons.person),
-      ),
+      floatingActionButton: widget.data['name'] != null &&
+              widget.data['name'].isNotEmpty &&
+              widget.data['name'] == 're'
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, RoutesName.Getuser);
+              },
+              child: Icon(Icons.person),
+            )
+          : null,
     );
   }
 

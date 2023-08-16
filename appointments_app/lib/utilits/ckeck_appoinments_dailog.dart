@@ -82,7 +82,6 @@ class _AppointmentDialogState extends State<AppointmentDialog> {
               setState(() {
                 
               });
-              print('ja be bc');
             }else{
               noApponments = false;
               setState(() {});
