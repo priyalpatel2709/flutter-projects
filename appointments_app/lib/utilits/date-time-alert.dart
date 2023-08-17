@@ -8,12 +8,13 @@ import 'package:intl/intl.dart';
 class DateTimeAlert extends StatelessWidget {
   final List? data;
   final String message;
+  final bool? check;
 
-  DateTimeAlert({Key? key, this.data, required this.message}) : super(key: key);
+  DateTimeAlert({Key? key, this.data, required this.message, this.check}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print('data--------------> $data');
+    // print('data--------------> $data');
     return AlertDialog(
       title: Text(message),
       actions: [
@@ -29,7 +30,7 @@ class DateTimeAlert extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('You Can Check On...',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),), 
+            Text( check! ? 'Booked slotes are':  'You Can Check On...',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),), 
             Divider(),
             // divide(first, second)
             if (data != null && data is List) // Check if data is a List

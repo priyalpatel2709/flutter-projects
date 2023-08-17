@@ -175,68 +175,88 @@ class _AddappointmentState extends State<Addappointment> {
                           onPressed: () async {
                             loading = true;
                             setState(() {});
-                            var Subscription = {
-                              "name": widget.data['name'],
-                              "gridDetails": [
-                                {
-                                  "date": dateController.text,
-                                  "startTime": startTimeController.text,
-                                  "endTime": endTimeController.text
-                                }
-                              ],
-                              "slotname": _chosenValue,
-                            };
+
                             if (startTimeController.text != '' &&
+                                endTimeController.text != '' &&
                                 dateController.text != '' &&
                                 _chosenValue != null) {
-                              var result = await addSubscriptions(Subscription);
-                              if (result != null) {
-                                loading = false;
-                                setState(() {});
-                                if (result['name'] != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return ErrorDialog(
-                                        title: 'successfully',
-                                        message:
-                                            '${result['name']} Your  Appointment Booked successfully :)',
+                              DateTime startTime = DateFormat.Hm()
+                                  .parse(startTimeController.text);
+                              DateTime endTime =
+                                  DateFormat.Hm().parse(endTimeController.text);
+
+                              if (endTime.isAfter(startTime)) {
+                                var Subscription = {
+                                  "name": widget.data['name'],
+                                  "gridDetails": [
+                                    {
+                                      "date": dateController.text,
+                                      "startTime": startTimeController.text,
+                                      "endTime": endTimeController.text
+                                    }
+                                  ],
+                                  "slotname": _chosenValue,
+                                };
+                                
+                                  var result =
+                                      await addSubscriptions(Subscription);
+                                  if (result != null) {
+                                    loading = false;
+                                    setState(() {});
+                                    if (result['name'] != null) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return ErrorDialog(
+                                            title: 'successfully',
+                                            message:
+                                                '${result['name']} Your  Appointment Booked successfully :)',
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
-                                  endTimeController.clear();
-                                  startTimeController.clear();
-                                  dateController.clear();
-                                } else {
-                                  loading = false;
-                                  setState(() {});
+                                      endTimeController.clear();
+                                      startTimeController.clear();
+                                      dateController.clear();
+                                    } else {
+                                      loading = false;
+                                      setState(() {});
+                                      var check = result['result']['message'] ==
+                                          'Time slot is not availabele for booking';
+                                      // print('check0-0-----------------> $check');
+                                      List<dynamic> restOfDates = check
+                                          ? List<Map<String, dynamic>>.from(
+                                              result['result']['dates']
+                                                  ['RestOfDates'])
+                                          : List<String>.from(result['result']
+                                              ['dates']['RestOfDates']);
 
-                                  // List<Map<String, dynamic>> restOfDates =
-                                  //     List<Map<String, dynamic>>.from(
-                                  //         result['result']['dates']
-                                  //             ['RestOfDates']);
-
-                                  // List<String> restOfDates = List<String>.from(result['result']['dates']['RestOfDates']);
-                                  var check = result['result']['message'] ==
-                                      'Time slot is not availabele for booking';
-                                  print('check0-0-----------------> $check');
-                                  List<dynamic> restOfDates = check
-                                      ? List<Map<String, dynamic>>.from(
-                                          result['result']['dates']
-                                              ['RestOfDates'])
-                                      : List<String>.from(result['result']
-                                          ['dates']['RestOfDates']);
-
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DateTimeAlert(
-                                        data: restOfDates,
-                                        message: result['result']['message'],
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return DateTimeAlert(
+                                            data: restOfDates,
+                                            message: result['result']
+                                                ['message'],
+                                            check: check,
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
-                                }
+                                    }
+                                  } else {
+                                    loading = false;
+                                    setState(() {});
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return ErrorDialog(
+                                          title: 'Fail',
+                                          message:
+                                              'some thing went wrong !! not able to get responce form backend',
+                                        );
+                                      },
+                                    );
+                                  }
+                                
                               } else {
                                 loading = false;
                                 setState(() {});
@@ -246,7 +266,7 @@ class _AddappointmentState extends State<Addappointment> {
                                     return ErrorDialog(
                                       title: 'Fail',
                                       message:
-                                          'some thing went wrong !! not able to get responce form backend',
+                                          'End time must be after start time',
                                     );
                                   },
                                 );
@@ -262,6 +282,9 @@ class _AddappointmentState extends State<Addappointment> {
                                     temp = 'Select User';
                                   } else if (dateController.text == '') {
                                     temp = 'Select Date';
+                                  } else if (startTimeController.text == '' ||
+                                      endTimeController.text == '') {
+                                    temp = 'Select Start and End Time';
                                   } else {
                                     temp = 'Select Time';
                                   }
