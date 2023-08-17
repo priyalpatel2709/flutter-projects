@@ -24,6 +24,8 @@ class _SingupState extends State<Singup> {
 
   User userinfo = User();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -42,42 +44,61 @@ class _SingupState extends State<Singup> {
 
   @override
   void signUpApi(String name, String email, String password) async {
-    loading = true;
-    setState(() {});
+    final bool? isValid = _formKey.currentState?.validate();
+    if (isValid == true) {
+      loading = true;
+      setState(() {});
+      try {
+        final response = await http.post(
+          Uri.parse('https://srever-ecomm.vercel.app/register'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'name': name,
+            'email': email,
+            'password': password,
+          }),
+        );
 
-    try {
-      final response = await http.post(
-        Uri.parse('https://srever-ecomm.vercel.app/register'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-        }),
-      );
+        if (response.statusCode == 200) {
+          loading = false;
+          final jsonData = jsonDecode(response.body);
+          final userJson = jsonData['user'];
+          // final authJson = jsonData['auth'];
 
-      if (response.statusCode == 200) {
-        loading = false;
-        final jsonData = jsonDecode(response.body);
-        final userJson = jsonData['user'];
-        // final authJson = jsonData['auth'];
+          UserSingup user = UserSingup.fromJson(userJson);
+          userinfo.userData.add([user.id, user.name, user.email]);
+          userinfo.userAdd();
 
-        UserSingup user = UserSingup.fromJson(userJson);
-        userinfo.userData.add([user.id, user.name, user.email]);
-        userinfo.userAdd();
-        
-        setState(() {});
-        Navigator.pushReplacementNamed(context,RoutesName.Addappointment,arguments: {'name': name} );
-     
-      } else {
+          setState(() {});
+          Navigator.pushReplacementNamed(context, RoutesName.Addappointment,
+              arguments: {'name': name});
+        } else {
+          loading = false;
+          return showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Somethig went wrong.. '),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Ok'))
+                ],
+              );
+            },
+          );
+        }
+      } catch (e) {
         loading = false;
         return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Somethig went wrong.. '),
+              title: Text('Somethig went wrong.. $e'),
               actions: [
                 TextButton(
                     onPressed: () {
@@ -89,23 +110,6 @@ class _SingupState extends State<Singup> {
           },
         );
       }
-    } catch (e) {
-      loading = false;
-      return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Somethig went wrong.. $e'),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Ok'))
-            ],
-          );
-        },
-      );
     }
   }
 
@@ -116,44 +120,77 @@ class _SingupState extends State<Singup> {
             child: Container(
       width: 300,
       // height: 100,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            'Sing Up',
-            style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
-          ),
-          TextField(
-            controller: namecontoller,
-            decoration: myInput(labelText: 'Name'),
-          ),
-          SizedBox(height: 12),
-          TextField(
-            controller: emailcontoller,
-            decoration: myInput(labelText: 'Email'),
-          ),
-          SizedBox(height: 12),
-          TextField(
-            controller: passwordcontoller,
-            decoration: myInput(labelText: 'Password'),
-          ),
-          SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {
-              signUpApi(
-                  namecontoller.text.toString(),
-                  emailcontoller.text.toString(),
-                  passwordcontoller.text.toString());
-            },
-            child: loading ? CircularProgressIndicator() : Text("SignUp"),
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Sing Up',
+              style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
+            ),
+            TextFormField(
+              controller: namecontoller,
+              decoration: myInput(labelText: 'Name'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'This field is required';
+                }
+                if (value.trim().length < 4) {
+                  return 'Username must be at least 4 characters in length';
+                }
+                return null;
               },
-              child: Text("go to Login")),
-        ],
+            ),
+            SizedBox(height: 12),
+            TextFormField(
+              controller: emailcontoller,
+              decoration: myInput(labelText: 'Email'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter your email address';
+                }
+                // Check if the entered email has the right format
+                if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                  return 'Please enter a valid email address';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 12),
+            TextFormField(
+              controller: passwordcontoller,
+              obscureText: true,
+              decoration: myInput(labelText: 'Password'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'This field is required';
+                }
+                if (value.trim().length < 8) {
+                  return 'Password must be at least 8 characters in length';
+                }
+                // Return null if the entered password is valid
+                return null;
+              },
+            ),
+            SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                signUpApi(
+                    namecontoller.text.toString(),
+                    emailcontoller.text.toString(),
+                    passwordcontoller.text.toString());
+              },
+              child: loading ? CircularProgressIndicator() : Text("SignUp"),
+            ),
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("go to Login")),
+          ],
+        ),
       ),
     )));
   }
