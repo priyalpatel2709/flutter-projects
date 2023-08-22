@@ -26,7 +26,7 @@ class _Chat_pageState extends State<Chat_page> {
     connectToServer();
   }
 
-  List<Message> _userMessage = [];
+  final List<Message> _userMessage = [];
 
   final TextEditingController _controller = TextEditingController();
 
@@ -39,7 +39,7 @@ class _Chat_pageState extends State<Chat_page> {
 
     socket.onConnect((_) {
       print('Connected to server');
-      // Here you can emit events or perform other actions upon connection
+      socket.emit('joined', {'user': 'John'});
     });
 
     socket.onDisconnect((_) {
@@ -47,29 +47,46 @@ class _Chat_pageState extends State<Chat_page> {
     });
 
     socket.on('welcome', (data) {
+      setState(() {
+          final newMessage = Message(message: data['message'], user: 'Admin');
+          _userMessage.add(newMessage);
+        });
       print(data['message']); // Welcome message from the server
     });
 
     socket.on('sentMessage', (data) {
-      final user = data['user'];
-      print(' ${'Line 55:'} $data');
+      final _user = data['user'];
       final message = data['message'];
-      if (user != null && user !='John') {
+      if (_user != null && _user != 'John') {
         setState(() {
-          final newMessage = Message(message: message, user: user);
+          final newMessage = Message(message: message, user: _user);
           _userMessage.add(newMessage);
         });
       }
-
-      // print('$user: $message'); // Print received messages
     });
-
-    // Emit a "joined" event when the user joins the chat
-    socket.emit('joined', {'user': 'John'});
 
     // Emit a "message" event when the user sends a message
     socket.emit(
         'message', {'message': _controller.text.toString(), 'id': socket.id});
+
+    socket.on('joinandleft', (data) {
+      print('Line 70: ${data['message']}');
+      final newMessage = Message(message: data['message'], user: 'Admin');
+      setState(() {
+        _userMessage.add(newMessage);
+      });
+    });
+
+    socket.on('disconnect', (data) {
+      socket.on('joinandleft', (data) {
+      print('Line 83: ${data['message']}');
+      final newMessage = Message(message: data['message'], user: 'Admin');
+      setState(() {
+        _userMessage.add(newMessage);
+      });
+    });
+      print(' ${'Line 78:'} $data');
+    });
   }
 
   void _sendMessage() {
@@ -96,7 +113,6 @@ class _Chat_pageState extends State<Chat_page> {
 
   @override
   Widget build(BuildContext context) {
-    print(' ${'Line 98:'} $_userMessage');
     return Scaffold(
       body: Column(
         children: [
@@ -104,13 +120,21 @@ class _Chat_pageState extends State<Chat_page> {
               child: ListView.builder(
             itemCount: _userMessage.length,
             itemBuilder: (context, index) {
+              CrossAxisAlignment alignment;
+
+              if (_userMessage[index].user == "You") {
+                alignment = CrossAxisAlignment.end;
+              } else if (_userMessage[index].user == "Admin") {
+                alignment = CrossAxisAlignment.center;
+              } else {
+                alignment = CrossAxisAlignment.start;
+              }
+
               return ListTile(
                 title: Column(
-                  crossAxisAlignment: _userMessage[index].user == "You"
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
+                  crossAxisAlignment: alignment,
                   children: [
-                    Text(_userMessage[index].message),
+                    Text('${_userMessage[index].user} :${_userMessage[index].message}'),
                   ],
                 ),
               );
