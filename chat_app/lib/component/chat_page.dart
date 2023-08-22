@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import 'loginpage.dart';
+
 class Message {
   final String message;
   String user;
@@ -35,6 +37,7 @@ class _Chat_pageState extends State<Chat_page> {
   void connectToServer() {
     socket = IO.io('http://localhost:4500', <String, dynamic>{
       'transports': ['websocket'],
+      'query': {'device': "flutter"},
     });
 
     socket.onConnect((_) {
@@ -42,15 +45,15 @@ class _Chat_pageState extends State<Chat_page> {
       socket.emit('joined', {'user': 'John'});
     });
 
-    socket.onDisconnect((_) {
-      print('Disconnected from server');
-    });
+    // socket.onDisconnect((_) {
+    //   print('Disconnected from server');
+    // });
 
     socket.on('welcome', (data) {
       setState(() {
-          final newMessage = Message(message: data['message'], user: 'Admin');
-          _userMessage.add(newMessage);
-        });
+        final newMessage = Message(message: data['message'], user: 'Admin');
+        _userMessage.add(newMessage);
+      });
       print(data['message']); // Welcome message from the server
     });
 
@@ -70,22 +73,13 @@ class _Chat_pageState extends State<Chat_page> {
         'message', {'message': _controller.text.toString(), 'id': socket.id});
 
     socket.on('joinandleft', (data) {
-      print('Line 70: ${data['message']}');
+      print('Line 73: ${data['message']}');
       final newMessage = Message(message: data['message'], user: 'Admin');
-      setState(() {
-        _userMessage.add(newMessage);
-      });
-    });
-
-    socket.on('disconnect', (data) {
-      socket.on('joinandleft', (data) {
-      print('Line 83: ${data['message']}');
-      final newMessage = Message(message: data['message'], user: 'Admin');
-      setState(() {
-        _userMessage.add(newMessage);
-      });
-    });
-      print(' ${'Line 78:'} $data');
+      if (!_userMessage.contains(newMessage)) {
+        setState(() {
+          _userMessage.add(newMessage);
+        });
+      }
     });
   }
 
@@ -105,6 +99,17 @@ class _Chat_pageState extends State<Chat_page> {
     }
   }
 
+  void _logout() {
+    socket.onDisconnect((_) {
+      socket.emit("disconnect");
+      print('Disconnected from server');
+    });
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Loginpage()),
+    );
+  }
+
   @override
   void dispose() {
     socket.disconnect();
@@ -114,6 +119,16 @@ class _Chat_pageState extends State<Chat_page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('Chat-App'),
+        actions: [
+          IconButton(
+            onPressed: _logout,
+            icon: Icon(Icons.logout_outlined),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -130,11 +145,38 @@ class _Chat_pageState extends State<Chat_page> {
                 alignment = CrossAxisAlignment.start;
               }
 
+              var text;
+              if (_userMessage[index].user == 'Admin') {
+                text = '${_userMessage[index].message}';
+              } else {
+                text =
+                    '${_userMessage[index].user} :${_userMessage[index].message}';
+              }
+
+              var colors;
+              if (_userMessage[index].user == "You") {
+                colors = Colors.blue;
+              } else if (_userMessage[index].user == "Admin") {
+                colors = Color.fromARGB(255, 186, 214, 108);
+              } else {
+                colors = Colors.grey;
+              }
+
               return ListTile(
                 title: Column(
                   crossAxisAlignment: alignment,
                   children: [
-                    Text('${_userMessage[index].user} :${_userMessage[index].message}'),
+                    Container(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.7,
+                        ),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colors,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        // color: Colors.red,
+                        child: Text(text)),
                   ],
                 ),
               );
@@ -152,7 +194,10 @@ class _Chat_pageState extends State<Chat_page> {
                     ),
                   ),
                 ),
-                IconButton(icon: Icon(Icons.send), onPressed: _sendMessage),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: _sendMessage,
+                ),
               ],
             ),
           ),
