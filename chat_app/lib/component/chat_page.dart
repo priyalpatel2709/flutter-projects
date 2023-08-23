@@ -14,7 +14,8 @@ class Message {
 }
 
 class Chat_page extends StatefulWidget {
-  const Chat_page({Key? key}) : super(key: key);
+   final String userName;
+  Chat_page({Key? key,required this.userName}) : super(key: key);
 
   @override
   _Chat_pageState createState() => _Chat_pageState();
@@ -44,7 +45,7 @@ class _Chat_pageState extends State<Chat_page> {
 
     socket.onConnect((_) {
       print('Connected to server');
-      socket.emit('joined', {'user': 'John'});
+      socket.emit('joined', {'user': widget.userName});
     });
 
     // socket.onDisconnect((_) {
@@ -65,7 +66,7 @@ class _Chat_pageState extends State<Chat_page> {
     socket.on('sentMessage', (data) {
       final _user = data['user'];
       final message = data['message'];
-      if (_user != null && _user != 'John') {
+      if (_user != null && _user != widget.userName) {
         setState(() {
           final newMessage = Message(message: message, user: _user,time: TimeOfDay.now().format(context));
           _userMessage.add(newMessage);

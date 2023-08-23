@@ -27,7 +27,7 @@ class _LoginpageState extends State<Loginpage> {
                 // Add your button press logic here
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chat_page()),
+                  MaterialPageRoute(builder: (context) => Chat_page(userName: 'John shah',)),
                 );
               },
               child: Text('Button Text'),
