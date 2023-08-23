@@ -38,7 +38,7 @@ class _Chat_pageState extends State<Chat_page> {
   var _userId;
 
   void connectToServer() {
-    socket = IO.io('http://localhost:4500', <String, dynamic>{
+    socket = IO.io('https://chat-app-srever.onrender.com/', <String, dynamic>{
       'transports': ['websocket'],
       'query': {'device': "flutter"},
     });
@@ -159,6 +159,7 @@ class _Chat_pageState extends State<Chat_page> {
 
   @override
   Widget build(BuildContext context) {
+    _scrollToBottom();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(

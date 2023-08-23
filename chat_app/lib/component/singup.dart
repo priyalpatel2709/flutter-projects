@@ -69,15 +69,21 @@ class _SingupState extends State<Singup> {
         // print(authData);
       } else {
         loading = false;
+        setState(() {
+        });
+        final jsonData = jsonDecode(response.body);
+        final userJson = jsonData['result'];
+        loading = false;
         return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Somethig went wrong.. '),
+              title: Text('Somethig went wrong..'),
+              content: Text(userJson),
               actions: [
                 TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
                     },
                     child: Text('Ok'))
               ],
@@ -193,6 +199,7 @@ class _SingupState extends State<Singup> {
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
+                        obscureText: true,
                         controller: passwordcontoller,
                         style: TextStyle(
                           fontSize: 1.2 *

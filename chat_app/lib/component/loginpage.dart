@@ -80,6 +80,7 @@ class _LoginState extends State<Loginpage> {
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
+                        obscureText: true,
                         controller: passwordcontoller,
                         style: TextStyle(
                           fontSize: 1.2 *
@@ -165,13 +166,9 @@ class _LoginState extends State<Loginpage> {
 
       if (response.statusCode == 200) {
         loading = false;
-        final jsonData = jsonDecode(response.body);
-        final userJson = jsonData['user'];
-        // UserLonin user = UserLonin.fromJson(userJson);
+        // final jsonData = jsonDecode(response.body);
+        // final userJson = jsonData['user'];
 
-        // print('User Name: ${user.name}');
-        // userinfo.userData.add([user.id,user.name,user.email]);
-        // userinfo.addUser();
         setState(() {});
 
         Navigator.pushReplacement(
