@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-
+import 'dart:io';
 import 'loginpage.dart';
 
 class Message {
@@ -126,9 +126,28 @@ class _Chat_pageState extends State<Chat_page> {
       // socket.emit("disconnect");
       print('Disconnected from server');
     });
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Loginpage()),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Restart'),
+          content: Text('Are you sure you want to Exit the app?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                exit(0);
+              },
+              child: Text('Exit'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -147,7 +166,7 @@ class _Chat_pageState extends State<Chat_page> {
         actions: [
           IconButton(
             onPressed: _logout,
-            icon: Icon(Icons.logout_outlined),
+            icon: Icon(Icons.exit_to_app_outlined),
           ),
         ],
       ),
