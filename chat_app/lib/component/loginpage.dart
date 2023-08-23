@@ -12,6 +12,17 @@ const Loginpage({ Key? key }) : super(key: key);
 }
 
 class _LoginpageState extends State<Loginpage> {
+
+  void _login(BuildContext context) {
+    String username = 'rafa';
+    if (username.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Chat_page(userName: username)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,13 +34,7 @@ class _LoginpageState extends State<Loginpage> {
           children: [
             Text('This is Loginpage content.'),
             ElevatedButton(
-              onPressed: () {
-                // Add your button press logic here
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Chat_page(userName: 'John shah',)),
-                );
-              },
+              onPressed: () => _login(context),
               child: Text('Button Text'),
             )
           ],
