@@ -160,6 +160,7 @@ class _Chat_pageState extends State<Chat_page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Chat-App'),
@@ -247,6 +248,8 @@ class _Chat_pageState extends State<Chat_page> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
+                       filled: true,
+                      fillColor: const Color.fromARGB(255, 205, 202, 202),
                       hintText: 'Enter your message...',
                     ),
                   ),

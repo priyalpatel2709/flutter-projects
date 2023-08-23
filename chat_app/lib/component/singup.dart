@@ -108,6 +108,7 @@ class _SingupState extends State<Singup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text('Chat-App'),
@@ -122,37 +123,136 @@ class _SingupState extends State<Singup> {
             children: [
               Text(
                 'Sing Up',
-                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    fontSize: 22.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white),
               ),
-              TextField(
-                controller: namecontoller,
-                decoration: myInput(labelText: 'Name'),
+              Divider(),
+              Container(
+                width: 25 *
+                    MediaQuery.of(context).size.width /
+                    100, // 25vmax equivalent
+                margin: EdgeInsets.all(2 *
+                    MediaQuery.of(context).size.width /
+                    100), // 2vmax equivalent
+                child: TextField(
+                  controller: namecontoller,
+                  style: TextStyle(
+                    fontSize: 1.2 *
+                        MediaQuery.of(context).size.width /
+                        100, // 1.2vmax equivalent
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200], // background-color
+                    hintText: 'Enter Name...',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none, // No border
+                    ),
+                    contentPadding: EdgeInsets.all(1.5 *
+                        MediaQuery.of(context).size.width /
+                        100), // 1.5vmax equivalent
+                  ),
+                ),
               ),
-              SizedBox(height: 12),
-              TextField(
-                controller: emailcontoller,
-                decoration: myInput(labelText: 'Email'),
+              Container(
+                width: 25 *
+                    MediaQuery.of(context).size.width /
+                    100, // 25vmax equivalent
+                margin: EdgeInsets.all(2 *
+                    MediaQuery.of(context).size.width /
+                    100), // 2vmax equivalent
+                child: TextField(
+                  controller: emailcontoller,
+                  style: TextStyle(
+                    fontSize: 1.2 *
+                        MediaQuery.of(context).size.width /
+                        100, // 1.2vmax equivalent
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200], // background-color
+                    hintText: 'Enter Email...',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none, // No border
+                    ),
+                    contentPadding: EdgeInsets.all(1.5 *
+                        MediaQuery.of(context).size.width /
+                        100), // 1.5vmax equivalent
+                  ),
+                ),
               ),
-              SizedBox(height: 12),
-              TextField(
-                controller: passwordcontoller,
-                decoration: myInput(labelText: 'Password'),
+              Container(
+                width: 25 *
+                    MediaQuery.of(context).size.width /
+                    100, // 25vmax equivalent
+                margin: EdgeInsets.all(2 *
+                    MediaQuery.of(context).size.width /
+                    100), // 2vmax equivalent
+                child: TextField(
+                  controller: passwordcontoller,
+                  style: TextStyle(
+                    fontSize: 1.2 *
+                        MediaQuery.of(context).size.width /
+                        100, // 1.2vmax equivalent
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200], // background-color
+                    hintText: 'Enter Password...',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none, // No border
+                    ),
+                    contentPadding: EdgeInsets.all(1.5 *
+                        MediaQuery.of(context).size.width /
+                        100), // 1.5vmax equivalent
+                  ),
+                ),
               ),
-              SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  signUpApi(
-                      namecontoller.text.toString(),
-                      emailcontoller.text.toString(),
-                      passwordcontoller.text.toString());
-                },
-                child: loading ? CircularProgressIndicator() : Text("SignUp"),
+              Container(
+                width: 25 * MediaQuery.of(context).size.width / 100,
+                padding: EdgeInsets.all(1.5 *
+                    MediaQuery.of(context).size.width /
+                    100), // 1.5vmax equivalent
+                child: ElevatedButton(
+                  onPressed: () {
+                    signUpApi(
+                        namecontoller.text.toString(),
+                        emailcontoller.text.toString(),
+                        passwordcontoller.text.toString());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(
+                        255, 237, 20, 61), // background-color
+                    padding: EdgeInsets.zero, // No padding inside the button
+                    shape: RoundedRectangleBorder(
+                      // No border
+                      borderRadius: BorderRadius.circular(0),
+                    ),
+                    textStyle: TextStyle(
+                      color: Colors.white, // text color
+                      fontFamily: "Roboto",
+                      fontSize: 1.2 *
+                          MediaQuery.of(context).size.width /
+                          100, // 1.2vmax equivalent
+                    ),
+                    elevation: 0, // No elevation
+                    tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap, // Reduce tap area
+                  ),
+                  child: Text(
+                    'Sing Up',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("go to Login")),
+                  child: Text("go to Login",
+                      style: TextStyle(color: Colors.white))),
             ],
           ),
         )));
