@@ -8,8 +8,9 @@ import 'loginpage.dart';
 class Message {
   final String message;
   String user;
+  var time;
 
-  Message({required this.message, required this.user});
+  Message({required this.message, required this.user, required this.time});
 }
 
 class Chat_page extends StatefulWidget {
@@ -31,6 +32,7 @@ class _Chat_pageState extends State<Chat_page> {
   final List<Message> _userMessage = [];
 
   final TextEditingController _controller = TextEditingController();
+  ScrollController _scrollController = ScrollController();
 
   var _userId;
 
@@ -51,10 +53,13 @@ class _Chat_pageState extends State<Chat_page> {
 
     socket.on('welcome', (data) {
       setState(() {
-        final newMessage = Message(message: data['message'], user: 'Admin');
+        final newMessage = Message(
+            message: data['message'],
+            user: 'Admin',
+            time: TimeOfDay.now().format(context));
         _userMessage.add(newMessage);
       });
-      print(data['message']); // Welcome message from the server
+      // print(data['message']); // Welcome message from the server
     });
 
     socket.on('sentMessage', (data) {
@@ -62,7 +67,7 @@ class _Chat_pageState extends State<Chat_page> {
       final message = data['message'];
       if (_user != null && _user != 'John') {
         setState(() {
-          final newMessage = Message(message: message, user: _user);
+          final newMessage = Message(message: message, user: _user,time: TimeOfDay.now().format(context));
           _userMessage.add(newMessage);
         });
       }
@@ -74,7 +79,10 @@ class _Chat_pageState extends State<Chat_page> {
 
     socket.on('joinandleft', (data) {
       print('Line 73: ${data['message']}');
-      final newMessage = Message(message: data['message'], user: 'Admin');
+      final newMessage = Message(
+          message: data['message'],
+          user: 'Admin',
+          time: TimeOfDay.now().format(context));
       if (!_userMessage.contains(newMessage)) {
         setState(() {
           _userMessage.add(newMessage);
@@ -83,12 +91,24 @@ class _Chat_pageState extends State<Chat_page> {
     });
   }
 
+  void _scrollToBottom() {
+    print(' ${'Line 91:'} i am working ?');
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
   void _sendMessage() {
     final message = _controller.text;
 
     if (message.isNotEmpty) {
       setState(() {
-        final newMessage = Message(message: message, user: "You");
+        final newMessage = Message(
+            message: message,
+            user: "You",
+            time: TimeOfDay.now().format(context));
         _userMessage.add(newMessage);
       });
 
@@ -96,12 +116,13 @@ class _Chat_pageState extends State<Chat_page> {
       socket.emit('message', {'message': message, 'id': socket.id});
 
       _controller.clear();
+      _scrollToBottom();
     }
   }
 
   void _logout() {
     socket.onDisconnect((_) {
-      socket.emit("disconnect");
+      // socket.emit("disconnect");
       print('Disconnected from server');
     });
     Navigator.pushReplacement(
@@ -133,6 +154,8 @@ class _Chat_pageState extends State<Chat_page> {
         children: [
           Expanded(
               child: ListView.builder(
+            controller: _scrollController,
+            // reverse: true,
             itemCount: _userMessage.length,
             itemBuilder: (context, index) {
               CrossAxisAlignment alignment;
@@ -145,15 +168,15 @@ class _Chat_pageState extends State<Chat_page> {
                 alignment = CrossAxisAlignment.start;
               }
 
-              var text;
+              String text;
               if (_userMessage[index].user == 'Admin') {
-                text = '${_userMessage[index].message}';
+                text = _userMessage[index].message;
               } else {
                 text =
                     '${_userMessage[index].user} :${_userMessage[index].message}';
               }
 
-              var colors;
+              Color colors;
               if (_userMessage[index].user == "You") {
                 colors = Colors.blue;
               } else if (_userMessage[index].user == "Admin") {
@@ -165,18 +188,32 @@ class _Chat_pageState extends State<Chat_page> {
               return ListTile(
                 title: Column(
                   crossAxisAlignment: alignment,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.7,
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.9,
+                      ),
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colors,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 18, // Adjust the font size as needed
                         ),
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: colors,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        // color: Colors.red,
-                        child: Text(text)),
+                      ),
+                    ),
+                    SizedBox(height: 4), // Add a small space
+                    Text(
+                      _userMessage[index].time,
+                      style: TextStyle(
+                        fontSize: 12, // Smaller font size for the timestamp
+                        color: Colors.grey, // You can adjust the color
+                      ),
+                    ),
                   ],
                 ),
               );
