@@ -25,8 +25,6 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginState extends State<Loginpage> {
-
-
   var emailcontoller = TextEditingController();
   var passwordcontoller = TextEditingController();
   var loading = false;
@@ -34,54 +32,62 @@ class _LoginState extends State<Loginpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text('Chat-App'),
+        ),
         body: Center(
             child: Container(
-      width: 300,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('Log In',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
-          SizedBox(height: 12,),
-          TextField(
-            controller: emailcontoller,
-            decoration:  myInput(labelText :'Email'),
+          width: 300,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Log In',
+                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(
+                height: 12,
+              ),
+              TextField(
+                controller: emailcontoller,
+                decoration: myInput(labelText: 'Email'),
+              ),
+              SizedBox(
+                height: 12,
+              ),
+              TextField(
+                  // enabled: false,
+                  controller: passwordcontoller,
+                  obscureText: true,
+                  decoration: myInput(labelText: 'PassWord')),
+              SizedBox(
+                height: 12,
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    login(emailcontoller.text.toString(),
+                        passwordcontoller.text.toString());
+                  },
+                  child: loading ? CircularProgressIndicator() : Text('LogIn')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Singup()),
+                    );
+                  },
+                  child: Text('Go To Sing Up')),
+            ],
           ),
-          SizedBox(
-            height: 12,
-          ),
-          TextField(
-              // enabled: false,
-              controller: passwordcontoller,
-              obscureText: true,
-              decoration:  myInput(labelText :'PassWord')
-          ),
-          SizedBox(
-            height: 12,
-          ),
-          ElevatedButton(
-              onPressed: () {
-                login(emailcontoller.text.toString(),
-                    passwordcontoller.text.toString());
-              },
-              child: loading ? CircularProgressIndicator() : Text('LogIn')),
-          TextButton(
-              onPressed: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context) => Singup()),);
-              },
-              child: Text('Go To Sing Up')),
-           ],
-          ),
-        )
-      )
-    );
+        )));
   }
 
   void login(email, password) async {
     loading = true;
     setState(() {});
-      
-    
+
     try {
       final response =
           await http.post(Uri.parse('https://srever-ecomm.vercel.app/login'),
@@ -99,11 +105,14 @@ class _LoginState extends State<Loginpage> {
         // print('User Name: ${user.name}');
         // userinfo.userData.add([user.id,user.name,user.email]);
         // userinfo.addUser();
-        setState(() {
-          
-        });
-        
-        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> Chat_page(userName: email,)) );
+        setState(() {});
+
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Chat_page(
+                      userName: email,
+                    )));
       } else {
         loading = false;
         return showDialog(
@@ -112,9 +121,11 @@ class _LoginState extends State<Loginpage> {
             return AlertDialog(
               title: Text('Somethig went wrong..'),
               actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Ok'))
               ],
             );
           },
@@ -123,19 +134,21 @@ class _LoginState extends State<Loginpage> {
     } catch (e) {
       loading = false;
       setState(() {});
-       return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Somethig went wrong.. $e'),
-              actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
-              ],
-            );
-          },
-        );
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Somethig went wrong.. $e'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Ok'))
+            ],
+          );
+        },
+      );
     }
   }
 }

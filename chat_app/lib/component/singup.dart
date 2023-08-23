@@ -24,13 +24,10 @@ class Singup extends StatefulWidget {
 }
 
 class _SingupState extends State<Singup> {
-
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-   
   }
 
   var namecontoller = TextEditingController();
@@ -42,8 +39,7 @@ class _SingupState extends State<Singup> {
   void signUpApi(String name, String email, String password) async {
     loading = true;
     setState(() {});
-      
-    
+
     try {
       final response = await http.post(
         Uri.parse('https://srever-ecomm.vercel.app/register'),
@@ -63,23 +59,27 @@ class _SingupState extends State<Singup> {
         final userJson = jsonData['user'];
         // final authJson = jsonData['auth'];
         // print('User Email: ${user.email}');
-        setState(() {
-          
-        });
+        setState(() {});
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Chat_page(userName: name,)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => Chat_page(
+                      userName: name,
+                    )));
         // print(authData);
       } else {
         loading = false;
-       return showDialog(
+        return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
               title: Text('Somethig went wrong.. '),
               actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Ok'))
               ],
             );
           },
@@ -87,65 +87,74 @@ class _SingupState extends State<Singup> {
       }
     } catch (e) {
       loading = false;
-             return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Somethig went wrong.. $e'),
-              actions: [
-                TextButton(onPressed: (){
-                  Navigator.of(context).pop();  
-                }, child: Text('Ok'))
-              ],
-            );
-          },
-        );
+      return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Somethig went wrong.. $e'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Ok'))
+            ],
+          );
+        },
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text('Chat-App'),
+        ),
         body: Center(
             child: Container(
-      width: 300,
-      // height: 100,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('Sing Up',style: TextStyle(fontSize: 22.0,fontWeight: FontWeight.w700),),
-          TextField(
-            controller: namecontoller,
-            decoration:  myInput(labelText :'Name'),
+          width: 300,
+          // height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Sing Up',
+                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w700),
+              ),
+              TextField(
+                controller: namecontoller,
+                decoration: myInput(labelText: 'Name'),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: emailcontoller,
+                decoration: myInput(labelText: 'Email'),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: passwordcontoller,
+                decoration: myInput(labelText: 'Password'),
+              ),
+              SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  signUpApi(
+                      namecontoller.text.toString(),
+                      emailcontoller.text.toString(),
+                      passwordcontoller.text.toString());
+                },
+                child: loading ? CircularProgressIndicator() : Text("SignUp"),
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("go to Login")),
+            ],
           ),
-          SizedBox(height: 12),
-          TextField(
-            controller: emailcontoller,
-            decoration:  myInput(labelText :'Email'),
-          ),
-          SizedBox(height: 12),
-          TextField(
-            controller: passwordcontoller,
-            decoration:  myInput(labelText :'Password'),
-          ),
-          SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {
-              signUpApi(
-                  namecontoller.text.toString(),
-                  emailcontoller.text.toString(),
-                  passwordcontoller.text.toString());
-            },
-            child: loading ? CircularProgressIndicator() : Text("SignUp"),
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("go to Login")),
-        ],
-      ),
-    )));
+        )));
   }
 }
