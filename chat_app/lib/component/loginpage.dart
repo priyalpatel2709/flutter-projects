@@ -46,18 +46,16 @@ class _LoginState extends State<Loginpage> {
                     ),
                     Divider(),
                     Container(
-                      width: 25 *
-                          MediaQuery.of(context).size.width /
-                          100, // 25vmax equivalent
+                      width: 
+                          300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
                         controller: emailcontoller,
                         style: TextStyle(
-                          fontSize: 1.2 *
-                              MediaQuery.of(context).size.width /
-                              100, // 1.2vmax equivalent
+                          fontSize: 
+                              15 , // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -73,9 +71,8 @@ class _LoginState extends State<Loginpage> {
                       ),
                     ),
                     Container(
-                      width: 25 *
-                          MediaQuery.of(context).size.width /
-                          100, // 25vmax equivalent
+                      width:
+                          300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
@@ -83,9 +80,7 @@ class _LoginState extends State<Loginpage> {
                         obscureText: true,
                         controller: passwordcontoller,
                         style: TextStyle(
-                          fontSize: 1.2 *
-                              MediaQuery.of(context).size.width /
-                              100, // 1.2vmax equivalent
+                          fontSize: 15, // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -101,7 +96,7 @@ class _LoginState extends State<Loginpage> {
                       ),
                     ),
                     Container(
-                      width: 25 * MediaQuery.of(context).size.width / 100,
+                      width: 300,
                       padding: EdgeInsets.all(1.5 *
                           MediaQuery.of(context).size.width /
                           100), // 1.5vmax equivalent
@@ -122,9 +117,7 @@ class _LoginState extends State<Loginpage> {
                           textStyle: TextStyle(
                             color: Colors.white, // text color
                             fontFamily: "Roboto",
-                            fontSize: 1.2 *
-                                MediaQuery.of(context).size.width /
-                                100, // 1.2vmax equivalent
+                            fontSize: 15, // 1.2vmax equivalent
                           ),
                           elevation: 0, // No elevation
                           tapTargetSize: MaterialTapTargetSize

@@ -14,8 +14,8 @@ class Message {
 }
 
 class Chat_page extends StatefulWidget {
-   final String userName;
-  Chat_page({Key? key,required this.userName}) : super(key: key);
+  final String userName;
+  Chat_page({Key? key, required this.userName}) : super(key: key);
 
   @override
   _Chat_pageState createState() => _Chat_pageState();
@@ -36,6 +36,15 @@ class _Chat_pageState extends State<Chat_page> {
   ScrollController _scrollController = ScrollController();
 
   var _userId;
+
+  void _scrollToBottom() {
+    print(' ${'Line 91:'} i am working ?');
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
 
   void connectToServer() {
     socket = IO.io('https://chat-app-srever.onrender.com/', <String, dynamic>{
@@ -66,10 +75,17 @@ class _Chat_pageState extends State<Chat_page> {
     socket.on('sentMessage', (data) {
       final _user = data['user'];
       final message = data['message'];
+
       if (_user != null && _user != widget.userName) {
         setState(() {
-          final newMessage = Message(message: message, user: _user,time: TimeOfDay.now().format(context));
+          final newMessage = Message(
+            message: message,
+            user: _user,
+            time: TimeOfDay.now().format(context),
+          );
+          _scrollToBottom();
           _userMessage.add(newMessage);
+          
         });
       }
     });
@@ -92,16 +108,8 @@ class _Chat_pageState extends State<Chat_page> {
     });
   }
 
-  void _scrollToBottom() {
-    print(' ${'Line 91:'} i am working ?');
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-  }
-
   void _sendMessage() {
+    _scrollToBottom();
     final message = _controller.text;
 
     if (message.isNotEmpty) {
@@ -117,7 +125,6 @@ class _Chat_pageState extends State<Chat_page> {
       socket.emit('message', {'message': message, 'id': socket.id});
 
       _controller.clear();
-      _scrollToBottom();
     }
   }
 
@@ -159,7 +166,6 @@ class _Chat_pageState extends State<Chat_page> {
 
   @override
   Widget build(BuildContext context) {
-    _scrollToBottom();
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
@@ -188,6 +194,8 @@ class _Chat_pageState extends State<Chat_page> {
                 alignment = CrossAxisAlignment.center;
               } else {
                 alignment = CrossAxisAlignment.start;
+                print(' ${'Line 196:'} i am? why?');
+                _scrollToBottom();
               }
 
               String text;
@@ -224,16 +232,16 @@ class _Chat_pageState extends State<Chat_page> {
                       child: Text(
                         text,
                         style: TextStyle(
-                          fontSize: 18, // Adjust the font size as needed
+                          fontSize: 18,
                         ),
                       ),
                     ),
-                    SizedBox(height: 4), // Add a small space
+                    SizedBox(height: 4),
                     Text(
                       _userMessage[index].time,
                       style: TextStyle(
-                        fontSize: 12, // Smaller font size for the timestamp
-                        color: Colors.grey, // You can adjust the color
+                        fontSize: 12,
+                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -249,7 +257,7 @@ class _Chat_pageState extends State<Chat_page> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                       filled: true,
+                      filled: true,
                       fillColor: const Color.fromARGB(255, 205, 202, 202),
                       hintText: 'Enter your message...',
                     ),

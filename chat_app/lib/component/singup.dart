@@ -138,18 +138,14 @@ class _SingupState extends State<Singup> {
                     ),
                     Divider(),
                     Container(
-                      width: 25 *
-                          MediaQuery.of(context).size.width /
-                          100, // 25vmax equivalent
+                      width: 300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
                         controller: namecontoller,
                         style: TextStyle(
-                          fontSize: 1.2 *
-                              MediaQuery.of(context).size.width /
-                              100, // 1.2vmax equivalent
+                          fontSize: 15, // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -165,18 +161,14 @@ class _SingupState extends State<Singup> {
                       ),
                     ),
                     Container(
-                      width: 25 *
-                          MediaQuery.of(context).size.width /
-                          100, // 25vmax equivalent
+                      width: 300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
                         controller: emailcontoller,
                         style: TextStyle(
-                          fontSize: 1.2 *
-                              MediaQuery.of(context).size.width /
-                              100, // 1.2vmax equivalent
+                          fontSize: 15, // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -192,9 +184,7 @@ class _SingupState extends State<Singup> {
                       ),
                     ),
                     Container(
-                      width: 25 *
-                          MediaQuery.of(context).size.width /
-                          100, // 25vmax equivalent
+                      width: 300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
@@ -202,9 +192,7 @@ class _SingupState extends State<Singup> {
                         obscureText: true,
                         controller: passwordcontoller,
                         style: TextStyle(
-                          fontSize: 1.2 *
-                              MediaQuery.of(context).size.width /
-                              100, // 1.2vmax equivalent
+                          fontSize: 15, // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -220,7 +208,7 @@ class _SingupState extends State<Singup> {
                       ),
                     ),
                     Container(
-                      width: 25 * MediaQuery.of(context).size.width / 100,
+                      width: 300,
                       padding: EdgeInsets.all(1.5 *
                           MediaQuery.of(context).size.width /
                           100), // 1.5vmax equivalent
@@ -243,9 +231,7 @@ class _SingupState extends State<Singup> {
                           textStyle: TextStyle(
                             color: Colors.white, // text color
                             fontFamily: "Roboto",
-                            fontSize: 1.2 *
-                                MediaQuery.of(context).size.width /
-                                100, // 1.2vmax equivalent
+                            fontSize: 15, // 1.2vmax equivalent
                           ),
                           elevation: 0, // No elevation
                           tapTargetSize: MaterialTapTargetSize
@@ -263,7 +249,7 @@ class _SingupState extends State<Singup> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text("go to Login",
+                        child: Text("Go To Login",
                             style: TextStyle(color: Colors.white))),
                   ],
                 ),
