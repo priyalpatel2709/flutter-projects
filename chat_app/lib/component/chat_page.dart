@@ -40,7 +40,7 @@ class _Chat_pageState extends State<Chat_page> {
   void _scrollToBottom() {
     print(' ${'Line 91:'} i am working ?');
     _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
+      _scrollController.position.viewportDimension,
       duration: Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
@@ -68,6 +68,7 @@ class _Chat_pageState extends State<Chat_page> {
             user: 'Admin',
             time: TimeOfDay.now().format(context));
         _userMessage.add(newMessage);
+        _scrollToBottom();
       });
       // print(data['message']); // Welcome message from the server
     });
@@ -83,9 +84,9 @@ class _Chat_pageState extends State<Chat_page> {
             user: _user,
             time: TimeOfDay.now().format(context),
           );
-          _scrollToBottom();
-          _userMessage.add(newMessage);
           
+          _userMessage.add(newMessage);
+          _scrollToBottom();
         });
       }
     });
@@ -103,6 +104,7 @@ class _Chat_pageState extends State<Chat_page> {
       if (!_userMessage.contains(newMessage)) {
         setState(() {
           _userMessage.add(newMessage);
+          _scrollToBottom();
         });
       }
     });
@@ -119,6 +121,7 @@ class _Chat_pageState extends State<Chat_page> {
             user: "You",
             time: TimeOfDay.now().format(context));
         _userMessage.add(newMessage);
+        _scrollToBottom();
       });
 
       // Emit the message to the server using your Socket.IO logic
@@ -166,6 +169,7 @@ class _Chat_pageState extends State<Chat_page> {
 
   @override
   Widget build(BuildContext context) {
+    print(' ${'Line 169:'} ${_userMessage.length}');
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
