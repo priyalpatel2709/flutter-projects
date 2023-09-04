@@ -2,22 +2,22 @@
 
 import 'package:flutter/material.dart';
 
-class Singup extends StatefulWidget {
-const Singup({ Key? key }) : super(key: key);
+class Chatpage extends StatefulWidget {
+const Chatpage({ Key? key }) : super(key: key);
 
   @override
-  _SingupState createState() => _SingupState();
+  _ChatpageState createState() => _ChatpageState();
 }
 
-class _SingupState extends State<Singup> {
+class _ChatpageState extends State<Chatpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Singup'),
+        title: Text('Chatpage'),
       ),
       body: Center(
-        child: Text('This is Singup content.'),
+        child: Text('This is Chatpage content.'),
       ),
     );
   }

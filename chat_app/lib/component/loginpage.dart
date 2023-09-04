@@ -46,16 +46,14 @@ class _LoginState extends State<Loginpage> {
                     ),
                     Divider(),
                     Container(
-                      width: 
-                          300, // 25vmax equivalent
+                      width: 300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent
                       child: TextField(
                         controller: emailcontoller,
                         style: TextStyle(
-                          fontSize: 
-                              15 , // 1.2vmax equivalent
+                          fontSize: 15, // 1.2vmax equivalent
                         ),
                         decoration: InputDecoration(
                           filled: true,
@@ -71,8 +69,7 @@ class _LoginState extends State<Loginpage> {
                       ),
                     ),
                     Container(
-                      width:
-                          300, // 25vmax equivalent
+                      width: 300, // 25vmax equivalent
                       margin: EdgeInsets.all(2 *
                           MediaQuery.of(context).size.width /
                           100), // 2vmax equivalent

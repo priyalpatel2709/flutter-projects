@@ -18,7 +18,7 @@ class _Splace_screenState extends State<Splace_screen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
-        child: Text('This is Splace_screen content.'),
+        child: Text('This is Splace_screen content. bla bla lla'),
       ),
     );
   }
