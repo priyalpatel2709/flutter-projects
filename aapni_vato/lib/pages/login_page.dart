@@ -23,6 +23,7 @@ class _LoginState extends State<Login> {
   UserInfo userData = UserInfo();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  var loading = false;
 
   @override
   void dispose() {
@@ -40,48 +41,52 @@ class _LoginState extends State<Login> {
       body: Center(
         child: Container(
           width: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildTextField(
-                  _emailController, 'Enter Email', Icons.perm_identity_sharp),
-              SizedBox(height: 8.0),
-              _buildTextField(
-                  _passwordController, 'Enter Password', Icons.password),
-              SizedBox(height: 8.0),
-              ElevatedButton(
-                onPressed: () {
-                  final email = _emailController.text;
-                  final password = _passwordController.text;
-                  if (email.isNotEmpty && password.isNotEmpty) {
-                    loginuser(email, password);
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ErrorDialog(
-                          title: 'Fail',
-                          message: 'Enter all fields',
-                        );
+          child: loading
+              ? Center(
+                  child: Text('Loading'),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildTextField(_emailController, 'Enter Email',
+                        Icons.perm_identity_sharp),
+                    SizedBox(height: 8.0),
+                    _buildTextField(
+                        _passwordController, 'Enter Password', Icons.password),
+                    SizedBox(height: 8.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        final email = _emailController.text;
+                        final password = _passwordController.text;
+                        if (email.isNotEmpty && password.isNotEmpty) {
+                          loginuser(email, password);
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ErrorDialog(
+                                title: 'Fail',
+                                message: 'Enter all fields',
+                              );
+                            },
+                          );
+                        }
                       },
-                    );
-                  }
-                },
-                child: Text('Log In'),
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Singup()),
-                    );
-                  },
-                  child: Text('go to singup'))
-            ],
-          ),
+                      child: Text('Log In'),
+                    ),
+                    SizedBox(
+                      height: 8.0,
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Singup()),
+                          );
+                        },
+                        child: Text('go to singup'))
+                  ],
+                ),
         ),
       ),
     );
@@ -101,7 +106,11 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> loginuser(String email, String password) async {
+    loading = true;
+    setState(() {});
     try {
+      loading = false;
+      setState(() {});
       final response = await http.post(
         Uri.parse('https://single-chat-app.onrender.com/api/user/login'),
         headers: {'Content-Type': 'application/json'},
@@ -130,6 +139,8 @@ class _LoginState extends State<Login> {
         );
       }
     } catch (e) {
+      loading = false;
+      setState(() {});
       showDialog(
         context: context,
         builder: (BuildContext context) {

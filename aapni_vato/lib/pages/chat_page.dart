@@ -14,21 +14,19 @@ class Chatpage extends StatefulWidget {
 }
 
 class _ChatpageState extends State<Chatpage> {
-  final _myBox = Hive.box('user_info');
+  final _mybox = Hive.box('user_info');
   UserInfo userInfo = UserInfo();
   User?
-      storedUser; // Declare a User object to hold the retrieved user information
+      storedUser; 
 
   @override
   void initState() {
     super.initState();
-
-    // Retrieve the stored user information when the Chatpage is initialized
     storedUser = userInfo.getUserInfo();
   }
 
   Future<void> clearHiveStorage() async {
-    await _myBox.deleteFromDisk(); // This deletes the entire Hive storage
+    await _mybox.deleteFromDisk();
   }
 
   @override
@@ -58,7 +56,7 @@ class _ChatpageState extends State<Chatpage> {
             ),
             ElevatedButton(
               onPressed: () {
-                clearHiveStorage();
+                // clearHiveStorage();
                 Navigator.pushReplacementNamed(context, RoutesName.Login);
               },
               child: Text('Log Out'),
