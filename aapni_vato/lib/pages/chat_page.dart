@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/alluserData.dart';
 import '../route/routes_name.dart';
-import '../utilits/errordialog.dart';
 
 class Chatpage extends StatefulWidget {
   const Chatpage({Key? key}) : super(key: key);
@@ -30,15 +29,14 @@ class _ChatpageState extends State<Chatpage> {
     storedUser = userInfo.getUserInfo();
   }
 
+  List<FetchUser> userlist = [];
+
   Future<void> clearHiveStorage() async {
     await _mybox.deleteFromDisk();
   }
 
-  List<FetchUser> userlist = [];
-
   @override
   Widget build(BuildContext context) {
-    // print(userlist[0].name);
     return Scaffold(
       appBar: AppBar(
         title: Text('Chatpage'),
@@ -61,25 +59,42 @@ class _ChatpageState extends State<Chatpage> {
               leading: Icon(
                 Icons.search,
               ),
-              title: const Text('Search Frind'),
+              title: const Text('Search Friend'),
               onTap: () {
                 adduser();
               },
             ),
             ListTile(
-                leading: Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  // userinfo.clearUserData();
-                  Navigator.pushReplacementNamed(context, RoutesName.Login);
-                })
+              leading: Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                // userinfo.clearUserData();
+                Navigator.pushReplacementNamed(context, RoutesName.Login);
+              },
+            ),
           ],
         ),
       ),
       body: Center(
         child: Column(
           children: [
-            Text('data')
+            // Display the list of users
+            Expanded(
+              child: ListView.builder(
+                itemCount: userlist.length,
+                itemBuilder: (context, index) {
+                  final user = userlist[index];
+                  return ListTile(
+                    leading: CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(user.pic.toString())),
+                    title: Text(user.name.toString()),
+                    subtitle: Text(user.email.toString()),
+                    // You can display additional user information here
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
