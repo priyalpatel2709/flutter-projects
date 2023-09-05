@@ -5,8 +5,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../data/database.dart';
 import '../model/usersingup_model.dart';
 import '../utilits/errordialog.dart';
+import 'chatpage.dart';
+import 'login.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);
@@ -20,6 +23,8 @@ class _SingupState extends State<Singup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmpassController = TextEditingController();
+  UserInfo userData = UserInfo();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +123,18 @@ class _SingupState extends State<Singup> {
                   }
                 },
                 child: Text('Sing-Up'),
-              )
+              ),
+              SizedBox(
+                height: 8.0,
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  },
+                  child: Text('go to singup'))
             ],
           ),
         ),
@@ -128,16 +144,29 @@ class _SingupState extends State<Singup> {
 
   void singupuser(String name, String email, String password) async {
     try {
-      var responce = await http.post(
+      var response = await http.post(
         Uri.parse('https://single-chat-app.onrender.com/api/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password, 'name': name}),
       );
-      final jsonData = jsonDecode(responce.body);
-      print(jsonData);
-      if (responce.statusCode == 200) {
+
+      if (response.statusCode == 200) {
+        final jsonData = await jsonDecode(response.body);
         UserSingUp user = UserSingUp.fromJson(jsonData);
-        print(user.name);
+
+        // Create a User object with the retrieved information
+        User newUser = User(
+          userId: user.sId.toString(),
+          token: user.token.toString(),
+          name: user.name.toString(),
+          email: user.email.toString(),
+          imageUrl: user.pic.toString(),
+        );
+
+        // Store the user in Hive
+        userData.addUserInfo(newUser);
+
+        navigateToChatpage();
       } else {
         showDialog(
           context: context,
@@ -155,10 +184,17 @@ class _SingupState extends State<Singup> {
         builder: (BuildContext context) {
           return ErrorDialog(
             title: 'Fail',
-            message: 'Error:- $e',
+            message: 'Error: $e',
           );
         },
       );
     }
+  }
+
+  void navigateToChatpage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Chatpage()),
+    );
   }
 }

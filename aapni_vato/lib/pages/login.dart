@@ -9,6 +9,7 @@ import '../data/database.dart';
 import '../model/userlogin_model.dart';
 import '../utilits/errordialog.dart';
 import 'chatpage.dart';
+import 'singup.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -67,6 +68,17 @@ class _LoginState extends State<Login> {
                 },
                 child: Text('Log In'),
               ),
+              SizedBox(
+                height: 8.0,
+              ),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Singup()),
+                    );
+                  },
+                  child: Text('go to singup'))
             ],
           ),
         ),
@@ -95,12 +107,15 @@ class _LoginState extends State<Login> {
         body: jsonEncode({'email': email, 'password': password}),
       );
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
+        final jsonData = await jsonDecode(response.body);
         final user = UserLogIn.fromJson(jsonData);
-
-        userData.user_info
-            .addAll([user.sId, user.token, user.name, user.email]);
-        userData.addUser();
+        User newUser = User(
+          userId: user.sId.toString(),
+          token: user.token.toString(),
+          name: user.name.toString(),
+          email: user.email.toString(),
+        );
+        userData.addUserInfo(newUser);
         navigateToChatpage();
       } else {
         showDialog(
