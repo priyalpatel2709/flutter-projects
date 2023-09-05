@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:hive_flutter/adapters.dart';
 
 class UserInfo {
@@ -12,7 +14,14 @@ class UserInfo {
     user_info = _mybox.get("USER_INFO");
   }
 
-  void updateData() {
-    _mybox.put('USER_INFO', user_info);
+  void addUser(){
+    _mybox.put('USER_INFO',user_info);
+  }
+
+  dynamic  getinfo(){
+    var data = _mybox.get('USER_INFO');
+    // return data;
+    print(data);
+    // print(data);
   }
 }
