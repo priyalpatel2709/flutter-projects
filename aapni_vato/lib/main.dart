@@ -5,9 +5,11 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import 'data/useradpater.dart';
-import 'pages/login.dart';
-import 'pages/singup.dart';
-import 'pages/splace_screen.dart';
+import 'pages/login_page.dart';
+import 'pages/singup_page.dart';
+import 'pages/splash_screen.dart';
+import 'route/route.dart';
+import 'route/routes_name.dart';
 
 void main() async {
   Hive.registerAdapter(UserAdapter());
@@ -26,7 +28,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Login(),
+      initialRoute: RoutesName.Splash_Screen,
+      onGenerateRoute: Routes.generateRoute,
     );
   }
 }

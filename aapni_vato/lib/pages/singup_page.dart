@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/usersingup_model.dart';
+import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
-import 'chatpage.dart';
-import 'login.dart';
+import 'chat_page.dart';
+import 'login_page.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);
@@ -192,9 +193,6 @@ class _SingupState extends State<Singup> {
   }
 
   void navigateToChatpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Chatpage()),
-    );
+    Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
   }
 }

@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/userlogin_model.dart';
+import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
-import 'chatpage.dart';
-import 'singup.dart';
+import 'chat_page.dart';
+import 'singup_page.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -142,9 +143,6 @@ class _LoginState extends State<Login> {
   }
 
   void navigateToChatpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Chatpage()),
-    );
+    Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
   }
 }
