@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/userlogin_model.dart';
+import '../utilits/errordialog.dart';
 import 'chatpage.dart';
 
 class Login extends StatefulWidget {
@@ -38,9 +41,11 @@ class _LoginState extends State<Login> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildTextField(_emailController, 'Enter Email', Icons.perm_identity_sharp),
+              _buildTextField(
+                  _emailController, 'Enter Email', Icons.perm_identity_sharp),
               SizedBox(height: 8.0),
-              _buildTextField(_passwordController, 'Enter Password', Icons.password),
+              _buildTextField(
+                  _passwordController, 'Enter Password', Icons.password),
               SizedBox(height: 8.0),
               ElevatedButton(
                 onPressed: () {
@@ -48,6 +53,16 @@ class _LoginState extends State<Login> {
                   final password = _passwordController.text;
                   if (email.isNotEmpty && password.isNotEmpty) {
                     loginuser(email, password);
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ErrorDialog(
+                          title: 'Fail',
+                          message: 'Enter all fields',
+                        );
+                      },
+                    );
                   }
                 },
                 child: Text('Log In'),
@@ -59,7 +74,8 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -74,7 +90,7 @@ class _LoginState extends State<Login> {
   Future<void> loginuser(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('https://single-chat-app.onrender.com/api/user/login'), 
+        Uri.parse('https://single-chat-app.onrender.com/api/user/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
@@ -82,14 +98,31 @@ class _LoginState extends State<Login> {
         final jsonData = jsonDecode(response.body);
         final user = UserLogIn.fromJson(jsonData);
 
-        userData.user_info.addAll([user.sId, user.token, user.name, user.email]);
+        userData.user_info
+            .addAll([user.sId, user.token, user.name, user.email]);
         userData.addUser();
         navigateToChatpage();
       } else {
-        print('Something went wrong');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Something went wrong',
+            );
+          },
+        );
       }
     } catch (e) {
-      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Error',
+            message: 'Error:- $e',
+          );
+        },
+      );
     }
   }
 

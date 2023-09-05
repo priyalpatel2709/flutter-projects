@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
 import 'dart:convert';
 
@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../model/usersingup_model.dart';
+import '../utilits/errordialog.dart';
 
 class Singup extends StatefulWidget {
   const Singup({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _SingupState extends State<Singup> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _conformpassController = TextEditingController();
+  final TextEditingController _confirmpassController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +37,7 @@ class _SingupState extends State<Singup> {
                 decoration: InputDecoration(
                   labelText: 'Name',
                   hintText: 'Type something...',
-                  prefixIcon: Icon(Icons.text_fields),
+                  prefixIcon: Icon(Icons.perm_identity_sharp),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -48,7 +49,7 @@ class _SingupState extends State<Singup> {
                 decoration: InputDecoration(
                   labelText: 'Email',
                   hintText: 'Type something...',
-                  prefixIcon: Icon(Icons.text_fields),
+                  prefixIcon: Icon(Icons.email),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -60,7 +61,7 @@ class _SingupState extends State<Singup> {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   hintText: 'Type something...',
-                  prefixIcon: Icon(Icons.text_fields),
+                  prefixIcon: Icon(Icons.password),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -68,11 +69,11 @@ class _SingupState extends State<Singup> {
                 height: 8.0,
               ),
               TextField(
-                controller: _conformpassController,
+                controller: _confirmpassController,
                 decoration: InputDecoration(
-                  labelText: 'comform password',
+                  labelText: 'confirm password',
                   hintText: 'Type something...',
-                  prefixIcon: Icon(Icons.text_fields),
+                  prefixIcon: Icon(Icons.password),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -85,19 +86,35 @@ class _SingupState extends State<Singup> {
                   final email = _emailController.text.toString();
                   final password = _passwordController.text.toString();
                   final conformpassword =
-                      _conformpassController.text.toString();
+                      _confirmpassController.text.toString();
 
                   if (name != '' &&
                       email != '' &&
                       password != '' &&
                       conformpassword != '') {
-                    print(password);
-                    print(conformpassword);
                     if (password == conformpassword) {
                       singupuser(name, email, password);
                     } else {
-                      print('password does not match');
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ErrorDialog(
+                            title: 'Fail',
+                            message: 'password does not match !!',
+                          );
+                        },
+                      );
                     }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ErrorDialog(
+                          title: 'Fail',
+                          message: 'Enter all fields',
+                        );
+                      },
+                    );
                   }
                 },
                 child: Text('Sing-Up'),
@@ -117,10 +134,31 @@ class _SingupState extends State<Singup> {
         body: jsonEncode({'email': email, 'password': password, 'name': name}),
       );
       final jsonData = jsonDecode(responce.body);
-      UserSingUp user = UserSingUp.fromJson(jsonData);
-      print(user.name);
+      print(jsonData);
+      if (responce.statusCode == 200) {
+        UserSingUp user = UserSingUp.fromJson(jsonData);
+        print(user.name);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'User Already Exists !!!',
+            );
+          },
+        );
+      }
     } catch (e) {
-      print('Error:- $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error:- $e',
+          );
+        },
+      );
     }
   }
 }
