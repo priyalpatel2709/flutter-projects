@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -16,6 +18,8 @@ class Chatmessage_page extends StatefulWidget {
 class _Chatmessage_pageState extends State<Chatmessage_page> {
   User? storedUser;
   UserInfo userInfo = UserInfo();
+  final TextEditingController _controller = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -57,31 +61,68 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         ),
       ),
       body: Center(
-        child: FutureBuilder<List<ChatMessage>>(
-          future: fetchChatMessages(widget.data['userId'].toString()),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              print(snapshot.hasData);
-              return Text('No chat messages available.');
-            } else {
-              final chatMessages = snapshot.data;
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+              child: FutureBuilder<List<ChatMessage>>(
+                future: fetchChatMessages(widget.data['userId'].toString()),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    print(snapshot.hasData);
+                    return Text('No chat messages available.');
+                  } else {
+                    final chatMessages = snapshot.data;
 
-              // Use chatMessages to build your UI
-              // For example:
-              return ListView.builder(
-                itemCount: chatMessages!.length,
-                itemBuilder: (context, index) {
-                  final chatMessage = chatMessages[index];
-                  return ListTile(title: Text('${chatMessage.content}'));
-                  // Build your UI using chatMessage
+                    // Use chatMessages to build your UI
+                    // For example:
+                    return ListView.builder(
+                      itemCount: chatMessages!.length,
+                      itemBuilder: (context, index) {
+                        final chatMessage = chatMessages[index];
+                        return ListTile(title: Text('${chatMessage.content}'));
+                        // Build your UI using chatMessage
+                      },
+                    );
+                  }
                 },
-              );
-            }
-          },
+              ),
+            ),
+            // Expanded(
+              // child:
+               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: 3.0,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Type something...',
+                       
+                        
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      // Handle sending the message
+                    },
+                    icon: Icon(Icons.send),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8.0,
+              )
+            // )
+          ],
         ),
       ),
     );
