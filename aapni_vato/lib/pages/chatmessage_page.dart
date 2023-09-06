@@ -21,6 +21,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     super.initState();
     storedUser = userInfo.getUserInfo();
   }
+
   Future<List<ChatMessage>> fetchChatMessages(String userId) async {
     print(userId);
     final response = await http.get(
@@ -29,7 +30,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     );
 
     if (response.statusCode == 200) {
-      print(response.body);
       final List<dynamic> jsonList = json.decode(response.body);
       final List<ChatMessage> chatMessages =
           jsonList.map((json) => ChatMessage.fromJson(json)).toList();

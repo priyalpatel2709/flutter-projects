@@ -113,14 +113,15 @@ class _ChatpageState extends State<Chatpage> {
               itemBuilder: (context, index) {
                 final chat = chats[index];
                 final chatUser =
-                    chat.users.last; // Assuming you want the first user
-
+                    chat.users.last;
+                     
+                final chatId = chat.id;
                 return InkWell(
                   onTap: () {
                     Navigator.pushNamed(
                         context, RoutesName.Chatmessage_page,
                         arguments: {
-                          "userId": chatUser.id,
+                          "userId": chatId,
                           "name": chatUser.name,
                           "dp": chatUser.pic
                           });
