@@ -1,3 +1,4 @@
+import '../pages/add_frind.dart';
 import '../pages/chat_page.dart';
 import '../pages/login_page.dart';
 import '../pages/singup_page.dart';
@@ -21,6 +22,9 @@ class Routes {
 
       case RoutesName.Chatpage :
         return   MaterialPageRoute(builder: (context) => Chatpage());   
+
+      case RoutesName.AddFriend :
+        return   MaterialPageRoute(builder: (context) => AddFriend());     
 
       default:
         return MaterialPageRoute(

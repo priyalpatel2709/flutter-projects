@@ -18,7 +18,6 @@ class Chatpage extends StatefulWidget {
 }
 
 class _ChatpageState extends State<Chatpage> {
-  final TextEditingController _controller = TextEditingController();
   final _mybox = Hive.box('user_info');
   UserInfo userInfo = UserInfo();
   User? storedUser;
@@ -29,8 +28,6 @@ class _ChatpageState extends State<Chatpage> {
     super.initState();
     storedUser = userInfo.getUserInfo();
   }
-
-  List<FetchUser> userlist = [];
 
   Future<void> clearHiveStorage() async {
     await _mybox.deleteFromDisk();
@@ -76,26 +73,7 @@ class _ChatpageState extends State<Chatpage> {
           ],
         ),
       ),
-      body: loading
-          ? Text('Loading')
-          : userlist.isNotEmpty
-              ? ListView.separated(
-                  separatorBuilder: (context, index) {
-                    return Divider();
-                  },
-                  itemCount: userlist.length,
-                  itemBuilder: (context, index) {
-                    final user = userlist[index]; // Get the user data
-                    return ListTile(
-                      leading: CircleAvatar(
-                          backgroundImage: NetworkImage(user.pic.toString())),
-                      title: Text(user.name.toString()),
-                    );
-                  },
-                )
-              : Center(
-                  child: Text('No stored data available.'),
-                ),
+      body: Text('my chats'),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           adduser();
@@ -106,67 +84,6 @@ class _ChatpageState extends State<Chatpage> {
   }
 
   void adduser() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Search by Name'),
-          content: loading
-              ? Text('Loading')
-              : TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    labelText: 'Name...',
-                    hintText: 'e.g., Harry...',
-                  ),
-                ),
-          actions: [
-            TextButton(
-              child: Text('Go'),
-              onPressed: () {
-                userlist.clear();
-                loading = true;
-                setState(() {});
-                fetchUser(_controller.text.toString());
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> fetchUser(String name) async {
-    try {
-      final url = Uri.parse(
-          'https://single-chat-app.onrender.com/api/user?search=$name');
-      final response = await http.get(
-        url,
-        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-      );
-
-      if (response.statusCode == 200) {
-        loading = false;
-        setState(() {});
-        final jsonData = jsonDecode(response.body);
-
-        if (jsonData is List) {
-          for (var i in jsonData) {
-            userlist.add(FetchUser.fromJson(i));
-          }
-          setState(() {});
-          _controller.clear();
-          Navigator.of(context).pop();
-        } else {
-          // Handle error if jsonData is not a List
-        }
-      } else {
-        // Handle error if needed
-      }
-    } catch (e) {
-      loading = false;
-      setState(() {});
-      print('Error: $e');
-    }
+    Navigator.pushNamed(context, RoutesName.AddFriend);
   }
 }
