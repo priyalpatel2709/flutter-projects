@@ -115,10 +115,21 @@ class _ChatpageState extends State<Chatpage> {
                 final chatUser =
                     chat.users.last; // Assuming you want the first user
 
-                return ListTile(
-                  leading:
-                      CircleAvatar(backgroundImage: NetworkImage(chatUser.pic)),
-                  title: Text(chatUser.name), // Access user name
+                return InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(
+                        context, RoutesName.Chatmessage_page,
+                        arguments: {
+                          "userId": chatUser.id,
+                          "name": chatUser.name,
+                          "dp": chatUser.pic
+                          });
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                        backgroundImage: NetworkImage(chatUser.pic)),
+                    title: Text(chatUser.name), // Access user name
+                  ),
                 );
               },
             );

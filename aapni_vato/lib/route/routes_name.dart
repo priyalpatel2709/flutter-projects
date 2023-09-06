@@ -4,4 +4,5 @@ class RoutesName {
   static const String Login = 'Login';
   static const String Singup = 'Singup';
   static const String AddFriend = 'AddFriend';
+  static const String Chatmessage_page = 'Chatmessage_page';
 }
