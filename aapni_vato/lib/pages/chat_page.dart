@@ -22,14 +22,12 @@ class _ChatpageState extends State<Chatpage> {
   final _mybox = Hive.box('user_info');
   UserInfo userInfo = UserInfo();
   User? storedUser;
-  List<Map<String, dynamic>> storedData = []; 
   var loading = false;
 
   @override
   void initState() {
     super.initState();
     storedUser = userInfo.getUserInfo();
-    storedData = userInfo.getSearchedUser();
   }
 
   List<FetchUser> userlist = [];
@@ -79,27 +77,25 @@ class _ChatpageState extends State<Chatpage> {
         ),
       ),
       body: loading
-        ? Text('Loading')
-        : storedData.isNotEmpty // Check if storedData is not empty
-            ? ListView.separated(
-                separatorBuilder: (context, index) {
-                  return Divider();
-                },
-                itemCount: storedData.length, // Use storedData.length
-                itemBuilder: (context, index) {
-                  final user = storedData[index]; // Get the user data
-                  return ListTile(
-                    leading: user['pic'] == null
-                        ? Icon(Icons.abc)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(user['pic'])),
-                    title: Text(user['name'].toString()),
-                  );
-                },
-              )
-            : Center(
-                child: Text('No stored data available.'),
-              ),
+          ? Text('Loading')
+          : userlist.isNotEmpty
+              ? ListView.separated(
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                  itemCount: userlist.length,
+                  itemBuilder: (context, index) {
+                    final user = userlist[index]; // Get the user data
+                    return ListTile(
+                      leading: CircleAvatar(
+                          backgroundImage: NetworkImage(user.pic.toString())),
+                      title: Text(user.name.toString()),
+                    );
+                  },
+                )
+              : Center(
+                  child: Text('No stored data available.'),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           adduser();
@@ -115,13 +111,15 @@ class _ChatpageState extends State<Chatpage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Search by Name'),
-          content: loading ? Text('Loading') : TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              labelText: 'Name...',
-              hintText: 'e.g., Harry...',
-            ),
-          ),
+          content: loading
+              ? Text('Loading')
+              : TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    labelText: 'Name...',
+                    hintText: 'e.g., Harry...',
+                  ),
+                ),
           actions: [
             TextButton(
               child: Text('Go'),
@@ -139,41 +137,36 @@ class _ChatpageState extends State<Chatpage> {
   }
 
   Future<void> fetchUser(String name) async {
-  try {
-    final url = Uri.parse(
-        'https://single-chat-app.onrender.com/api/user?search=$name');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-    );
+    try {
+      final url = Uri.parse(
+          'https://single-chat-app.onrender.com/api/user?search=$name');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
+      );
 
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
+        loading = false;
+        setState(() {});
+        final jsonData = jsonDecode(response.body);
+
+        if (jsonData is List) {
+          for (var i in jsonData) {
+            userlist.add(FetchUser.fromJson(i));
+          }
+          setState(() {});
+          _controller.clear();
+          Navigator.of(context).pop();
+        } else {
+          // Handle error if jsonData is not a List
+        }
+      } else {
+        // Handle error if needed
+      }
+    } catch (e) {
       loading = false;
       setState(() {});
-      final jsonData = jsonDecode(response.body);
-
-      if (jsonData is List) {
-        final dataToStore = jsonData.cast<Map<String, dynamic>>();
-        userInfo.addSearchedUser(dataToStore);
-        storedData = List<Map<String, dynamic>>.from(dataToStore);
-        for (var i in jsonData) {
-          userlist.add(FetchUser.fromJson(i));
-        }
-        setState(() {});
-        _controller.clear();
-        Navigator.of(context).pop();
-      } else {
-        // Handle error if jsonData is not a List
-      }
-    } else {
-      // Handle error if needed
+      print('Error: $e');
     }
-  } catch (e) {
-    loading = false;
-    setState(() {});
-    print('Error: $e');
   }
-}
-
-
 }
