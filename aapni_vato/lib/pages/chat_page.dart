@@ -4,11 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
-
 import '../data/database.dart';
-import '../model/alluserData.dart';
+import '../model/mychat.dart';
 import '../route/routes_name.dart';
+import 'package:http/http.dart' as http;
 
 class Chatpage extends StatefulWidget {
   const Chatpage({Key? key}) : super(key: key);
@@ -31,6 +30,27 @@ class _ChatpageState extends State<Chatpage> {
 
   Future<void> clearHiveStorage() async {
     await _mybox.deleteFromDisk();
+  }
+
+  Future<List<Chat>> fetchChatData() async {
+    final url = Uri.parse(
+        'https://single-chat-app.onrender.com/api/chat'); 
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer ${storedUser!.token}'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      final List<Chat> chats =
+          jsonList.map((json) => Chat.fromJson(json)).toList();
+
+      return chats; // Return the list of Chat objects parsed from the JSON response
+    } else {
+      // Handle the error if the request fails.
+      print('Failed to load data: ${response.statusCode}');
+      throw Exception('Failed to load data: ${response.statusCode}');
+    }
   }
 
   @override
@@ -73,7 +93,36 @@ class _ChatpageState extends State<Chatpage> {
           ],
         ),
       ),
-      body: Text('my chats'),
+      body: FutureBuilder<List<Chat>>(
+        future: fetchChatData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show loading indicator while fetching data
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Text('No chat data available.');
+          } else {
+            // Data has been successfully fetched
+            final chats = snapshot.data!;
+
+            return ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                final chatUser =
+                    chat.users.first; // Assuming you want the first user
+
+                return ListTile(
+                  title: Text(chatUser.name), // Access user name
+                  subtitle:
+                      Text(chat.chatName), // Display chat name or other data
+                );
+              },
+            );
+          }
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           adduser();
