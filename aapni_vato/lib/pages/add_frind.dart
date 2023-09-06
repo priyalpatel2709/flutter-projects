@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/alluserData.dart';
+import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
 
 class AddFriend extends StatefulWidget {
@@ -53,7 +54,6 @@ class _AddFriendState extends State<AddFriend> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              
               if (loading) // Show CircularProgressIndicator while loading
                 Center(child: CircularProgressIndicator()),
               if (userlist.isNotEmpty)
@@ -69,7 +69,7 @@ class _AddFriendState extends State<AddFriend> {
                   itemBuilder: (context, index) {
                     final user = userlist[index]; // Get the user data
                     return InkWell(
-                      onTap: (){
+                      onTap: () {
                         // print(user.sId);
                         accessChat(user.sId);
                       },
@@ -135,11 +135,43 @@ class _AddFriendState extends State<AddFriend> {
     } catch (e) {
       loading = false;
       setState(() {});
-      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error $e',
+          );
+        },
+      );
     }
   }
-  
-  void accessChat(String? sId) {
+
+  void accessChat(String? sId) async {
     print(sId);
+    try {
+      final response = await http.post(
+          Uri.parse('https://single-chat-app.onrender.com/api/chat'),
+          headers: {
+            'Authorization': 'Bearer ${storedUser!.token}',
+            'Content-Type': 'application/json'
+          },
+          body: jsonEncode({'userId': sId}));
+
+      //  print(response.body);
+       if(response.statusCode ==200){
+        Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
+       }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error $e',
+          );
+        },
+      );
+    }
   }
 }
