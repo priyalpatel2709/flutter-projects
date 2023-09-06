@@ -93,34 +93,32 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               ),
             ),
             // Expanded(
-              // child:
-               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 3.0,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Type something...',
-                       
-                        
-                      ),
+            // child:
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  width: 3.0,
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Type something...',
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      // Handle sending the message
-                    },
-                    icon: Icon(Icons.send),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 8.0,
-              )
+                ),
+                IconButton(
+                  onPressed: () {
+                    // Handle sending the message
+                  },
+                  icon: Icon(Icons.send),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 8.0,
+            )
             // )
           ],
         ),
