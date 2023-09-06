@@ -64,11 +64,14 @@ class _ChatpageState extends State<Chatpage> {
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              currentAccountPicture: GestureDetector(
-                child: CircleAvatar(
-                    backgroundImage:
-                        NetworkImage(storedUser!.imageUrl.toString())),
-              ),
+              currentAccountPicture: storedUser!.imageUrl == null
+                  ? null // If imageUrl is null, don't display currentAccountPicture
+                  : GestureDetector(
+                      child: CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(storedUser!.imageUrl.toString()),
+                      ),
+                    ),
               accountName: Text(storedUser!.name),
               accountEmail: Text(storedUser!.email),
             ),
@@ -96,7 +99,7 @@ class _ChatpageState extends State<Chatpage> {
         future: fetchChatData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Show loading indicator while fetching data
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
