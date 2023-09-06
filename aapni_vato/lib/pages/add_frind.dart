@@ -68,10 +68,16 @@ class _AddFriendState extends State<AddFriend> {
                   itemCount: userlist.length,
                   itemBuilder: (context, index) {
                     final user = userlist[index]; // Get the user data
-                    return ListTile(
-                      leading: CircleAvatar(
-                          backgroundImage: NetworkImage(user.pic.toString())),
-                      title: Text(user.name.toString()),
+                    return InkWell(
+                      onTap: (){
+                        // print(user.sId);
+                        accessChat(user.sId);
+                      },
+                      child: ListTile(
+                        leading: CircleAvatar(
+                            backgroundImage: NetworkImage(user.pic.toString())),
+                        title: Text(user.name.toString()),
+                      ),
                     );
                   },
                 ),
@@ -131,5 +137,9 @@ class _AddFriendState extends State<AddFriend> {
       setState(() {});
       print('Error: $e');
     }
+  }
+  
+  void accessChat(String? sId) {
+    print(sId);
   }
 }
