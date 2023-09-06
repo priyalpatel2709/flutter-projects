@@ -76,7 +76,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 itemCount: chatMessages!.length,
                 itemBuilder: (context, index) {
                   final chatMessage = chatMessages[index];
-                  return Text('${chatMessage.content}');
+                  return ListTile(title: Text('${chatMessage.content}'));
                   // Build your UI using chatMessage
                 },
               );
