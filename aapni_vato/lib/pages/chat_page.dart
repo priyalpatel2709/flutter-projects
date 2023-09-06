@@ -33,8 +33,7 @@ class _ChatpageState extends State<Chatpage> {
   }
 
   Future<List<Chat>> fetchChatData() async {
-    final url = Uri.parse(
-        'https://single-chat-app.onrender.com/api/chat'); 
+    final url = Uri.parse('https://single-chat-app.onrender.com/api/chat');
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer ${storedUser!.token}'},
@@ -111,12 +110,12 @@ class _ChatpageState extends State<Chatpage> {
               itemBuilder: (context, index) {
                 final chat = chats[index];
                 final chatUser =
-                    chat.users.first; // Assuming you want the first user
+                    chat.users.last; // Assuming you want the first user
 
                 return ListTile(
+                  leading:
+                      CircleAvatar(backgroundImage: NetworkImage(chatUser.pic)),
                   title: Text(chatUser.name), // Access user name
-                  subtitle:
-                      Text(chat.chatName), // Display chat name or other data
                 );
               },
             );
