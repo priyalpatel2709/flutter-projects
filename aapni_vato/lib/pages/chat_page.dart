@@ -112,19 +112,19 @@ class _ChatpageState extends State<Chatpage> {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
-                final chatUser =
-                    chat.users.last;
-                     
+                final chatUser = storedUser!.userId == chat.users.first.id
+                    ? chat.users.last
+                    : chat.users.first;
+
                 final chatId = chat.id;
                 return InkWell(
                   onTap: () {
-                    Navigator.pushNamed(
-                        context, RoutesName.Chatmessage_page,
+                    Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
                           "userId": chatId,
                           "name": chatUser.name,
                           "dp": chatUser.pic
-                          });
+                        });
                   },
                   child: ListTile(
                     leading: CircleAvatar(
