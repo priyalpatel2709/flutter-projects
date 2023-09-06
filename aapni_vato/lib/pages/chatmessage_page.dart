@@ -23,7 +23,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   Future<List<ChatMessage>> fetchChatMessages(String userId) async {
-    print(userId);
     final response = await http.get(
       Uri.parse('https://single-chat-app.onrender.com/api/message/$userId'),
       headers: {'Authorization': 'Bearer ${storedUser!.token}'},
