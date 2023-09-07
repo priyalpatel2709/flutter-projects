@@ -27,12 +27,35 @@ class _SingupState extends State<Singup> {
   UserInfo userData = UserInfo();
   var loading = false;
 
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon, String hintText) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide(color: Colors.white, width: 2)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide(color: Colors.white24, width: 2)),
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white),
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.white10),
+        prefixIcon: Icon(icon),
+        border:
+            OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 77,80,85),
         title: Text('Singup'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
         child: Container(
@@ -44,51 +67,22 @@ class _SingupState extends State<Singup> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Name',
-                        hintText: 'Type something...',
-                        prefixIcon: Icon(Icons.perm_identity_sharp),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _buildTextField(
+                        _nameController, 'name', Icons.perm_identity_sharp,'e.g. Raj'),
                     SizedBox(
                       height: 8.0,
                     ),
-                    TextField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Type something...',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _buildTextField(_emailController, 'email', Icons.email,'e.g. raj123@gmail.com'),
                     SizedBox(
                       height: 8.0,
                     ),
-                    TextField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Type something...',
-                        prefixIcon: Icon(Icons.password),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _buildTextField(
+                        _passwordController, 'password', Icons.password,'e.g. Raj@Patel_23454'),
                     SizedBox(
                       height: 8.0,
                     ),
-                    TextField(
-                      controller: _confirmpassController,
-                      decoration: InputDecoration(
-                        labelText: 'confirm password',
-                        hintText: 'Type something...',
-                        prefixIcon: Icon(Icons.password),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _buildTextField(_confirmpassController, 'confirm password',
+                        Icons.password,'e.g. Raj@Patel_23454'),
                     SizedBox(
                       height: 8.0,
                     ),
@@ -141,7 +135,10 @@ class _SingupState extends State<Singup> {
                             MaterialPageRoute(builder: (context) => Login()),
                           );
                         },
-                        child: Text('go to singup'))
+                        child: Text(
+                          'go to singup',
+                          style: TextStyle(color: Colors.white),
+                        ))
                   ],
                 ),
         ),

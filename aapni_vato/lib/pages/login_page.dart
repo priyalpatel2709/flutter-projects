@@ -35,9 +35,10 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 77,80,85),
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         title: Text('Login'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
         child: Container(
@@ -50,10 +51,10 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildTextField(_emailController, 'Enter Email',
-                        Icons.perm_identity_sharp),
+                        Icons.perm_identity_sharp,'e.g. raj123@gmail.com'),
                     SizedBox(height: 8.0),
                     _buildTextField(
-                        _passwordController, 'Enter Password', Icons.password),
+                        _passwordController, 'Enter Password', Icons.password,'e.g. Raj@Patel_23454'),
                     SizedBox(height: 8.0),
                     ElevatedButton(
                       onPressed: () {
@@ -85,7 +86,8 @@ class _LoginState extends State<Login> {
                             MaterialPageRoute(builder: (context) => Singup()),
                           );
                         },
-                        child: Text('go to singup'))
+                        child: Text('go to singup',
+                            style: TextStyle(color: Colors.white)))
                   ],
                 ),
         ),
@@ -94,16 +96,23 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller, String label, IconData icon) {
+      TextEditingController controller, String label, IconData icon,String hintText) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide(color: Colors.white, width: 2)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(11),
+            borderSide: BorderSide(color: Colors.white24, width: 2)),
         labelText: label,
-        hintText: 'Type something...',
+        labelStyle: TextStyle(color: Colors.white),
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.white10),
         prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white24)
-        ),
+        border:
+            OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
       ),
     );
   }
