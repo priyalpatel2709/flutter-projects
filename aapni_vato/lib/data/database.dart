@@ -35,6 +35,10 @@ class UserInfo {
     _myBox.put('user', user);
   }
 
+  void clearBox() {
+    _myBox.clear();
+  }
+
   void addSearchedUser(data) {
     _myBox.put('user_data', data);
   }

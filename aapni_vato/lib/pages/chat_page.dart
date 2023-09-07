@@ -89,7 +89,7 @@ class _ChatpageState extends State<Chatpage> {
               leading: Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                // userinfo.clearUserData();
+                userInfo.clearBox();
                 Navigator.pushReplacementNamed(context, RoutesName.Login);
               },
             ),
