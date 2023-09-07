@@ -137,13 +137,13 @@ class _ChatpageState extends State<Chatpage> {
                       chatUser.name,
                       style: TextStyle(color: Colors.white),
                     ),
-                    subtitle: subtitleText
-                        ? Text('You: ${chat.latestMessage!.content}',
-                            style: TextStyle(color: Colors.white))
-                        : Text(
-                            chat.latestMessage!.content,
-                            style: TextStyle(color: Colors.white),
-                          ), // Access user name
+                    // subtitle: subtitleText
+                    //     ? Text('You: ${chat.latestMessage!.content}',
+                    //         style: TextStyle(color: Colors.white))
+                    //     : Text(
+                    //         chat.latestMessage!.content,
+                    //         style: TextStyle(color: Colors.white),
+                    //       ),
                   ),
                 );
               },
