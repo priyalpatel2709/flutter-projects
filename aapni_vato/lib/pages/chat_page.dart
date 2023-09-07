@@ -121,7 +121,7 @@ class _ChatpageState extends State<Chatpage> {
                   onTap: () {
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
-                          "userId": chatId,
+                          "chatId": chatId,
                           "name": chatUser.name,
                           "dp": chatUser.pic
                         });

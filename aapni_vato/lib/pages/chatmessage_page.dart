@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/chatmessage.dart';
+import '../utilits/errordialog.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -36,7 +37,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       final List<dynamic> jsonList = json.decode(response.body);
       final List<ChatMessage> chatMessages =
           jsonList.map((json) => ChatMessage.fromJson(json)).toList();
-
+        print(' ${'Line 40:'} ${response.body}');
       return chatMessages;
     } else {
       throw Exception('Failed to load chat messages');
@@ -66,7 +67,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           children: [
             Expanded(
               child: FutureBuilder<List<ChatMessage>>(
-                future: fetchChatMessages(widget.data['userId'].toString()),
+                future: fetchChatMessages(widget.data['chatId'].toString()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -84,16 +85,28 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                       itemCount: chatMessages!.length,
                       itemBuilder: (context, index) {
                         final chatMessage = chatMessages[index];
-                        return ListTile(title: Text('${chatMessage.content}'));
-                        // Build your UI using chatMessage
+                        // if(chatMessage.sender ==storedUser!.userId)
+                        CrossAxisAlignment alignment;
+
+                        if (chatMessage.sender.id == storedUser!.userId) {
+                          alignment = CrossAxisAlignment.end;
+                        } else {
+                          alignment = CrossAxisAlignment.start;
+                          // _scrollToBottom();
+                        }
+                        return  ListTile(title: Column(
+                          crossAxisAlignment: alignment,
+                          children: [
+                            Text('${chatMessage.content}'),
+                          ],
+                        ));
                       },
                     );
                   }
                 },
               ),
             ),
-            // Expanded(
-            // child:
+         
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -111,6 +124,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 IconButton(
                   onPressed: () {
                     // Handle sending the message
+                    sendMessage(widget.data['chatId'].toString());
                   },
                   icon: Icon(Icons.send),
                 )
@@ -124,5 +138,29 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         ),
       ),
     );
+  }
+
+  void sendMessage(String chatId) async {
+    try {
+      final response = await http.post(
+          Uri.parse('https://single-chat-app.onrender.com/api/message'),
+          headers: {
+            'Authorization': 'Bearer ${storedUser!.token}',
+            'Content-Type': 'application/json'
+          },
+          body: jsonEncode(
+              {'content': _controller.text.toString(), 'chatId': chatId}));
+      print(' ${'Line 137:'} ${response.body}');
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error $e',
+          );
+        },
+      );
+    }
   }
 }
