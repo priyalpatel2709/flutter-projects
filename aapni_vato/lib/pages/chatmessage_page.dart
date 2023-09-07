@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/chatmessage.dart';
 import '../utilits/errordialog.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -25,6 +27,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   void initState() {
     super.initState();
     storedUser = userInfo.getUserInfo();
+    initializeDateFormatting('en_IN', null);
   }
 
   Future<List<ChatMessage>> fetchChatMessages(String userId) async {
@@ -37,11 +40,24 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       final List<dynamic> jsonList = json.decode(response.body);
       final List<ChatMessage> chatMessages =
           jsonList.map((json) => ChatMessage.fromJson(json)).toList();
-        print(' ${'Line 40:'} ${response.body}');
+      // print(' ${'Line 40:'} ${response.body}');
       return chatMessages;
     } else {
       throw Exception('Failed to load chat messages');
     }
+  }
+
+  String messageTime(utcdateTime) {
+    String utcTimestamp = utcdateTime;
+    DateTime dateTime = DateTime.parse(utcTimestamp);
+    String formattedTime = formatTime(dateTime);
+    return formattedTime; // Output: 10:47 AM
+  }
+
+  String formatTime(DateTime dateTime) {
+    final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
+    final indianTime = dateTime.toLocal(); // Convert to local time zone (IST)
+    return timeFormat.format(indianTime);
   }
 
   @override
@@ -78,26 +94,70 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     return Text('No chat messages available.');
                   } else {
                     final chatMessages = snapshot.data;
-
-                    // Use chatMessages to build your UI
-                    // For example:
                     return ListView.builder(
                       itemCount: chatMessages!.length,
                       itemBuilder: (context, index) {
                         final chatMessage = chatMessages[index];
-                        // if(chatMessage.sender ==storedUser!.userId)
                         CrossAxisAlignment alignment;
-
+                        bool right;
+                        bool left;
+                        Color colors;
                         if (chatMessage.sender.id == storedUser!.userId) {
                           alignment = CrossAxisAlignment.end;
+                          right = true;
+                          left = false;
+                          colors = const Color.fromARGB(255, 190, 227, 248);
                         } else {
                           alignment = CrossAxisAlignment.start;
-                          // _scrollToBottom();
+                          colors = const Color.fromARGB(255, 185, 245, 208);
+                          right = false;
+                          left = true;
                         }
-                        return  ListTile(title: Column(
+                        messageTime(chatMessage.createdAt);
+                        return ListTile(
+                            title: Column(
                           crossAxisAlignment: alignment,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text('${chatMessage.content}'),
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: colors,
+                                borderRadius: BorderRadius.only(
+                                    topRight: right
+                                        ? Radius.circular(0.0)
+                                        : Radius.circular(40.0),
+                                    bottomRight: Radius.circular(40.0),
+                                    topLeft: left
+                                        ? Radius.circular(0.0)
+                                        : Radius.circular(40.0),
+                                    bottomLeft: Radius.circular(40.0)),
+                              ),
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: chatMessage.content,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black
+                                        // Other text style properties (e.g., color) can be added here.
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ' ${messageTime(chatMessage.createdAt)}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black
+                                        // Other text style properties (e.g., color) can be added here.
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Text(messageTime(chatMessage.createdAt))
+                            ),
                           ],
                         ));
                       },
@@ -106,7 +166,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 },
               ),
             ),
-         
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -150,7 +210,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           },
           body: jsonEncode(
               {'content': _controller.text.toString(), 'chatId': chatId}));
-      print(' ${'Line 137:'} ${response.body}');
+      // print(' ${'Line 137:'} ${response.body}');
     } catch (e) {
       showDialog(
         context: context,
