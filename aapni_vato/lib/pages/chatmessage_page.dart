@@ -72,16 +72,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
   }
 
- @override
-void dispose() {
-  scrollController.dispose();
-  _controller.dispose();
-  super.dispose();
-}
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Row(
@@ -185,28 +186,39 @@ void dispose() {
               ),
             ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                SizedBox(
-                  width: 3.0,
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Type something...',
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white60,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(40.0),
+                    bottomRight: Radius.circular(40.0),
+                    topLeft: Radius.circular(40.0),
+                    bottomLeft: Radius.circular(40.0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: 3.0,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Type something...',
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    // Handle sending the message
-                    sendMessage(widget.data['chatId'].toString());
-                  },
-                  icon: Icon(Icons.send),
-                )
-              ],
+                  IconButton(
+                    onPressed: () {
+                      // Handle sending the message
+                      sendMessage(widget.data['chatId'].toString());
+                    },
+                    icon: Icon(Icons.send),
+                  )
+                ],
+              ),
             ),
             SizedBox(
               height: 8.0,

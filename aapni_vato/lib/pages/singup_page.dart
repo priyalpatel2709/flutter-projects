@@ -31,6 +31,7 @@ class _SingupState extends State<Singup> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 77,80,85),
         title: Text('Singup'),
       ),
       body: Center(

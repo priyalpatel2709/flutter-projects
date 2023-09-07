@@ -55,6 +55,7 @@ class _ChatpageState extends State<Chatpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 77,80,85),
       appBar: AppBar(
         title: Text('Appni Vato'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -129,7 +130,7 @@ class _ChatpageState extends State<Chatpage> {
                   child: ListTile(
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(chatUser.pic)),
-                    title: Text(chatUser.name), // Access user name
+                    title: Text(chatUser.name, style: TextStyle(color: Colors.white), ), // Access user name
                   ),
                 );
               },

@@ -35,6 +35,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 77,80,85),
       appBar: AppBar(
         title: Text('Login'),
       ),
@@ -100,7 +101,9 @@ class _LoginState extends State<Login> {
         labelText: label,
         hintText: 'Type something...',
         prefixIcon: Icon(icon),
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white24)
+        ),
       ),
     );
   }
