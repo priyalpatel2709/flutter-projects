@@ -187,6 +187,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             ),
 
             Container(
+              width: 380,
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white60,
