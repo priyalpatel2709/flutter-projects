@@ -22,6 +22,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   User? storedUser;
   UserInfo userInfo = UserInfo();
   final TextEditingController _controller = TextEditingController();
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
@@ -41,6 +42,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       final List<ChatMessage> chatMessages =
           jsonList.map((json) => ChatMessage.fromJson(json)).toList();
       // print(' ${'Line 40:'} ${response.body}');
+      scrollToBottom();
       return chatMessages;
     } else {
       throw Exception('Failed to load chat messages');
@@ -59,6 +61,23 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     final indianTime = dateTime.toLocal(); // Convert to local time zone (IST)
     return timeFormat.format(indianTime);
   }
+
+  void scrollToBottom() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+ @override
+void dispose() {
+  scrollController.dispose();
+  _controller.dispose();
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +114,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   } else {
                     final chatMessages = snapshot.data;
                     return ListView.builder(
+                      controller: scrollController,
                       itemCount: chatMessages!.length,
                       itemBuilder: (context, index) {
                         final chatMessage = chatMessages[index];
@@ -139,19 +159,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                     TextSpan(
                                       text: chatMessage.content,
                                       style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black
-                                        // Other text style properties (e.g., color) can be added here.
-                                      ),
+                                          fontSize: 18, color: Colors.black
+                                          // Other text style properties (e.g., color) can be added here.
+                                          ),
                                     ),
                                     TextSpan(
                                       text:
                                           ' ${messageTime(chatMessage.createdAt)}',
                                       style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black
-                                        // Other text style properties (e.g., color) can be added here.
-                                      ),
+                                          fontSize: 12, color: Colors.black
+                                          // Other text style properties (e.g., color) can be added here.
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -210,8 +228,12 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           },
           body: jsonEncode(
               {'content': _controller.text.toString(), 'chatId': chatId}));
-      // print(' ${'Line 137:'} ${response.body}');
+      if (response.statusCode == 200) {
+        scrollToBottom();
+        _controller.clear();
+      }
     } catch (e) {
+      print(e);
       showDialog(
         context: context,
         builder: (BuildContext context) {
