@@ -44,6 +44,7 @@ class _ChatpageState extends State<Chatpage> {
       final List<Chat> chats =
           jsonList.map((json) => Chat.fromJson(json)).toList();
 
+      // print(response.body);
       return chats; // Return the list of Chat objects parsed from the JSON response
     } else {
       // Handle the error if the request fails.
@@ -55,7 +56,7 @@ class _ChatpageState extends State<Chatpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 77,80,85),
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         title: Text('Appni Vato'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -118,6 +119,8 @@ class _ChatpageState extends State<Chatpage> {
                     : chat.users.first;
 
                 final chatId = chat.id;
+                bool subtitleText =
+                    storedUser!.userId == chat.latestMessage?.sender.id;
                 return InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
@@ -130,7 +133,17 @@ class _ChatpageState extends State<Chatpage> {
                   child: ListTile(
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(chatUser.pic)),
-                    title: Text(chatUser.name, style: TextStyle(color: Colors.white), ), // Access user name
+                    title: Text(
+                      chatUser.name,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    subtitle: subtitleText
+                        ? Text('You: ${chat.latestMessage!.content}',
+                            style: TextStyle(color: Colors.white))
+                        : Text(
+                            chat.latestMessage!.content,
+                            style: TextStyle(color: Colors.white),
+                          ), // Access user name
                   ),
                 );
               },

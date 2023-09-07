@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
-
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../data/database.dart';
@@ -23,25 +23,56 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   UserInfo userInfo = UserInfo();
   final TextEditingController _controller = TextEditingController();
   ScrollController scrollController = ScrollController();
+  late IO.Socket socket;
+
+  final List<ChatMessage> chatMessages = [];
 
   @override
   void initState() {
     super.initState();
+    connectToServer();
     storedUser = userInfo.getUserInfo();
     initializeDateFormatting('en_IN', null);
   }
 
-  Future<List<ChatMessage>> fetchChatMessages(String userId) async {
+  void connectToServer() {
+    socket = IO.io('http://localhost:2709', <String, dynamic>{
+      'transports': ['websocket'],
+      'query': {'device': "flutter"},
+    });
+
+    final userData = {
+      'email': storedUser?.email,
+      'name': storedUser?.name,
+      'token': storedUser?.token,
+      '_id': storedUser?.userId,
+    };
+
+    socket.onConnect((_) {
+      print('Connected to server');
+      socket.emit('setup', userData);
+    });
+
+    // socket.on('message received', (data) {
+    //   print('Received message: $data');
+    // });
+  }
+
+  Future<List<ChatMessage>> fetchChatMessages(String chatId) async {
     final response = await http.get(
-      Uri.parse('https://single-chat-app.onrender.com/api/message/$userId'),
+      Uri.parse('https://single-chat-app.onrender.com/api/message/$chatId'),
       headers: {'Authorization': 'Bearer ${storedUser!.token}'},
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      final List<ChatMessage> chatMessages =
-          jsonList.map((json) => ChatMessage.fromJson(json)).toList();
+      var data = jsonDecode(response.body.toString());
+
+      for (var i in data) {
+        chatMessages.add(ChatMessage.fromJson(i));
+      }
+
       // print(' ${'Line 40:'} ${response.body}');
+      socket.emit("join chat", chatId);
       scrollToBottom();
       return chatMessages;
     } else {
@@ -242,6 +273,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           body: jsonEncode(
               {'content': _controller.text.toString(), 'chatId': chatId}));
       if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        socket.emit("new message", data);
         scrollToBottom();
         _controller.clear();
       }
