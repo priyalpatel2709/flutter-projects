@@ -30,8 +30,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   @override
   void initState() {
     super.initState();
-    connectToServer();
     storedUser = userInfo.getUserInfo();
+    connectToServer();
     initializeDateFormatting('en_IN', null);
   }
 
@@ -42,14 +42,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     final userData = {
-      'email': storedUser?.email,
-      'name': storedUser?.name,
-      'token': storedUser?.token,
-      '_id': storedUser?.userId,
+      'email': storedUser!.email,
+      'name': storedUser!.name,
+      'token': storedUser!.token,
+      '_id': storedUser!.userId,
     };
 
     socket.onConnect((_) {
       print('Connected to server');
+      print(userData);
       socket.emit('setup', userData);
     });
 
