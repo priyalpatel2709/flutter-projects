@@ -50,7 +50,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     socket.onConnect((_) {
       print('Connected to server');
-      print(userData);
       socket.emit('setup', userData);
     });
 
@@ -72,7 +71,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         chatMessages.add(ChatMessage.fromJson(i));
       }
 
-      // print(' ${'Line 40:'} ${response.body}');
+
       socket.emit("join chat", chatId);
       scrollToBottom();
       return chatMessages;
@@ -275,9 +274,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               {'content': _controller.text.toString(), 'chatId': chatId}));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        // print(data);
         socket.emit("new message", data);
-    
         scrollToBottom();
         _controller.clear();
       }
