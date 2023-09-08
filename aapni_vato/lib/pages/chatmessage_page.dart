@@ -223,8 +223,71 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   } else {
                     final socketMessage =
                         newChatMessages[index - chatMessages.length];
-                    return ListTile(
-                      title: Text(socketMessage['content']),
+                    CrossAxisAlignment alignment;
+                    bool right;
+                    bool left;
+                    Color colors;
+                    print(socketMessage['sender']['_id']);
+                    // print(socketMessage['sender'].id);
+                    if (socketMessage['sender']['_id'] == storedUser!.userId) {
+                      alignment = CrossAxisAlignment.end;
+                      right = true;
+                      left = false;
+                      colors = const Color.fromARGB(255, 190, 227, 248);
+                    } else {
+                      alignment = CrossAxisAlignment.start;
+                      colors = const Color.fromARGB(255, 185, 245, 208);
+                      right = false;
+                      left = true;
+                    }
+                    messageTime(socketMessage['createdAt']);
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Column(
+                            crossAxisAlignment: alignment,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: colors,
+                                  borderRadius: BorderRadius.only(
+                                      topRight: right
+                                          ? Radius.circular(0.0)
+                                          : Radius.circular(40.0),
+                                      bottomRight: Radius.circular(40.0),
+                                      topLeft: left
+                                          ? Radius.circular(0.0)
+                                          : Radius.circular(40.0),
+                                      bottomLeft: Radius.circular(40.0)),
+                                ),
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: socketMessage['content'],
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            ' ${messageTime(socketMessage['createdAt'])}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     );
                   }
                 },
