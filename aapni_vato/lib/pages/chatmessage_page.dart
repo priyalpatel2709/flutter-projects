@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
+import 'dart:developer';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +27,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   late IO.Socket socket;
 
   final List<ChatMessage> chatMessages = [];
+  final List<dynamic> newChatMessages = [];
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     storedUser = userInfo.getUserInfo();
     connectToServer();
     initializeDateFormatting('en_IN', null);
+    fetchChatMessages(widget.data['chatId'].toString());
   }
 
   void connectToServer() {
@@ -54,29 +57,47 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     socket.on("message recieved", (data) {
-      print('Received message: $data');
+      print('me');
+      setState(() {
+        newChatMessages.add(data);
+        scrollToBottom();
+      });
     });
   }
 
-  Future<List<ChatMessage>> fetchChatMessages(String chatId) async {
-    final response = await http.get(
-      Uri.parse('https://single-chat-app.onrender.com/api/message/$chatId'),
-      headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-    );
+  Future<void> fetchChatMessages(String chatId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://single-chat-app.onrender.com/api/message/$chatId'),
+        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
+      );
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body.toString());
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body.toString());
 
-      for (var i in data) {
-        chatMessages.add(ChatMessage.fromJson(i));
+        setState(() {
+          chatMessages.clear(); // Clear existing messages
+          for (var i in data) {
+            chatMessages.add(ChatMessage.fromJson(i));
+          }
+        });
+
+        socket.emit("join chat", chatId);
+        scrollToBottom();
+      } else {
+        throw Exception('Failed to load chat messages');
       }
-
-
-      socket.emit("join chat", chatId);
-      scrollToBottom();
-      return chatMessages;
-    } else {
-      throw Exception('Failed to load chat messages');
+    } catch (e) {
+      print(e);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error $e',
+          );
+        },
+      );
     }
   }
 
@@ -133,90 +154,82 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
-              child: FutureBuilder<List<ChatMessage>>(
-                future: fetchChatMessages(widget.data['chatId'].toString()),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    print(snapshot.hasData);
-                    return Text('No chat messages available.');
-                  } else {
-                    final chatMessages = snapshot.data;
-                    return ListView.builder(
-                      controller: scrollController,
-                      itemCount: chatMessages!.length,
-                      itemBuilder: (context, index) {
-                        final chatMessage = chatMessages[index];
-                        CrossAxisAlignment alignment;
-                        bool right;
-                        bool left;
-                        Color colors;
-                        if (chatMessage.sender.id == storedUser!.userId) {
-                          alignment = CrossAxisAlignment.end;
-                          right = true;
-                          left = false;
-                          colors = const Color.fromARGB(255, 190, 227, 248);
-                        } else {
-                          alignment = CrossAxisAlignment.start;
-                          colors = const Color.fromARGB(255, 185, 245, 208);
-                          right = false;
-                          left = true;
-                        }
-                        messageTime(chatMessage.createdAt);
-                        return ListTile(
-                            title: Column(
-                          crossAxisAlignment: alignment,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: colors,
-                                borderRadius: BorderRadius.only(
-                                    topRight: right
-                                        ? Radius.circular(0.0)
-                                        : Radius.circular(40.0),
-                                    bottomRight: Radius.circular(40.0),
-                                    topLeft: left
-                                        ? Radius.circular(0.0)
-                                        : Radius.circular(40.0),
-                                    bottomLeft: Radius.circular(40.0)),
-                              ),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: chatMessage.content,
-                                      style: TextStyle(
-                                          fontSize: 18, color: Colors.black
-                                          // Other text style properties (e.g., color) can be added here.
-                                          ),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          ' ${messageTime(chatMessage.createdAt)}',
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.black
-                                          // Other text style properties (e.g., color) can be added here.
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Text(messageTime(chatMessage.createdAt))
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: chatMessages.length + newChatMessages.length,
+                itemBuilder: (context, index) {
+                  if (index < chatMessages.length) {
+                    final chatMessage = chatMessages[index];
+                    CrossAxisAlignment alignment;
+                    bool right;
+                    bool left;
+                    Color colors;
+                    if (chatMessage.sender.id == storedUser!.userId) {
+                      alignment = CrossAxisAlignment.end;
+                      right = true;
+                      left = false;
+                      colors = const Color.fromARGB(255, 190, 227, 248);
+                    } else {
+                      alignment = CrossAxisAlignment.start;
+                      colors = const Color.fromARGB(255, 185, 245, 208);
+                      right = false;
+                      left = true;
+                    }
+                    messageTime(chatMessage.createdAt);
+                    return ListTile(
+                      title: Column(
+                        crossAxisAlignment: alignment,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colors,
+                              borderRadius: BorderRadius.only(
+                                  topRight: right
+                                      ? Radius.circular(0.0)
+                                      : Radius.circular(40.0),
+                                  bottomRight: Radius.circular(40.0),
+                                  topLeft: left
+                                      ? Radius.circular(0.0)
+                                      : Radius.circular(40.0),
+                                  bottomLeft: Radius.circular(40.0)),
                             ),
-                          ],
-                        ));
-                      },
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: chatMessage.content,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        ' ${messageTime(chatMessage.createdAt)}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    final socketMessage =
+                        newChatMessages[index - chatMessages.length];
+                    return ListTile(
+                      title: Text(socketMessage['content']),
                     );
                   }
                 },
               ),
             ),
-
             Container(
               width: 380,
               padding: EdgeInsets.all(10),
@@ -244,7 +257,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   ),
                   IconButton(
                     onPressed: () {
-                      // Handle sending the message
                       sendMessage(widget.data['chatId'].toString());
                     },
                     icon: Icon(Icons.send),
@@ -254,8 +266,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             ),
             SizedBox(
               height: 8.0,
-            )
-            // )
+            ),
           ],
         ),
       ),
@@ -265,16 +276,21 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   void sendMessage(String chatId) async {
     try {
       final response = await http.post(
-          Uri.parse('https://single-chat-app.onrender.com/api/message'),
-          headers: {
-            'Authorization': 'Bearer ${storedUser!.token}',
-            'Content-Type': 'application/json'
-          },
-          body: jsonEncode(
-              {'content': _controller.text.toString(), 'chatId': chatId}));
+        Uri.parse('https://single-chat-app.onrender.com/api/message'),
+        headers: {
+          'Authorization': 'Bearer ${storedUser!.token}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+            {'content': _controller.text.toString(), 'chatId': chatId}),
+      );
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         socket.emit("new message", data);
+        setState(() {
+          newChatMessages.add(data);
+        });
+
         scrollToBottom();
         _controller.clear();
       }
