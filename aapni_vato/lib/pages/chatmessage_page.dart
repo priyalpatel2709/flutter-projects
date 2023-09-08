@@ -53,9 +53,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       socket.emit('setup', userData);
     });
 
-    // socket.on('message received', (data) {
-    //   print('Received message: $data');
-    // });
+    socket.on("message recieved", (data) {
+      print('Received message: $data');
+    });
   }
 
   Future<List<ChatMessage>> fetchChatMessages(String chatId) async {
@@ -274,7 +274,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               {'content': _controller.text.toString(), 'chatId': chatId}));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
+        // print(data);
         socket.emit("new message", data);
+    
         scrollToBottom();
         _controller.clear();
       }
