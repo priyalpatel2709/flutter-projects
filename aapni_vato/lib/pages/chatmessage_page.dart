@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:developer';
@@ -170,14 +170,30 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         picUrl = imageUrl;
         _controller.text = picUrl;
         setState(() {});
-        print('Uploaded image URL: $imageUrl');
+        // print('Uploaded image URL: $imageUrl');
       } else {
         imgLoading = false;
-        print('Failed to upload image to Cloudinary');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Failed to upload image to Cloudinary ',
+            );
+          },
+        );
       }
     } else {
       imgLoading = false;
-      print('No image selected');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'No image selected',
+          );
+        },
+      );
     }
   }
 
@@ -238,7 +254,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       }
     } catch (error) {
       // Handle any network or other errors here
-      print(error);
+            showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Error :- $error',
+            );
+          },
+        );
     }
   }
 
@@ -273,7 +297,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     final chatMessage = chatMessages[index];
                     bool containsUrl = chatMessage.content.toString().contains(
                         "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                    print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
                     bool left;
@@ -357,7 +380,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                         .toString()
                         .contains(
                             "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                    print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
                     bool left;
