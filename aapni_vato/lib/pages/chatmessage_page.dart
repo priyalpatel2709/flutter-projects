@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +11,9 @@ import '../model/chatmessage.dart';
 import '../utilits/errordialog.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../utilits/uploadtocloude.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -28,6 +32,12 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   final List<ChatMessage> chatMessages = [];
   final List<dynamic> newChatMessages = [];
+
+  File? selectedImage;
+  final picker = ImagePicker();
+  bool imgLoading = false;
+  bool isImg = false;
+  var picUrl = '';
 
   @override
   void initState() {
@@ -122,6 +132,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         socket.emit("new message", data);
         setState(() {
           newChatMessages.add(data);
+          isImg = false;
         });
 
         scrollToBottom();
@@ -138,6 +149,34 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           );
         },
       );
+    }
+  }
+
+  Future<void> pickAndUploadImage() async {
+    imgLoading = true;
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
+
+      final imageUrl = await uploadImageToCloudinary(selectedImage!);
+
+      if (imageUrl != null) {
+        imgLoading = false;
+        isImg = true;
+        picUrl = imageUrl;
+        _controller.text = picUrl;
+        setState(() {});
+        print('Uploaded image URL: $imageUrl');
+      } else {
+        imgLoading = false;
+        print('Failed to upload image to Cloudinary');
+      }
+    } else {
+      imgLoading = false;
+      print('No image selected');
     }
   }
 
@@ -185,9 +224,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Row(
           children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(widget.data['dp'].toString()),
-              ),
+            CircleAvatar(
+              backgroundImage: NetworkImage(widget.data['dp'].toString()),
+            ),
             SizedBox(
               width: 10.0,
             ),
@@ -337,6 +376,10 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 },
               ),
             ),
+            if (isImg) Image.network(picUrl.toString()),
+            SizedBox(
+              height: 8.0,
+            ),
             Container(
               width: 380,
               padding: EdgeInsets.all(10),
@@ -356,12 +399,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   ),
                   Expanded(
                     child: TextField(
+                      enabled: !isImg,
                       controller: _controller,
                       decoration: InputDecoration(
                         hintText: 'Type something...',
+                        enabled: !isImg,
                       ),
                     ),
                   ),
+                  IconButton(
+                      onPressed: pickAndUploadImage,
+                      icon: Icon(Icons.attach_file)),
                   IconButton(
                     onPressed: () {
                       sendMessage(widget.data['chatId'].toString());

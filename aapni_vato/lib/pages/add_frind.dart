@@ -36,7 +36,7 @@ class _AddFriendState extends State<AddFriend> {
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         title: Text('Appni Vato'),
-         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
         child: Container(
@@ -111,24 +111,37 @@ class _AddFriendState extends State<AddFriend> {
 
   Future<void> fetchUser(String name) async {
     try {
-      if(name == ''){
-      final url = Uri.parse(
-          'https://single-chat-app.onrender.com/api/user?search=$name');
-      final response = await http.get(
-        url,
-        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-      );
+      if (name != '') {
+        final url = Uri.parse(
+            'https://single-chat-app.onrender.com/api/user?search=$name');
+        final response = await http.get(
+          url,
+          headers: {'Authorization': 'Bearer ${storedUser!.token}'},
+        );
 
-      if (response.statusCode == 200) {
-        loading = false;
-        setState(() {});
-        final jsonData = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          loading = false;
+          setState(() {});
+          final jsonData = jsonDecode(response.body);
 
-        for (var i in jsonData) {
-          userlist.add(FetchUser.fromJson(i));
+          for (var i in jsonData) {
+            userlist.add(FetchUser.fromJson(i));
+          }
+          setState(() {});
+          _controller.clear();
+        } else {
+          loading = false;
+          setState(() {});
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorDialog(
+                title: 'Fail',
+                message: 'some this went wrong ${response.body}',
+              );
+            },
+          );
         }
-        setState(() {});
-        _controller.clear();
       } else {
         loading = false;
         setState(() {});
@@ -137,25 +150,11 @@ class _AddFriendState extends State<AddFriend> {
           builder: (BuildContext context) {
             return ErrorDialog(
               title: 'Fail',
-              message: 'some this went wrong ${response.body}',
+              message: 'Enter name or email..',
             );
           },
         );
       }
-      }else{
-        loading = false;
-      setState(() {});
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Enter name or email..',
-          );
-        },
-      );
-      }
-
     } catch (e) {
       loading = false;
       setState(() {});
