@@ -245,7 +245,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 itemBuilder: (context, index) {
                   if (index < chatMessages.length) {
                     final chatMessage = chatMessages[index];
-                     bool containsUrl = chatMessage.content.contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694430046/chat-app/");
+                     bool containsUrl = chatMessage.content.toString().contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/");
                      print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
@@ -268,10 +268,10 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                         crossAxisAlignment: alignment,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: colors,
+                           Container(
+                            padding:  EdgeInsets.all(8),
+                            decoration: containsUrl ? BoxDecoration() : BoxDecoration(
+                              color:  colors,
                               borderRadius: BorderRadius.only(
                                   topRight: right
                                       ? Radius.circular(0.0)
@@ -282,7 +282,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                       : Radius.circular(40.0),
                                   bottomLeft: Radius.circular(40.0)),
                             ),
-                            child: RichText(
+                            child: containsUrl ? Image.network(chatMessage.content.toString()) : RichText(
                               text: TextSpan(
                                 children: [
                                   TextSpan(
@@ -310,7 +310,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   } else {
                     final socketMessage =
                         newChatMessages[index - chatMessages.length];
-                        bool containsUrl = socketMessage['content'].contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694430046/chat-app/");
+                        bool containsUrl = socketMessage['content'].toString().contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/");
                         print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
@@ -337,7 +337,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             children: [
                               Container(
                                 padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
+                                decoration: containsUrl ? BoxDecoration() : BoxDecoration(
                                   color: colors,
                                   borderRadius: BorderRadius.only(
                                       topRight: right
@@ -349,7 +349,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                           : Radius.circular(40.0),
                                       bottomLeft: Radius.circular(40.0)),
                                 ),
-                                child: RichText(
+                                child: containsUrl ? Image.network(socketMessage['content'].toString()) : RichText(
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
