@@ -63,6 +63,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             newChatMessages.add(data);
             scrollToBottom();
           });
+        }else{
+          print('new message ${data['sender']['name']}: ${data['content']}');
         }
       }
     });
