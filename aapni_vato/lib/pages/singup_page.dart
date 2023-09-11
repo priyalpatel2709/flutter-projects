@@ -27,14 +27,14 @@ class _SingupState extends State<Singup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmpassController = TextEditingController();
-  var picUrl = '';
+  UserInfo userData = UserInfo();
+  var loading = false;
 
   File? selectedImage;
   final picker = ImagePicker();
-  UserInfo userData = UserInfo();
-  var loading = false;
   bool imgLoading = false;
   bool isImg = false;
+  var picUrl = '';
 
   Widget _buildTextField(TextEditingController controller, String label,
       IconData icon, String hintText) {
@@ -216,7 +216,12 @@ class _SingupState extends State<Singup> {
       var response = await http.post(
         Uri.parse('https://single-chat-app.onrender.com/api/user'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password, 'name': name,'pic': picUrl}),
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'name': name,
+          'pic': picUrl
+        }),
       );
 
       if (response.statusCode == 200) {
