@@ -57,12 +57,13 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     socket.on("message recieved", (data) {
-      print('me');
       if (mounted) {
-        setState(() {
-          newChatMessages.add(data);
-          scrollToBottom();
-        });
+        if (widget.data['chatId'] == data['chat']['_id']) {
+          setState(() {
+            newChatMessages.add(data);
+            scrollToBottom();
+          });
+        }
       }
     });
   }
@@ -127,12 +128,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void unsubscribeFromSocketEvents() {
-    socket.off("message received"); // Unsubscribe from the event
+    socket.off("setup"); // Unsubscribe from the event
   }
 
   @override
   void dispose() {
-    print('whrn');
     unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
@@ -236,8 +236,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     bool right;
                     bool left;
                     Color colors;
-                    print(socketMessage['sender']['_id']);
-                    // print(socketMessage['sender'].id);
                     if (socketMessage['sender']['_id'] == storedUser!.userId) {
                       alignment = CrossAxisAlignment.end;
                       right = true;
