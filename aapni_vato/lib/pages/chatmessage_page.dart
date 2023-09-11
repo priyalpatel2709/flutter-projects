@@ -39,7 +39,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void connectToServer() {
-    socket = IO.io('http://localhost:2709', <String, dynamic>{
+    socket = IO.io('https://single-chat-app.onrender.com', <String, dynamic>{
       'transports': ['websocket'],
       'query': {'device': "flutter"},
     });
@@ -185,9 +185,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.data['dp'].toString()),
-            ),
+              CircleAvatar(
+                backgroundImage: NetworkImage(widget.data['dp'].toString()),
+              ),
             SizedBox(
               width: 10.0,
             ),
