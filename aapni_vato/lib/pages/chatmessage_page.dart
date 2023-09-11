@@ -33,9 +33,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   void initState() {
     super.initState();
     storedUser = userInfo.getUserInfo();
-    connectToServer();
     initializeDateFormatting('en_IN', null);
     fetchChatMessages(widget.data['chatId'].toString());
+    connectToServer();
   }
 
   void connectToServer() {
@@ -58,10 +58,12 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     socket.on("message recieved", (data) {
       print('me');
-      setState(() {
-        newChatMessages.add(data);
-        scrollToBottom();
-      });
+      if (mounted) {
+        setState(() {
+          newChatMessages.add(data);
+          scrollToBottom();
+        });
+      }
     });
   }
 
@@ -124,10 +126,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
   }
 
+  void unsubscribeFromSocketEvents() {
+    socket.off("message received"); // Unsubscribe from the event
+  }
+
   @override
   void dispose() {
+    print('whrn');
+    unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
+    newChatMessages.clear();
     super.dispose();
   }
 

@@ -45,16 +45,16 @@ class _LoginState extends State<Login> {
           width: 300,
           child: loading
               ? Center(
-                  child: Text('Loading'),
+                  child: CircularProgressIndicator(),
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildTextField(_emailController, 'Enter Email',
-                        Icons.perm_identity_sharp,'e.g. raj123@gmail.com'),
+                        Icons.perm_identity_sharp, 'e.g. raj123@gmail.com'),
                     SizedBox(height: 8.0),
-                    _buildTextField(
-                        _passwordController, 'Enter Password', Icons.password,'e.g. Raj@Patel_23454'),
+                    _buildTextField(_passwordController, 'Enter Password',
+                        Icons.password, 'e.g. Raj@Patel_23454'),
                     SizedBox(height: 8.0),
                     ElevatedButton(
                       onPressed: () {
@@ -95,8 +95,8 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildTextField(
-      TextEditingController controller, String label, IconData icon,String hintText) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      IconData icon, String hintText) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -121,14 +121,14 @@ class _LoginState extends State<Login> {
     loading = true;
     setState(() {});
     try {
-      loading = false;
-      setState(() {});
       final response = await http.post(
         Uri.parse('https://single-chat-app.onrender.com/api/user/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
       if (response.statusCode == 200) {
+        loading = false;
+        setState(() {});
         final jsonData = await jsonDecode(response.body);
         final user = UserLogIn.fromJson(jsonData);
         User newUser = User(
@@ -137,9 +137,12 @@ class _LoginState extends State<Login> {
           name: user.name.toString(),
           email: user.email.toString(),
         );
+
         userData.addUserInfo(newUser);
         navigateToChatpage();
       } else {
+        loading = false;
+        setState(() {});
         showDialog(
           context: context,
           builder: (BuildContext context) {
