@@ -244,25 +244,21 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {});
-      } else {
-        // Handle the error based on the response from the API
-        // You can extract and display error messages here
-        // For example:
-        // final errorMessage = jsonDecode(response.body)['messages'];
-        // Show the error message to the user
-      }
+        setState(() {
+          fetchChatMessages(widget.data['chatId'].toString());
+        });
+      } 
     } catch (error) {
       // Handle any network or other errors here
-            showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ErrorDialog(
-              title: 'Fail',
-              message: 'Error :- $error',
-            );
-          },
-        );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error :- $error',
+          );
+        },
+      );
     }
   }
 
