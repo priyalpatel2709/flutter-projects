@@ -63,7 +63,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             newChatMessages.add(data);
             scrollToBottom();
           });
-        }else{
+        } else {
           print('new message ${data['sender']['name']}: ${data['content']}');
         }
       }
@@ -106,6 +106,41 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     }
   }
 
+  void sendMessage(String chatId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://single-chat-app.onrender.com/api/message'),
+        headers: {
+          'Authorization': 'Bearer ${storedUser!.token}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+            {'content': _controller.text.toString(), 'chatId': chatId}),
+      );
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        socket.emit("new message", data);
+        setState(() {
+          newChatMessages.add(data);
+        });
+
+        scrollToBottom();
+        _controller.clear();
+      }
+    } catch (e) {
+      print(e);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error $e',
+          );
+        },
+      );
+    }
+  }
+
   String messageTime(utcdateTime) {
     String utcTimestamp = utcdateTime;
     DateTime dateTime = DateTime.parse(utcTimestamp);
@@ -130,7 +165,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void unsubscribeFromSocketEvents() {
-    socket.off("setup"); // Unsubscribe from the event
+    socket.off("setup");
   }
 
   @override
@@ -343,40 +378,5 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         ),
       ),
     );
-  }
-
-  void sendMessage(String chatId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://single-chat-app.onrender.com/api/message'),
-        headers: {
-          'Authorization': 'Bearer ${storedUser!.token}',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(
-            {'content': _controller.text.toString(), 'chatId': chatId}),
-      );
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        socket.emit("new message", data);
-        setState(() {
-          newChatMessages.add(data);
-        });
-
-        scrollToBottom();
-        _controller.clear();
-      }
-    } catch (e) {
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Error $e',
-          );
-        },
-      );
-    }
   }
 }
