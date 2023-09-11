@@ -33,10 +33,10 @@ class _AddFriendState extends State<AddFriend> {
   Widget build(BuildContext context) {
     print(userlist.length);
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         title: Text('Appni Vato'),
-        backgroundColor:
-            Theme.of(context).colorScheme.primary, // Changed to primary
+         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Center(
         child: Container(
@@ -48,10 +48,19 @@ class _AddFriendState extends State<AddFriend> {
               TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  labelText: 'Name', // Changed 'name' to 'Name'
-                  hintText: 'Type something...',
-                  prefixIcon: Icon(Icons.text_fields),
-                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(11),
+                      borderSide: BorderSide(color: Colors.white, width: 2)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(11),
+                      borderSide: BorderSide(color: Colors.white24, width: 2)),
+                  labelText: 'search by name or email..',
+                  labelStyle: TextStyle(color: Colors.white),
+                  hintText: 'e.g, maya',
+                  hintStyle: TextStyle(color: Colors.white10),
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white24)),
                 ),
               ),
               if (loading) // Show CircularProgressIndicator while loading
@@ -102,6 +111,7 @@ class _AddFriendState extends State<AddFriend> {
 
   Future<void> fetchUser(String name) async {
     try {
+      if(name == ''){
       final url = Uri.parse(
           'https://single-chat-app.onrender.com/api/user?search=$name');
       final response = await http.get(
@@ -132,6 +142,20 @@ class _AddFriendState extends State<AddFriend> {
           },
         );
       }
+      }else{
+        loading = false;
+      setState(() {});
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Enter name or email..',
+          );
+        },
+      );
+      }
+
     } catch (e) {
       loading = false;
       setState(() {});
@@ -159,9 +183,9 @@ class _AddFriendState extends State<AddFriend> {
           body: jsonEncode({'userId': sId}));
 
       //  print(response.body);
-       if(response.statusCode ==200){
+      if (response.statusCode == 200) {
         Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
-       }
+      }
     } catch (e) {
       showDialog(
         context: context,
