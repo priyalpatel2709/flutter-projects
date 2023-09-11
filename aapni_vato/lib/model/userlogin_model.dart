@@ -3,14 +3,17 @@ class UserLogIn {
   String? name;
   String? email;
   String? token;
+  String? pic;
 
-  UserLogIn({this.sId, this.name, this.email, this.token});
+
+  UserLogIn({this.sId, this.name, this.email, this.token,this.pic});
 
   UserLogIn.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     name = json['name'];
     email = json['email'];
     token = json['token'];
+    pic = json['pic'];
   }
 
   Map<String, dynamic> toJson() {
@@ -19,6 +22,7 @@ class UserLogIn {
     data['name'] = this.name;
     data['email'] = this.email;
     data['token'] = this.token;
+    data['pic'] = this.pic;
     return data;
   }
 }

@@ -245,6 +245,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 itemBuilder: (context, index) {
                   if (index < chatMessages.length) {
                     final chatMessage = chatMessages[index];
+                     bool containsUrl = chatMessage.content.contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694430046/chat-app/");
+                     print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
                     bool left;
@@ -308,6 +310,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   } else {
                     final socketMessage =
                         newChatMessages[index - chatMessages.length];
+                        bool containsUrl = socketMessage['content'].contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694430046/chat-app/");
+                        print('containsUrl $containsUrl');
                     CrossAxisAlignment alignment;
                     bool right;
                     bool left;

@@ -136,6 +136,7 @@ class _LoginState extends State<Login> {
           token: user.token.toString(),
           name: user.name.toString(),
           email: user.email.toString(),
+          imageUrl: user.pic.toString(),
         );
 
         userData.addUserInfo(newUser);
