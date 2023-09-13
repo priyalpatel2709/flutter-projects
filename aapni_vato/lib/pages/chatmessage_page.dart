@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
 import 'dart:developer';
@@ -354,27 +354,61 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                       deleteMsg(chatMessage.sender.id,
                                           chatMessage.id);
                                     },
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: chatMessage.content,
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.black,
+                                    child: !widget.data['isGroupChat']
+                                        ? RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: chatMessage.content,
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text:
+                                                      ' ${messageTime(chatMessage.createdAt)}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
+                                          )
+                                        : Column(
+                                            children: [
+                                              RichText(
+                                                  text: TextSpan(
+                                                      text:
+                                                          '~ ${chatMessage.sender.name}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ))),
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: chatMessage.content,
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text:
+                                                          ' ${messageTime(chatMessage.createdAt)}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          TextSpan(
-                                            text:
-                                                ' ${messageTime(chatMessage.createdAt)}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
                                   ),
                           ),
                         ],
@@ -453,28 +487,63 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                               socketMessage['sender']['_id'],
                                               socketMessage['_id']);
                                         },
-                                        child: RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: socketMessage['content'],
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.black,
+                                        child: !widget.data['isGroupChat']
+                                            ? RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: socketMessage[
+                                                          'content'],
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text:
+                                                          ' ${messageTime(socketMessage['createdAt'])}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                              TextSpan(
-                                                text:
-                                                    ' ${messageTime(socketMessage['createdAt'])}',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
+                                              )
+                                            : Column(
+                                                children: [
+                                                  RichText(
+                                                      text: TextSpan(
+                                                          text:
+                                                              '~ ${socketMessage['sender']['name']}',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.black,
+                                                          ))),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      children: [
+                                                        TextSpan(
+                                                          text: socketMessage[
+                                                              'content'],
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                        TextSpan(
+                                                          text:
+                                                              ' ${messageTime(socketMessage['createdAt'])}',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              )),
                               ),
                             ],
                           ),
