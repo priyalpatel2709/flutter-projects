@@ -21,6 +21,7 @@ class _GroupchatState extends State<Groupchat> {
   bool isSearching = false;
   User? storedUser;
   UserInfo userInfo = UserInfo();
+  bool isTypeing = false;
 
   @override
   void initState() {
@@ -55,6 +56,17 @@ class _GroupchatState extends State<Groupchat> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
+                        onChanged: (value) {
+                          if (value.isEmpty) {
+                            setState(() {
+                              isTypeing = false;
+                            });
+                          } else {
+                            setState(() {
+                              isTypeing = true;
+                            });
+                          }
+                        },
                         decoration: InputDecoration(
                           labelText: 'Search Name',
                           labelStyle: TextStyle(color: Colors.white70),
@@ -65,10 +77,12 @@ class _GroupchatState extends State<Groupchat> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.white54),
+                          shape: BoxShape.circle,
+                          color: isTypeing ? Colors.white70 : Colors.white10),
                       child: IconButton(
                           onPressed: () async {
                             setState(() {
+                              isSearching = true;
                               userlist.clear();
                             });
                             if (_controller.text.isNotEmpty) {
@@ -93,6 +107,9 @@ class _GroupchatState extends State<Groupchat> {
                                     isSearching = false;
                                   });
                                 } else {
+                                  setState(() {
+                                    isSearching = false;
+                                  });
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -105,6 +122,9 @@ class _GroupchatState extends State<Groupchat> {
                                   );
                                 }
                               } catch (e) {
+                                setState(() {
+                                  isSearching = false;
+                                });
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -115,10 +135,23 @@ class _GroupchatState extends State<Groupchat> {
                                   },
                                 );
                               }
+                            } else {
+                              setState(() {
+                                isSearching = false;
+                              });
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return ErrorDialog(
+                                    title: 'Fail',
+                                    message: 'Enter name...',
+                                  );
+                                },
+                              );
                             }
                           },
                           icon: Icon(Icons.search),
-                          color: Colors.white70),
+                          color: isTypeing ? Colors.white70 : Colors.white10),
                     ),
                   ],
                 ),
