@@ -85,7 +85,7 @@ class _AddFriendState extends State<AddFriend> {
                       child: ListTile(
                         leading: CircleAvatar(
                             backgroundImage: NetworkImage(user.pic.toString())),
-                        title: Text(user.name.toString()),
+                        title: Text(user.name.toString(), style: TextStyle(color: Colors.white), ),
                       ),
                     );
                   },
