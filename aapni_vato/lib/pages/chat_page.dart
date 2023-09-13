@@ -92,7 +92,7 @@ class _ChatpageState extends State<Chatpage> {
               ),
               title: const Text('Create Group'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, RoutesName.Groupchat);
+                Navigator.pushNamed(context, RoutesName.Groupchat);
               },
             ),
             ListTile(

@@ -28,13 +28,13 @@ class FetchUser {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['pic'] = this.pic;
-    data['isAdmin'] = this.isAdmin;
-    data['__v'] = this.iV;
+    data['_id'] = sId;
+    data['name'] = name;
+    data['email'] = email;
+    data['password'] = password;
+    data['pic'] = pic;
+    data['isAdmin'] = isAdmin;
+    data['__v'] = iV;
     return data;
   }
 }
