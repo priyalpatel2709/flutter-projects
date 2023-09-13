@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../data/database.dart';
 import '../model/alluserData.dart';
+import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
 
 class Groupchat extends StatefulWidget {
@@ -175,6 +176,13 @@ class _GroupchatState extends State<Groupchat> {
                               return InkWell(
                                 onTap: () {
                                   if (addedUserList.contains(user)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text('User is already  added !!!'),
+                                        duration: Duration(seconds: 5),
+                                      ),
+                                    );
                                     return;
                                   } else {
                                     setState(() {
@@ -242,6 +250,72 @@ class _GroupchatState extends State<Groupchat> {
                     style: TextStyle(color: Colors.white70),
                   ),
                 ),
+              if (addedUserList.length >= 2)
+                ElevatedButton(
+                  onPressed: () async {
+                    // Add your button press logic here
+                    try {
+                      // Define your request headers
+                      final headers = {
+                        'Authorization': 'Bearer ${storedUser!.token}',
+                        'Content-Type': 'application/json',
+                      };
+
+                      // Create a list of user IDs from selectedUsers
+                      final List<dynamic> userIds =
+                          addedUserList.map((user) => user.sId).toList();
+
+                      // Create the request body
+                      final requestBody = {
+                        'name': _grpNameController
+                            .text, // Assuming _grpNameController holds the group name
+                        'users': jsonEncode(userIds),
+                      };
+
+                      // Send a POST request to create the group chat
+                      final response = await http.post(
+                        Uri.parse(
+                            'https://single-chat-app.onrender.com/api/chat/group'),
+                        headers: headers,
+                        body: jsonEncode(requestBody),
+                      );
+
+                      if (response.statusCode == 200) {
+                        final responseData = jsonDecode(response.body);
+                        print(responseData);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('New Group Chat Created!'),
+                            duration: Duration(seconds: 5),
+                          ),
+                        );
+                        Navigator.pushReplacementNamed(
+                            context, RoutesName.Chatpage);
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ErrorDialog(
+                              title: 'Failed to Create the Chat',
+                              message: 'Error: ${response.statusCode}',
+                            );
+                          },
+                        );
+                      }
+                    } catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ErrorDialog(
+                            title: 'Failed to Create the Chat',
+                            message: 'Error: $e',
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: Text('Create-Group'),
+                )
             ],
           ),
         ),
