@@ -204,21 +204,22 @@ class _GroupchatState extends State<Groupchat> {
                 ),
               ),
               if (addedUserList.isNotEmpty)
-                 SingleChildScrollView(
-                   child: Container(
-                    height: 100,
-                     child: ListView.builder(
-                        itemCount: addedUserList.length,
-                        itemBuilder: (context, index) {
-                          var addedUser = addedUserList[index];
-                          return ListTile(
-                            title: Text(addedUser.name.toString(),style: TextStyle(color: Colors.white)),
-                          );
-                        },
-                      ),
-                   ),
-                 )
-                
+                SingleChildScrollView(
+                  child: Container(
+                    height: 100, // Adjust the height as needed
+                    child: Wrap(
+                      spacing: 10.0, // Adjust spacing between names as needed
+                      children: addedUserList.map((addedUser) {
+                        return Chip(
+                          label: Text(addedUser.name.toString(),
+                              style: TextStyle(color: Colors.black)),
+                          backgroundColor: Colors.white70
+                              
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                )
               else
                 Center(
                   child: Text(
