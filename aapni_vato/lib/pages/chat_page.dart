@@ -136,7 +136,8 @@ class _ChatpageState extends State<Chatpage> {
                         arguments: {
                           "chatId": chatId,
                           "name": chat.isGroupChat?chat.chatName :  chatUser.name,
-                          "dp": chatUser.pic
+                          "dp": chatUser.pic,
+                          "isGroupChat" : chat.isGroupChat
                         });
                   },
                   child: ListTile(

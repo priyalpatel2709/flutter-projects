@@ -247,7 +247,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         setState(() {
           fetchChatMessages(widget.data['chatId'].toString());
         });
-      } 
+      }
     } catch (error) {
       // Handle any network or other errors here
       showDialog(
@@ -317,7 +317,18 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                           Container(
                             padding: EdgeInsets.all(8),
                             decoration: containsUrl
-                                ? BoxDecoration()
+                                ? BoxDecoration(
+                                    color: colors,
+                                    borderRadius: BorderRadius.only(
+                                        topRight: right
+                                            ? Radius.circular(0.0)
+                                            : Radius.circular(20.0),
+                                        bottomRight: Radius.circular(20.0),
+                                        topLeft: left
+                                            ? Radius.circular(0.0)
+                                            : Radius.circular(20.0),
+                                        bottomLeft: Radius.circular(20.0)),
+                                  )
                                 : BoxDecoration(
                                     color: colors,
                                     borderRadius: BorderRadius.only(
@@ -402,7 +413,18 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                               Container(
                                 padding: EdgeInsets.all(8),
                                 decoration: containsUrl
-                                    ? BoxDecoration()
+                                    ? BoxDecoration(
+                                        color: colors,
+                                        borderRadius: BorderRadius.only(
+                                            topRight: right
+                                                ? Radius.circular(0.0)
+                                                : Radius.circular(20.0),
+                                            bottomRight: Radius.circular(20.0),
+                                            topLeft: left
+                                                ? Radius.circular(0.0)
+                                                : Radius.circular(20.0),
+                                            bottomLeft: Radius.circular(20.0)),
+                                      )
                                     : BoxDecoration(
                                         color: colors,
                                         borderRadius: BorderRadius.only(
