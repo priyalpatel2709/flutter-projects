@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -17,18 +16,18 @@ class Groupchat extends StatefulWidget {
 
 class _GroupchatState extends State<Groupchat> {
   final TextEditingController _controller = TextEditingController();
-  final TextEditingController _grpNamecontroller = TextEditingController();
-  List<FetchUser> userlist = [];
+  final TextEditingController _grpNameController = TextEditingController();
+  List<FetchUser> userList = [];
+  List<FetchUser> addedUserList = [];
   bool isSearching = false;
   User? storedUser;
   UserInfo userInfo = UserInfo();
-  bool isTypeing = false;
+  bool isTyping = false;
 
   @override
   void initState() {
-    // TODO: implement initState
-    storedUser = userInfo.getUserInfo();
     super.initState();
+    storedUser = userInfo.getUserInfo();
   }
 
   @override
@@ -40,27 +39,26 @@ class _GroupchatState extends State<Groupchat> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: EdgeInsetsDirectional.all(10),
+        padding: const EdgeInsets.all(10),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Colors.white12),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: Colors.white12,
+                ),
                 child: Column(
                   children: [
-                    
-                    
                     TextField(
-                      controller: _grpNamecontroller,
+                      controller: _grpNameController,
                       decoration: InputDecoration(
-                              labelText: 'Enter group-Name.',
-                              labelStyle: TextStyle(color: Colors.white70),
-                            ),
+                        labelText: 'Enter group name',
+                        labelStyle: TextStyle(color: Colors.white70),
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -69,73 +67,52 @@ class _GroupchatState extends State<Groupchat> {
                           child: TextField(
                             controller: _controller,
                             onChanged: (value) {
-                              if (value.isEmpty) {
-                                setState(() {
-                                  isTypeing = false;
-                                });
-                              } else {
-                                setState(() {
-                                  isTypeing = true;
-                                });
-                              }
+                              setState(() {
+                                isTyping = value.isNotEmpty;
+                              });
                             },
                             decoration: InputDecoration(
                               labelText: 'Search Name',
                               labelStyle: TextStyle(color: Colors.white70),
-                              hintText: "e.g, Maya",
+                              hintText: 'e.g., Maya',
                               hintStyle: TextStyle(color: Colors.white10),
                             ),
                           ),
                         ),
                         Container(
                           decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  isTypeing ? Colors.white70 : Colors.white10),
+                            shape: BoxShape.circle,
+                            color: isTyping ? Colors.white70 : Colors.white10,
+                          ),
                           child: IconButton(
-                              onPressed: () async {
-                                setState(() {
-                                  isSearching = true;
-                                  userlist.clear();
-                                });
-                                if (_controller.text.isNotEmpty) {
-                                  try {
-                                    final response = await http.get(
-                                      Uri.parse(
-                                          'https://single-chat-app.onrender.com/api/user?search=${_controller.text.toString()}'),
-                                      headers: {
-                                        'Authorization':
-                                            'Bearer ${storedUser!.token}',
-                                        'Content-Type': 'application/json'
-                                      },
-                                    );
-                                    var data =
-                                        jsonDecode(response.body.toString());
+                            onPressed: () async {
+                              setState(() {
+                                isSearching = true;
+                                userList.clear();
+                              });
+                              if (_controller.text.isNotEmpty) {
+                                try {
+                                  final response = await http.get(
+                                    Uri.parse(
+                                        'https://single-chat-app.onrender.com/api/user?search=${_controller.text.toString()}'),
+                                    headers: {
+                                      'Authorization':
+                                          'Bearer ${storedUser!.token}',
+                                      'Content-Type': 'application/json'
+                                    },
+                                  );
+                                  var data =
+                                      jsonDecode(response.body.toString());
 
-                                    if (response.statusCode == 200) {
-                                      for (var i in data) {
-                                        userlist.add(FetchUser.fromJson(i));
-                                      }
-
-                                      setState(() {
-                                        isSearching = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isSearching = false;
-                                      });
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return ErrorDialog(
-                                            title: 'Fail',
-                                            message:
-                                                'Error: ${response.statusCode}',
-                                          );
-                                        },
-                                      );
+                                  if (response.statusCode == 200) {
+                                    for (var i in data) {
+                                      userList.add(FetchUser.fromJson(i));
                                     }
-                                  } catch (e) {
+
+                                    setState(() {
+                                      isSearching = false;
+                                    });
+                                  } else {
                                     setState(() {
                                       isSearching = false;
                                     });
@@ -144,12 +121,13 @@ class _GroupchatState extends State<Groupchat> {
                                       builder: (BuildContext context) {
                                         return ErrorDialog(
                                           title: 'Fail',
-                                          message: 'Error: $e',
+                                          message:
+                                              'Error: ${response.statusCode}',
                                         );
                                       },
                                     );
                                   }
-                                } else {
+                                } catch (e) {
                                   setState(() {
                                     isSearching = false;
                                   });
@@ -158,35 +136,57 @@ class _GroupchatState extends State<Groupchat> {
                                     builder: (BuildContext context) {
                                       return ErrorDialog(
                                         title: 'Fail',
-                                        message: 'Enter name...',
+                                        message: 'Error: $e',
                                       );
                                     },
                                   );
                                 }
-                              },
-                              icon: Icon(Icons.search),
-                              color:
-                                  isTypeing ? Colors.white70 : Colors.white10),
+                              } else {
+                                setState(() {
+                                  isSearching = false;
+                                });
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return ErrorDialog(
+                                      title: 'Fail',
+                                      message: 'Enter a name...',
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            icon: Icon(Icons.search),
+                            color: isTyping ? Colors.white70 : Colors.white10,
+                          ),
                         ),
                       ],
                     ),
                     if (isSearching)
                       CircularProgressIndicator()
-                    else if (userlist.isNotEmpty)
+                    else if (userList.isNotEmpty)
                       SingleChildScrollView(
                         child: Container(
-                          height: 300,
+                          height: 200,
                           child: ListView.builder(
-                            itemCount: userlist.length,
+                            itemCount: userList.length,
                             itemBuilder: (context, index) {
-                              var user = userlist[index];
-                              return ListTile(
-                                leading: CircleAvatar(
+                              var user = userList[index];
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    addedUserList.add(user);
+                                  });
+                                },
+                                child: ListTile(
+                                  leading: CircleAvatar(
                                     backgroundImage:
-                                        NetworkImage(user.pic.toString())),
-                                title: Text(
-                                  user.name.toString(),
-                                  style: TextStyle(color: Colors.white),
+                                        NetworkImage(user.pic.toString()),
+                                  ),
+                                  title: Text(
+                                    user.name.toString(),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               );
                             },
@@ -195,13 +195,37 @@ class _GroupchatState extends State<Groupchat> {
                       )
                     else
                       Center(
-                          child: Text(
-                        'No results found',
-                        style: TextStyle(color: Colors.white70),
-                      )),
+                        child: Text(
+                          'No results found',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
                   ],
                 ),
               ),
+              if (addedUserList.isNotEmpty)
+                 SingleChildScrollView(
+                   child: Container(
+                    height: 100,
+                     child: ListView.builder(
+                        itemCount: addedUserList.length,
+                        itemBuilder: (context, index) {
+                          var addedUser = addedUserList[index];
+                          return ListTile(
+                            title: Text(addedUser.name.toString(),style: TextStyle(color: Colors.white)),
+                          );
+                        },
+                      ),
+                   ),
+                 )
+                
+              else
+                Center(
+                  child: Text(
+                    'No user Added',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
             ],
           ),
         ),
