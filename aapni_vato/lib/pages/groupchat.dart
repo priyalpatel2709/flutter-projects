@@ -209,11 +209,19 @@ class _GroupchatState extends State<Groupchat> {
                     height: 100, // Adjust the height as needed
                     child: Wrap(
                       spacing: 10.0, // Adjust spacing between names as needed
-                      children: addedUserList.map((addedUser) {
+                      children: addedUserList.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final addedUser = entry.value;
                         return Chip(
+                          onDeleted: () {
+                            setState(() {
+                              addedUserList.removeAt(index);
+                            });
+                          },
+                          deleteIcon: const Icon(Icons.remove_circle, color: Colors.black54, ),
                           label: Text(addedUser.name.toString(),
-                              style: TextStyle(color: Colors.black)),
-                          backgroundColor: Colors.white70
+                              style: TextStyle(color:  Colors.white70)),
+                          backgroundColor: const Color.fromARGB(255, 77, 80, 85), 
                               
                         );
                       }).toList(),
