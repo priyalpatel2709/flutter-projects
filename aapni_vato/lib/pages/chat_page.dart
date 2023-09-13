@@ -87,6 +87,15 @@ class _ChatpageState extends State<Chatpage> {
               },
             ),
             ListTile(
+              leading: Icon(
+                Icons.group,
+              ),
+              title: const Text('Create Group'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, RoutesName.Groupchat);
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
