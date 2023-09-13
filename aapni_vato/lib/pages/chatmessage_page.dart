@@ -377,6 +377,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                             ),
                                           )
                                         : Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               RichText(
                                                   text: TextSpan(
@@ -511,6 +512,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                                 ),
                                               )
                                             : Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   RichText(
                                                       text: TextSpan(
