@@ -67,7 +67,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     socket.on("message recieved", (data) {
-      print('i am');
+      // print('i am');
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
           setState(() {
@@ -379,7 +379,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                         : Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              RichText(
+                                              if(!right)  RichText(
                                                   text: TextSpan(
                                                       text:
                                                           '~ ${chatMessage.sender.name}',
@@ -514,7 +514,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                             : Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  RichText(
+                                                 if(!right)  RichText(
                                                       text: TextSpan(
                                                           text:
                                                               '~ ${socketMessage['sender']['name']}',

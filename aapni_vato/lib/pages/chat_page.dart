@@ -135,14 +135,20 @@ class _ChatpageState extends State<Chatpage> {
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
                           "chatId": chatId,
-                          "name": chat.isGroupChat?chat.chatName :  chatUser.name,
-                          "dp": chatUser.pic,
-                          "isGroupChat" : chat.isGroupChat
+                          "name":
+                              chat.isGroupChat ? chat.chatName : chatUser.name,
+                          "dp": chat.isGroupChat
+                              ? 'http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694608918/chat-app/c4r0jhcmq2t9uxfkl40c.png'
+                              : chatUser.pic,
+                          "isGroupChat": chat.isGroupChat
                         });
                   },
                   child: ListTile(
                     leading: CircleAvatar(
-                        backgroundImage: NetworkImage(chatUser.pic)),
+                        backgroundImage: chat.isGroupChat
+                            ? NetworkImage(
+                                "http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694608918/chat-app/c4r0jhcmq2t9uxfkl40c.png")
+                            : NetworkImage(chatUser.pic)),
                     title: chat.isGroupChat
                         ? Text(
                             chat.chatName,
