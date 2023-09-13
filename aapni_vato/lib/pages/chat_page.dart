@@ -135,17 +135,22 @@ class _ChatpageState extends State<Chatpage> {
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
                           "chatId": chatId,
-                          "name": chatUser.name,
+                          "name": chat.isGroupChat?chat.chatName :  chatUser.name,
                           "dp": chatUser.pic
                         });
                   },
                   child: ListTile(
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(chatUser.pic)),
-                    title: Text(
-                      chatUser.name,
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    title: chat.isGroupChat
+                        ? Text(
+                            chat.chatName,
+                            style: TextStyle(color: Colors.white),
+                          )
+                        : Text(
+                            chatUser.name,
+                            style: TextStyle(color: Colors.white),
+                          ),
                     // subtitle: subtitleText
                     //     ? Text('You: ${chat.latestMessage!.content}',
                     //         style: TextStyle(color: Colors.white))
