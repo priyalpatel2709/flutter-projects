@@ -109,9 +109,9 @@ class _SingupState extends State<Singup> {
                         child: imgLoading
                             ? CircularProgressIndicator()
                             : CircleAvatar(
-                                backgroundImage: isImg
+                                backgroundImage: !isImg
                                     ? NetworkImage(
-                                        'http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694427033/chat-app/peneqtmkvwimhrvyej2h.png')
+                                        'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg')
                                     : NetworkImage(picUrl.toString()),
                                 radius: 50,
                               ),
@@ -209,7 +209,10 @@ class _SingupState extends State<Singup> {
   void singupuser(String name, String email, String password) async {
     loading = true;
     setState(() {});
-
+    print(picUrl);
+    if(picUrl.isEmpty){
+      picUrl = 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg';
+    }
     try {
       loading = false;
       setState(() {});
@@ -220,7 +223,7 @@ class _SingupState extends State<Singup> {
           'email': email,
           'password': password,
           'name': name,
-          'pic': picUrl
+          'pic': picUrl.toString()
         }),
       );
 

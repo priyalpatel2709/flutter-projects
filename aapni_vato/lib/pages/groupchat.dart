@@ -174,9 +174,13 @@ class _GroupchatState extends State<Groupchat> {
                               var user = userList[index];
                               return InkWell(
                                 onTap: () {
-                                  setState(() {
-                                    addedUserList.add(user);
-                                  });
+                                  if (addedUserList.contains(user)) {
+                                    return;
+                                  } else {
+                                    setState(() {
+                                      addedUserList.add(user);
+                                    });
+                                  }
                                 },
                                 child: ListTile(
                                   leading: CircleAvatar(
@@ -218,11 +222,14 @@ class _GroupchatState extends State<Groupchat> {
                               addedUserList.removeAt(index);
                             });
                           },
-                          deleteIcon: const Icon(Icons.remove_circle, color: Colors.black54, ),
+                          deleteIcon: const Icon(
+                            Icons.remove_circle,
+                            color: Colors.black54,
+                          ),
                           label: Text(addedUser.name.toString(),
-                              style: TextStyle(color:  Colors.white70)),
-                          backgroundColor: const Color.fromARGB(255, 77, 80, 85), 
-                              
+                              style: TextStyle(color: Colors.white70)),
+                          backgroundColor:
+                              const Color.fromARGB(255, 77, 80, 85),
                         );
                       }).toList(),
                     ),
