@@ -1,60 +1,50 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import '../data/database.dart';
 import '../model/mychat.dart';
+import '../provider/seletedchat.dart';
 import '../route/routes_name.dart';
 import 'package:http/http.dart' as http;
 
 class Chatpage extends StatefulWidget {
-  const Chatpage({Key? key}) : super(key: key);
-
   @override
-  _ChatpageState createState() => _ChatpageState();
+  State<Chatpage> createState() => _ChatpageState();
 }
 
 class _ChatpageState extends State<Chatpage> {
-  final _mybox = Hive.box('user_info');
-  UserInfo userInfo = UserInfo();
-  User? storedUser;
-  var loading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    storedUser = userInfo.getUserInfo();
-  }
-
-  Future<void> clearHiveStorage() async {
-    await _mybox.deleteFromDisk();
-  }
-
-  Future<List<Chat>> fetchChatData() async {
-    final url = Uri.parse('https://single-chat-app.onrender.com/api/chat');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      final List<Chat> chats =
-          jsonList.map((json) => Chat.fromJson(json)).toList();
-
-      // print(response.body);
-      return chats; // Return the list of Chat objects parsed from the JSON response
-    } else {
-      // Handle the error if the request fails.
-      print('Failed to load data: ${response.statusCode}');
-      throw Exception('Failed to load data: ${response.statusCode}');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final chatProvider = Provider.of<SelectedChat>(context, listen: false);
+    final _mybox = Hive.box('user_info');
+    UserInfo userInfo = UserInfo();
+    User? storedUser;
+
+    Future<List<Chat>> fetchChatData() async {
+      final url = Uri.parse('https://single-chat-app.onrender.com/api/chat');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        final List<Chat> chats =
+            jsonList.map((json) => Chat.fromJson(json)).toList();
+        return chats; // Return the list of Chat objects
+      } else {
+        // Handle the error if the request fails.
+        print('Failed to load data: ${response.statusCode}');
+        throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    }
+
+    storedUser = userInfo.getUserInfo();
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
@@ -83,7 +73,7 @@ class _ChatpageState extends State<Chatpage> {
               ),
               title: const Text('Search Friend'),
               onTap: () {
-                adduser();
+                adduser(context);
               },
             ),
             ListTile(
@@ -123,6 +113,7 @@ class _ChatpageState extends State<Chatpage> {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
+                chatProvider.setChats(chats);
                 final chatUser = storedUser!.userId == chat.users.first.id
                     ? chat.users.last
                     : chat.users.first;
@@ -174,14 +165,14 @@ class _ChatpageState extends State<Chatpage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          adduser();
+          adduser(context);
         },
         child: Icon(Icons.add),
       ),
     );
   }
 
-  void adduser() {
+  void adduser(BuildContext context) {
     Navigator.pushNamed(context, RoutesName.AddFriend);
   }
 }

@@ -3,11 +3,14 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/chatmessage.dart';
+import '../model/mychat.dart';
+import '../provider/seletedchat.dart';
 import '../utilits/errordialog.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -264,6 +267,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider = Provider.of<SelectedChat>(context);
+    final List<Chat> chats = chatProvider.chats;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
@@ -276,7 +282,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             SizedBox(
               width: 10.0,
             ),
-            Text('${widget.data['name']}'),
+            Text(chats[0].users[0].id),
           ],
         ),
       ),
@@ -377,16 +383,18 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                             ),
                                           )
                                         : Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              if(!right)  RichText(
-                                                  text: TextSpan(
-                                                      text:
-                                                          '~ ${chatMessage.sender.name}',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black,
-                                                      ))),
+                                              if (!right)
+                                                RichText(
+                                                    text: TextSpan(
+                                                        text:
+                                                            '~ ${chatMessage.sender.name}',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                        ))),
                                               RichText(
                                                 text: TextSpan(
                                                   children: [
@@ -512,16 +520,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                                 ),
                                               )
                                             : Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                 if(!right)  RichText(
-                                                      text: TextSpan(
-                                                          text:
-                                                              '~ ${socketMessage['sender']['name']}',
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.black,
-                                                          ))),
+                                                  if (!right)
+                                                    RichText(
+                                                        text: TextSpan(
+                                                            text:
+                                                                '~ ${socketMessage['sender']['name']}',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors.black,
+                                                            ))),
                                                   RichText(
                                                     text: TextSpan(
                                                       children: [
