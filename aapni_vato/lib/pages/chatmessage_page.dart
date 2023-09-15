@@ -638,13 +638,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             child: Column(
               children: [
                 Wrap(
-                  spacing: 10.0, 
+                  spacing: 10.0,
                   children: chats[0].users.map((user) {
-                    Color color; 
-                    chats[0].groupAdmin?.id == user.id   ?  color = Color.fromARGB(100, 0, 0, 0) : color=Colors.white; 
+                    Color color;
+                    chats[0].groupAdmin?.id == user.id
+                        ? color = Color.fromARGB(100, 0, 0, 0)
+                        : color = Colors.white;
 
                     Color bgcolor;
-                    chats[0].groupAdmin?.id == user.id   ?  bgcolor = Color.fromARGB(255, 255, 255, 255) :bgcolor =  const Color.fromARGB(255, 77, 80, 85); 
+                    chats[0].groupAdmin?.id == user.id
+                        ? bgcolor = Color.fromARGB(255, 255, 255, 255)
+                        : bgcolor = const Color.fromARGB(255, 77, 80, 85);
                     return Chip(
                       label: Text(
                         user.name,
@@ -661,5 +665,4 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       },
     );
   }
-
 }
