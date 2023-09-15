@@ -233,6 +233,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     scrollController.dispose();
     _controller.dispose();
     newChatMessages.clear();
+    socket.disconnect();
     super.dispose();
   }
 
@@ -274,6 +275,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          widget.data['isGroupChat']
+              ? IconButton(
+                  onPressed: () {
+                    _grpInfo(chats);
+                  },
+                  icon: Icon(Icons.info))
+              : SizedBox()
+        ],
         title: Row(
           children: [
             CircleAvatar(
@@ -616,6 +626,31 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _grpInfo(List<Chat> chats) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(widget.data['name']),
+          content: SingleChildScrollView(
+            child: Column(
+              children: chats.map((chat) {
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: chat.users.map((user) {
+                      return Text(user.name);
+                    }).toList(),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }
