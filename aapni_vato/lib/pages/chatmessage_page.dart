@@ -637,20 +637,50 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           title: Text(widget.data['name']),
           content: SingleChildScrollView(
             child: Column(
-              children: chats.map((chat) {
-                return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: chat.users.map((user) {
-                      return Text(user.name);
-                    }).toList(),
-                  ),
-                );
-              }).toList(),
+              children: [
+                Wrap(
+                  spacing: 10.0,
+                  children: chats[0].users.map((user) {
+                    return Chip(
+                      label: Text(
+                        user.name,
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
+                      onDeleted: () {
+                        setState(() {
+                          _removeUser(widget.data['chatId'], user.id);
+                        });
+                      },
+                      deleteIcon: const Icon(
+                        Icons.remove_circle,
+                        color: Color.fromARGB(137, 199, 197, 197),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
         );
       },
     );
+  }
+
+  void _removeUser(data, String id) async {
+    try {
+      final respoce = await http.put(
+          Uri.parse(
+              'https://single-chat-app.onrender.com/api/chat/groupremove'),
+          body: jsonEncode({'userId': id, 'chatId': data}),
+          headers: {
+            'Authorization': 'Bearer ${storedUser!.token}',
+            'Content-Type': 'application/json',
+          });
+
+      print(respoce.body);
+    } catch (e) {
+      print('Error:- $e');
+    }
   }
 }
