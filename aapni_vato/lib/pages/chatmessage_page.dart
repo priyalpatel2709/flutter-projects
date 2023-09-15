@@ -282,7 +282,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             SizedBox(
               width: 10.0,
             ),
-            Text(chats[0].users[0].id),
+            Text('${widget.data['name']}'),
           ],
         ),
       ),
