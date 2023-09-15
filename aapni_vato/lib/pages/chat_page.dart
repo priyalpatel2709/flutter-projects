@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
-
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
@@ -100,13 +100,28 @@ class _ChatpageState extends State<Chatpage> {
         future: fetchChatData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Skeletonizer(
+              enabled: true,
+              child: ListView.builder(
+                itemCount: 6,
+                // padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('abc...'),
+                  );
+                },
+              ),
+            );
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text('No chat data available.');
+            return Center(
+                child: Text(
+              'Add Friend to Chat...',
+              style: TextStyle(color: Colors.white),
+            ));
           } else {
-            // Data has been successfully fetched
             final chats = snapshot.data!;
 
             return ListView.builder(
@@ -149,13 +164,6 @@ class _ChatpageState extends State<Chatpage> {
                             chatUser.name,
                             style: TextStyle(color: Colors.white),
                           ),
-                    // subtitle: subtitleText
-                    //     ? Text('You: ${chat.latestMessage!.content}',
-                    //         style: TextStyle(color: Colors.white))
-                    //     : Text(
-                    //         chat.latestMessage!.content,
-                    //         style: TextStyle(color: Colors.white),
-                    //       ),
                   ),
                 );
               },
