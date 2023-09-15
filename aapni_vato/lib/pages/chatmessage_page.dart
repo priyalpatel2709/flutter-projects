@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -32,7 +33,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   final TextEditingController _controller = TextEditingController();
   ScrollController scrollController = ScrollController();
   late IO.Socket socket;
-
+  bool loading = false;
   final List<ChatMessage> chatMessages = [];
   final List<dynamic> newChatMessages = [];
 
@@ -85,6 +86,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   Future<void> fetchChatMessages(String chatId) async {
+    setState(() {
+      loading = true;
+    });
     try {
       final response = await http.get(
         Uri.parse('https://single-chat-app.onrender.com/api/message/$chatId'),
@@ -95,6 +99,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         var data = jsonDecode(response.body.toString());
 
         setState(() {
+          loading = false;
           chatMessages.clear(); // Clear existing messages
           for (var i in data) {
             chatMessages.add(ChatMessage.fromJson(i));
@@ -104,10 +109,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         socket.emit("join chat", chatId);
         scrollToBottom();
       } else {
+        setState(() {
+          loading = false;
+        });
         throw Exception('Failed to load chat messages');
       }
     } catch (e) {
-      print(e);
+      setState(() {
+        loading = false;
+      });
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -295,336 +305,417 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           ],
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
+      body: loading
+          ? Skeletonizer(
+              enabled: true,
               child: ListView.builder(
-                controller: scrollController,
-                itemCount: chatMessages.length + newChatMessages.length,
+                itemCount: 6,
                 itemBuilder: (context, index) {
-                  if (index < chatMessages.length) {
-                    final chatMessage = chatMessages[index];
-                    bool containsUrl = chatMessage.content.toString().contains(
-                        "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                    CrossAxisAlignment alignment;
-                    bool right;
-                    bool left;
-                    Color colors;
-                    if (chatMessage.sender.id == storedUser!.userId) {
-                      alignment = CrossAxisAlignment.end;
-                      right = true;
-                      left = false;
-                      colors = const Color.fromARGB(255, 190, 227, 248);
-                    } else {
-                      alignment = CrossAxisAlignment.start;
-                      colors = const Color.fromARGB(255, 185, 245, 208);
-                      right = false;
-                      left = true;
-                    }
-                    messageTime(chatMessage.createdAt);
-                    return ListTile(
-                      title: Column(
-                        crossAxisAlignment: alignment,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: containsUrl
-                                ? BoxDecoration(
-                                    color: colors,
-                                    borderRadius: BorderRadius.only(
-                                        topRight: right
-                                            ? Radius.circular(0.0)
-                                            : Radius.circular(20.0),
-                                        bottomRight: Radius.circular(20.0),
-                                        topLeft: left
-                                            ? Radius.circular(0.0)
-                                            : Radius.circular(20.0),
-                                        bottomLeft: Radius.circular(20.0)),
-                                  )
-                                : BoxDecoration(
-                                    color: colors,
-                                    borderRadius: BorderRadius.only(
-                                        topRight: right
-                                            ? Radius.circular(0.0)
-                                            : Radius.circular(40.0),
-                                        bottomRight: Radius.circular(40.0),
-                                        topLeft: left
-                                            ? Radius.circular(0.0)
-                                            : Radius.circular(40.0),
-                                        bottomLeft: Radius.circular(40.0)),
-                                  ),
-                            child: containsUrl
-                                ? InkWell(
-                                    onDoubleTap: () {
-                                      deleteMsg(chatMessage.sender.id,
-                                          chatMessage.id);
-                                    },
-                                    child: Image.network(
-                                        chatMessage.content.toString()))
-                                : InkWell(
-                                    onDoubleTap: () {
-                                      deleteMsg(chatMessage.sender.id,
-                                          chatMessage.id);
-                                    },
-                                    child: !widget.data['isGroupChat']
-                                        ? RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: chatMessage.content,
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text:
-                                                      ' ${messageTime(chatMessage.createdAt)}',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (!right)
-                                                RichText(
-                                                    text: TextSpan(
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                      ListTile(
+                        trailing: Text('abc......'),
+                      ),
+                      ListTile(
+                        leading: Text('abc......'),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: chatMessages.length + newChatMessages.length,
+                      itemBuilder: (context, index) {
+                        if (index < chatMessages.length) {
+                          final chatMessage = chatMessages[index];
+                          bool containsUrl = chatMessage.content
+                              .toString()
+                              .contains(
+                                  "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
+                          CrossAxisAlignment alignment;
+                          bool right;
+                          bool left;
+                          Color colors;
+                          if (chatMessage.sender.id == storedUser!.userId) {
+                            alignment = CrossAxisAlignment.end;
+                            right = true;
+                            left = false;
+                            colors = const Color.fromARGB(255, 190, 227, 248);
+                          } else {
+                            alignment = CrossAxisAlignment.start;
+                            colors = const Color.fromARGB(255, 185, 245, 208);
+                            right = false;
+                            left = true;
+                          }
+                          messageTime(chatMessage.createdAt);
+                          return ListTile(
+                            title: Column(
+                              crossAxisAlignment: alignment,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: containsUrl
+                                      ? BoxDecoration(
+                                          color: colors,
+                                          borderRadius: BorderRadius.only(
+                                              topRight: right
+                                                  ? Radius.circular(0.0)
+                                                  : Radius.circular(20.0),
+                                              bottomRight:
+                                                  Radius.circular(20.0),
+                                              topLeft: left
+                                                  ? Radius.circular(0.0)
+                                                  : Radius.circular(20.0),
+                                              bottomLeft:
+                                                  Radius.circular(20.0)),
+                                        )
+                                      : BoxDecoration(
+                                          color: colors,
+                                          borderRadius: BorderRadius.only(
+                                              topRight: right
+                                                  ? Radius.circular(0.0)
+                                                  : Radius.circular(40.0),
+                                              bottomRight:
+                                                  Radius.circular(40.0),
+                                              topLeft: left
+                                                  ? Radius.circular(0.0)
+                                                  : Radius.circular(40.0),
+                                              bottomLeft:
+                                                  Radius.circular(40.0)),
+                                        ),
+                                  child: containsUrl
+                                      ? InkWell(
+                                          onDoubleTap: () {
+                                            deleteMsg(chatMessage.sender.id,
+                                                chatMessage.id);
+                                          },
+                                          child: Image.network(
+                                              chatMessage.content.toString()))
+                                      : InkWell(
+                                          onDoubleTap: () {
+                                            deleteMsg(chatMessage.sender.id,
+                                                chatMessage.id);
+                                          },
+                                          child: !widget.data['isGroupChat']
+                                              ? RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
                                                         text:
-                                                            '~ ${chatMessage.sender.name}',
+                                                            chatMessage.content,
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            ' ${messageTime(chatMessage.createdAt)}',
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color: Colors.black,
-                                                        ))),
-                                              RichText(
-                                                text: TextSpan(
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    TextSpan(
-                                                      text: chatMessage.content,
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                    TextSpan(
-                                                      text:
-                                                          ' ${messageTime(chatMessage.createdAt)}',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    final socketMessage =
-                        newChatMessages[index - chatMessages.length];
-                    bool containsUrl = socketMessage['content']
-                        .toString()
-                        .contains(
-                            "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                    CrossAxisAlignment alignment;
-                    bool right;
-                    bool left;
-                    Color colors;
-                    if (socketMessage['sender']['_id'] == storedUser!.userId) {
-                      alignment = CrossAxisAlignment.end;
-                      right = true;
-                      left = false;
-                      colors = const Color.fromARGB(255, 190, 227, 248);
-                    } else {
-                      alignment = CrossAxisAlignment.start;
-                      colors = const Color.fromARGB(255, 185, 245, 208);
-                      right = false;
-                      left = true;
-                    }
-                    messageTime(socketMessage['createdAt']);
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Column(
-                            crossAxisAlignment: alignment,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: containsUrl
-                                    ? BoxDecoration(
-                                        color: colors,
-                                        borderRadius: BorderRadius.only(
-                                            topRight: right
-                                                ? Radius.circular(0.0)
-                                                : Radius.circular(20.0),
-                                            bottomRight: Radius.circular(20.0),
-                                            topLeft: left
-                                                ? Radius.circular(0.0)
-                                                : Radius.circular(20.0),
-                                            bottomLeft: Radius.circular(20.0)),
-                                      )
-                                    : BoxDecoration(
-                                        color: colors,
-                                        borderRadius: BorderRadius.only(
-                                            topRight: right
-                                                ? Radius.circular(0.0)
-                                                : Radius.circular(40.0),
-                                            bottomRight: Radius.circular(40.0),
-                                            topLeft: left
-                                                ? Radius.circular(0.0)
-                                                : Radius.circular(40.0),
-                                            bottomLeft: Radius.circular(40.0)),
-                                      ),
-                                child: containsUrl
-                                    ? InkWell(
-                                        onDoubleTap: () {
-                                          deleteMsg(
-                                              socketMessage['sender']['_id'],
-                                              socketMessage['_id']);
-                                        },
-                                        child: Image.network(
-                                            socketMessage['content']
-                                                .toString()))
-                                    : InkWell(
-                                        onDoubleTap: () {
-                                          deleteMsg(
-                                              socketMessage['sender']['_id'],
-                                              socketMessage['_id']);
-                                        },
-                                        child: !widget.data['isGroupChat']
-                                            ? RichText(
-                                                text: TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: socketMessage[
-                                                          'content'],
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                    TextSpan(
-                                                      text:
-                                                          ' ${messageTime(socketMessage['createdAt'])}',
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                            : Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  if (!right)
+                                                    if (!right)
+                                                      RichText(
+                                                          text: TextSpan(
+                                                              text:
+                                                                  '~ ${chatMessage.sender.name}',
+                                                              style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .black,
+                                                              ))),
                                                     RichText(
-                                                        text: TextSpan(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text: chatMessage
+                                                                .content,
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
                                                             text:
-                                                                '~ ${socketMessage['sender']['name']}',
+                                                                ' ${messageTime(chatMessage.createdAt)}',
                                                             style: TextStyle(
                                                               fontSize: 12,
                                                               color:
                                                                   Colors.black,
-                                                            ))),
-                                                  RichText(
-                                                    text: TextSpan(
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          final socketMessage =
+                              newChatMessages[index - chatMessages.length];
+                          bool containsUrl = socketMessage['content']
+                              .toString()
+                              .contains(
+                                  "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
+                          CrossAxisAlignment alignment;
+                          bool right;
+                          bool left;
+                          Color colors;
+                          if (socketMessage['sender']['_id'] ==
+                              storedUser!.userId) {
+                            alignment = CrossAxisAlignment.end;
+                            right = true;
+                            left = false;
+                            colors = const Color.fromARGB(255, 190, 227, 248);
+                          } else {
+                            alignment = CrossAxisAlignment.start;
+                            colors = const Color.fromARGB(255, 185, 245, 208);
+                            right = false;
+                            left = true;
+                          }
+                          messageTime(socketMessage['createdAt']);
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Column(
+                                  crossAxisAlignment: alignment,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: containsUrl
+                                          ? BoxDecoration(
+                                              color: colors,
+                                              borderRadius: BorderRadius.only(
+                                                  topRight: right
+                                                      ? Radius.circular(0.0)
+                                                      : Radius.circular(20.0),
+                                                  bottomRight:
+                                                      Radius.circular(20.0),
+                                                  topLeft: left
+                                                      ? Radius.circular(0.0)
+                                                      : Radius.circular(20.0),
+                                                  bottomLeft:
+                                                      Radius.circular(20.0)),
+                                            )
+                                          : BoxDecoration(
+                                              color: colors,
+                                              borderRadius: BorderRadius.only(
+                                                  topRight: right
+                                                      ? Radius.circular(0.0)
+                                                      : Radius.circular(40.0),
+                                                  bottomRight:
+                                                      Radius.circular(40.0),
+                                                  topLeft: left
+                                                      ? Radius.circular(0.0)
+                                                      : Radius.circular(40.0),
+                                                  bottomLeft:
+                                                      Radius.circular(40.0)),
+                                            ),
+                                      child: containsUrl
+                                          ? InkWell(
+                                              onDoubleTap: () {
+                                                deleteMsg(
+                                                    socketMessage['sender']
+                                                        ['_id'],
+                                                    socketMessage['_id']);
+                                              },
+                                              child: Image.network(
+                                                  socketMessage['content']
+                                                      .toString()))
+                                          : InkWell(
+                                              onDoubleTap: () {
+                                                deleteMsg(
+                                                    socketMessage['sender']
+                                                        ['_id'],
+                                                    socketMessage['_id']);
+                                              },
+                                              child: !widget.data['isGroupChat']
+                                                  ? RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          TextSpan(
+                                                            text: socketMessage[
+                                                                'content'],
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text:
+                                                                ' ${messageTime(socketMessage['createdAt'])}',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  : Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        TextSpan(
-                                                          text: socketMessage[
-                                                              'content'],
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            color: Colors.black,
+                                                        if (!right)
+                                                          RichText(
+                                                              text: TextSpan(
+                                                                  text:
+                                                                      '~ ${socketMessage['sender']['name']}',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ))),
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            children: [
+                                                              TextSpan(
+                                                                text: socketMessage[
+                                                                    'content'],
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 18,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                              TextSpan(
+                                                                text:
+                                                                    ' ${messageTime(socketMessage['createdAt'])}',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ),
-                                                        TextSpan(
-                                                          text:
-                                                              ' ${messageTime(socketMessage['createdAt'])}',
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
+                                                        )
                                                       ],
-                                                    ),
-                                                  )
-                                                ],
-                                              )),
+                                                    )),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                },
-              ),
-            ),
-            if (isImg) Image.network(picUrl.toString()),
-            SizedBox(
-              height: 8.0,
-            ),
-            Container(
-              width: 380,
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white60,
-                borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(40.0),
-                    bottomRight: Radius.circular(40.0),
-                    topLeft: Radius.circular(40.0),
-                    bottomLeft: Radius.circular(40.0)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 3.0,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      enabled: !isImg,
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Type something...',
-                        enabled: !isImg,
-                      ),
+                          );
+                        }
+                      },
                     ),
                   ),
-                  IconButton(
-                      onPressed: pickAndUploadImage,
-                      icon: Icon(Icons.attach_file)),
-                  IconButton(
-                    onPressed: () {
-                      sendMessage(widget.data['chatId'].toString());
-                    },
-                    icon: Icon(Icons.send),
-                  )
+                  if (isImg) Image.network(picUrl.toString()),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  Container(
+                    width: 380,
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white60,
+                      borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(40.0),
+                          bottomRight: Radius.circular(40.0),
+                          topLeft: Radius.circular(40.0),
+                          bottomLeft: Radius.circular(40.0)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(
+                          width: 3.0,
+                        ),
+                        Expanded(
+                          child: TextField(
+                            enabled: !isImg,
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: 'Type something...',
+                              enabled: !isImg,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: pickAndUploadImage,
+                            icon: Icon(Icons.attach_file)),
+                        IconButton(
+                          onPressed: () {
+                            sendMessage(widget.data['chatId'].toString());
+                          },
+                          icon: Icon(Icons.send),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
                 ],
               ),
             ),
-            SizedBox(
-              height: 8.0,
-            ),
-          ],
-        ),
-      ),
     );
   }
 

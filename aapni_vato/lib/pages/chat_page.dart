@@ -108,7 +108,7 @@ class _ChatpageState extends State<Chatpage> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     leading: Icon(Icons.person),
-                    title: Text('abc...'),
+                    title: Text('abc...               .'),
                   );
                 },
               ),
