@@ -651,15 +651,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                         style: TextStyle(color: color),
                       ),
                       backgroundColor: bgcolor,
-                      // onDeleted: () {
-                      //   setState(() {
-                      //     _removeUser(widget.data['chatId'], user.id);
-                      //   });
-                      // },
-                      // deleteIcon: const Icon(
-                      //   Icons.remove_circle,
-                      //   color: Color.fromARGB(137, 199, 197, 197),
-                      // ),
                     );
                   }).toList(),
                 ),
@@ -671,20 +662,4 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     );
   }
 
-  // void _removeUser(data, String id) async {
-  //   try {
-  //     final respoce = await http.put(
-  //         Uri.parse(
-  //             'https://single-chat-app.onrender.com/api/chat/groupremove'),
-  //         body: jsonEncode({'userId': id, 'chatId': data}),
-  //         headers: {
-  //           'Authorization': 'Bearer ${storedUser!.token}',
-  //           'Content-Type': 'application/json',
-  //         });
-
-  //     print(respoce.body);
-  //   } catch (e) {
-  //     print('Error:- $e');
-  //   }
-  // }
 }
