@@ -233,7 +233,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     scrollController.dispose();
     _controller.dispose();
     newChatMessages.clear();
-    socket.disconnect();
     super.dispose();
   }
 
@@ -639,14 +638,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             child: Column(
               children: [
                 Wrap(
-                  spacing: 10.0,
+                  spacing: 10.0, 
                   children: chats[0].users.map((user) {
+                    Color color; 
+                    chats[0].groupAdmin?.id == user.id   ?  color = Color.fromARGB(100, 0, 0, 0) : color=Colors.white; 
+
+                    Color bgcolor;
+                    chats[0].groupAdmin?.id == user.id   ?  bgcolor = Color.fromARGB(255, 255, 255, 255) :bgcolor =  const Color.fromARGB(255, 77, 80, 85); 
                     return Chip(
                       label: Text(
                         user.name,
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: color),
                       ),
-                      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
+                      backgroundColor: bgcolor,
                       onDeleted: () {
                         setState(() {
                           _removeUser(widget.data['chatId'], user.id);

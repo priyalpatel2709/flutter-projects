@@ -21,7 +21,7 @@ class ChatUser {
       name: json['name'],
       email: json['email'],
       pic: json['pic'],
-      isAdmin: json['isAdmin']  ?? false,
+      isAdmin: json['isAdmin'] ?? false,
       v: json['__v'] ?? 0,
     );
   }
@@ -36,6 +36,7 @@ class Chat {
   String updatedAt;
   int v;
   Message? latestMessage;
+  ChatUser? groupAdmin;
 
   Chat({
     required this.id,
@@ -46,20 +47,28 @@ class Chat {
     required this.updatedAt,
     required this.v,
     this.latestMessage,
+    this.groupAdmin,
   });
 
   factory Chat.fromJson(Map<String, dynamic> json) {
+    // Check if isGroupChat is true, and if so, parse groupAdmin
+    ChatUser? groupAdmin =
+        json['isGroupChat'] ? ChatUser.fromJson(json['groupAdmin']) : null;
+
     return Chat(
       id: json['_id'],
       chatName: json['chatName'],
       isGroupChat: json['isGroupChat'],
-      users: (json['users'] as List).map((user) => ChatUser.fromJson(user)).toList(),
+      users: (json['users'] as List)
+          .map((user) => ChatUser.fromJson(user))
+          .toList(),
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
       v: json['__v'],
       latestMessage: json['latestMessage'] != null
           ? Message.fromJson(json['latestMessage'])
           : null,
+      groupAdmin: groupAdmin, // Assign groupAdmin to the class field
     );
   }
 }
