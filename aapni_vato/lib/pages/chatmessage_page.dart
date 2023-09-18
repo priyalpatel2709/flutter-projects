@@ -310,42 +310,49 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: chatMessages.length + newChatMessages.length,
-                      itemBuilder: (context, index) {
-                        if (index < chatMessages.length) {
-                          final chatMessage = chatMessages[index];
-                          return Message_lisiview(
-                            content: chatMessage.content.toString(),
-                            isGroupChat: widget.data['isGroupChat'],
-                            senderName: chatMessage.sender.name,
-                            createdAt: chatMessage.createdAt,
-                            storedUserId: storedUser!.userId,
-                            chatSenderId: chatMessage.sender.id,
-                            onDeleteMes: () {
-                              deleteMsg(chatMessage.sender.id, chatMessage.id);
-                            },
-                          );
-                        } else {
-                          final socketMessage =
-                              newChatMessages[index - chatMessages.length];
-                          return Message_lisiview(
-                            content: socketMessage['content'].toString(),
-                            isGroupChat: widget.data['isGroupChat'],
-                            senderName: socketMessage['sender']['name'],
-                            createdAt: socketMessage['createdAt'],
-                            storedUserId: storedUser!.userId,
-                            chatSenderId: socketMessage['sender']['_id'],
-                            onDeleteMes: () {
-                              deleteMsg(socketMessage['sender']['_id'],
-                                  socketMessage['_id']);
-                            },
-                          );
-                        }
-                      },
-                    ),
+                  Consumer<SelectedChat>(
+                    builder: (BuildContext context, value, _) {
+                      final List<Chat> chats = chatProvider.chats;
+                    return  Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount:
+                              chatMessages.length + newChatMessages.length,
+                          itemBuilder: (context, index) {
+                            if (index < chatMessages.length) {
+                              final chatMessage = chatMessages[index];
+                              return Message_lisiview(
+                                content: chatMessage.content.toString(),
+                                isGroupChat: widget.data['isGroupChat'],
+                                senderName: chatMessage.sender.name,
+                                createdAt: chatMessage.createdAt,
+                                storedUserId: storedUser!.userId,
+                                chatSenderId: chatMessage.sender.id,
+                                onDeleteMes: () {
+                                  deleteMsg(
+                                      chatMessage.sender.id, chatMessage.id);
+                                },
+                              );
+                            } else {
+                              final socketMessage =
+                                  newChatMessages[index - chatMessages.length];
+                              return Message_lisiview(
+                                content: socketMessage['content'].toString(),
+                                isGroupChat: widget.data['isGroupChat'],
+                                senderName: socketMessage['sender']['name'],
+                                createdAt: socketMessage['createdAt'],
+                                storedUserId: storedUser!.userId,
+                                chatSenderId: socketMessage['sender']['_id'],
+                                onDeleteMes: () {
+                                  deleteMsg(socketMessage['sender']['_id'],
+                                      socketMessage['_id']);
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
                   ),
                   if (isImg) Image.network(picUrl.toString()),
                   SizedBox(

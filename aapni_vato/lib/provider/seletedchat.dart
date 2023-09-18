@@ -10,4 +10,9 @@ class SelectedChat with ChangeNotifier {
     _chats = chats;
     notifyListeners();
   }
+
+  void clearChats(List<Chat> chats) {
+    _chats = [];
+    notifyListeners();
+  }
 }

@@ -35,7 +35,8 @@ class _ChatpageState extends State<Chatpage> {
         final List<dynamic> jsonList = json.decode(response.body);
         final List<Chat> chats =
             jsonList.map((json) => Chat.fromJson(json)).toList();
-        return chats; // Return the list of Chat objects
+         chatProvider.setChats(chats);   
+        return chats; 
       } else {
         // Handle the error if the request fails.
         print('Failed to load data: ${response.statusCode}');
@@ -128,7 +129,6 @@ class _ChatpageState extends State<Chatpage> {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
-                chatProvider.setChats(chats);
                 final chatUser = storedUser!.userId == chat.users.first.id
                     ? chat.users.last
                     : chat.users.first;
