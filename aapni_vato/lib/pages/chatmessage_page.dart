@@ -17,7 +17,9 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../utilits/grputuls.dart';
 import '../utilits/uploadtocloude.dart';
+import '../widgets/loading_mes.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -288,7 +290,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           widget.data['isGroupChat']
               ? IconButton(
                   onPressed: () {
-                    _grpInfo(chats);
+                    grpInfo(chats,context,widget.data['name']);
                   },
                   icon: Icon(Icons.info))
               : SizedBox()
@@ -311,50 +313,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               child: ListView.builder(
                 itemCount: 6,
                 itemBuilder: (context, index) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                      ListTile(
-                        trailing: Text('abc......'),
-                      ),
-                      ListTile(
-                        leading: Text('abc......'),
-                      ),
-                    ],
-                  );
+                  return Loading_mes();
                 },
               ),
             )
@@ -672,7 +631,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     height: 8.0,
                   ),
                   Container(
-                    // width: 380,
                     margin: EdgeInsets.only(left: 10, right: 10),
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
@@ -715,44 +673,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 ],
               ),
             ),
-    );
-  }
-
-  Future<void> _grpInfo(List<Chat> chats) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(widget.data['name']),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Wrap(
-                  spacing: 10.0,
-                  children: chats[0].users.map((user) {
-                    Color color;
-                    chats[0].groupAdmin?.id == user.id
-                        ? color = Color.fromARGB(100, 0, 0, 0)
-                        : color = Colors.white;
-
-                    Color bgcolor;
-                    chats[0].groupAdmin?.id == user.id
-                        ? bgcolor = Color.fromARGB(255, 255, 255, 255)
-                        : bgcolor = const Color.fromARGB(255, 77, 80, 85);
-                    return Chip(
-                      label: Text(
-                        user.name,
-                        style: TextStyle(color: color),
-                      ),
-                      backgroundColor: bgcolor,
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }
