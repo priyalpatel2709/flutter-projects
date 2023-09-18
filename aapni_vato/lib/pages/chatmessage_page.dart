@@ -20,6 +20,7 @@ import 'package:image_picker/image_picker.dart';
 import '../utilits/grputuls.dart';
 import '../utilits/uploadtocloude.dart';
 import '../widgets/loading_mes.dart';
+import '../widgets/message_lisiview.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -290,7 +291,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           widget.data['isGroupChat']
               ? IconButton(
                   onPressed: () {
-                    grpInfo(chats,context,widget.data['name']);
+                    grpInfo(chats, context, widget.data['name']);
                   },
                   icon: Icon(Icons.info))
               : SizedBox()
@@ -348,122 +349,16 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             left = true;
                           }
                           messageTime(chatMessage.createdAt);
-                          return ListTile(
-                            title: Column(
-                              crossAxisAlignment: alignment,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  decoration: containsUrl
-                                      ? BoxDecoration(
-                                          color: colors,
-                                          borderRadius: BorderRadius.only(
-                                              topRight: right
-                                                  ? Radius.circular(0.0)
-                                                  : Radius.circular(20.0),
-                                              bottomRight:
-                                                  Radius.circular(20.0),
-                                              topLeft: left
-                                                  ? Radius.circular(0.0)
-                                                  : Radius.circular(20.0),
-                                              bottomLeft:
-                                                  Radius.circular(20.0)),
-                                        )
-                                      : BoxDecoration(
-                                          color: colors,
-                                          borderRadius: BorderRadius.only(
-                                              topRight: right
-                                                  ? Radius.circular(0.0)
-                                                  : Radius.circular(40.0),
-                                              bottomRight:
-                                                  Radius.circular(40.0),
-                                              topLeft: left
-                                                  ? Radius.circular(0.0)
-                                                  : Radius.circular(40.0),
-                                              bottomLeft:
-                                                  Radius.circular(40.0)),
-                                        ),
-                                  child: containsUrl
-                                      ? InkWell(
-                                          onDoubleTap: () {
-                                            deleteMsg(chatMessage.sender.id,
-                                                chatMessage.id);
-                                          },
-                                          child: Image.network(
-                                              chatMessage.content.toString()))
-                                      : InkWell(
-                                          onDoubleTap: () {
-                                            deleteMsg(chatMessage.sender.id,
-                                                chatMessage.id);
-                                          },
-                                          child: !widget.data['isGroupChat']
-                                              ? RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text:
-                                                            chatMessage.content,
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                      TextSpan(
-                                                        text:
-                                                            ' ${messageTime(chatMessage.createdAt)}',
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                              : Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    if (!right)
-                                                      RichText(
-                                                          text: TextSpan(
-                                                              text:
-                                                                  '~ ${chatMessage.sender.name}',
-                                                              style: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Colors
-                                                                    .black,
-                                                              ))),
-                                                    RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text: chatMessage
-                                                                .content,
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text:
-                                                                ' ${messageTime(chatMessage.createdAt)}',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                        ),
-                                ),
-                              ],
-                            ),
+                          return Message_lisiview(
+                            alignment: alignment,
+                            containsUrl: containsUrl,
+                            colors: colors,
+                            left: left,
+                            right: right,
+                            content: chatMessage.content.toString(),
+                            isGroupChat: widget.data['isGroupChat'],
+                            senderName: chatMessage.sender.name,
+                             createdAt: chatMessage.createdAt,
                           );
                         } else {
                           final socketMessage =
