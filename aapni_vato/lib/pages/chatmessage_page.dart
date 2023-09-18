@@ -329,70 +329,24 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                       itemBuilder: (context, index) {
                         if (index < chatMessages.length) {
                           final chatMessage = chatMessages[index];
-                          bool containsUrl = chatMessage.content
-                              .toString()
-                              .contains(
-                                  "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                          CrossAxisAlignment alignment;
-                          bool right;
-                          bool left;
-                          Color colors;
-                          if (chatMessage.sender.id == storedUser!.userId) {
-                            alignment = CrossAxisAlignment.end;
-                            right = true;
-                            left = false;
-                            colors = const Color.fromARGB(255, 190, 227, 248);
-                          } else {
-                            alignment = CrossAxisAlignment.start;
-                            colors = const Color.fromARGB(255, 185, 245, 208);
-                            right = false;
-                            left = true;
-                          }
-
                           return Message_lisiview(
-                            alignment: alignment,
-                            containsUrl: containsUrl,
-                            colors: colors,
-                            left: left,
-                            right: right,
                             content: chatMessage.content.toString(),
                             isGroupChat: widget.data['isGroupChat'],
                             senderName: chatMessage.sender.name,
                             createdAt: chatMessage.createdAt,
+                            storedUserId: storedUser!.userId,
+                            chatSenderId: chatMessage.sender.id,
                           );
                         } else {
                           final socketMessage =
                               newChatMessages[index - chatMessages.length];
-                          bool containsUrl = socketMessage['content']
-                              .toString()
-                              .contains(
-                                  "http://res.cloudinary.com/dtzrtlyuu/image/upload/");
-                          CrossAxisAlignment alignment;
-                          bool right;
-                          bool left;
-                          Color colors;
-                          if (socketMessage['sender']['_id'] ==
-                              storedUser!.userId) {
-                            alignment = CrossAxisAlignment.end;
-                            right = true;
-                            left = false;
-                            colors = const Color.fromARGB(255, 190, 227, 248);
-                          } else {
-                            alignment = CrossAxisAlignment.start;
-                            colors = const Color.fromARGB(255, 185, 245, 208);
-                            right = false;
-                            left = true;
-                          }
                           return Message_lisiview(
-                            alignment: alignment,
-                            containsUrl: containsUrl,
-                            colors: colors,
-                            left: left,
-                            right: right,
                             content: socketMessage['content'].toString(),
                             isGroupChat: widget.data['isGroupChat'],
                             senderName: socketMessage['sender']['name'],
                             createdAt: socketMessage['createdAt'],
+                            storedUserId: storedUser!.userId,
+                            chatSenderId: socketMessage['sender']['_id'],
                           );
                         }
                       },

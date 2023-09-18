@@ -4,24 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Message_lisiview extends StatelessWidget {
-  final CrossAxisAlignment alignment;
-  final bool containsUrl;
-  final Color colors;
-  final bool right;
-  final bool left;
+  // final CrossAxisAlignment alignment;
+  // final bool containsUrl;
+  // final Color colors;
+  // final bool right;
+  // final bool left;
   final String content;
   final bool isGroupChat;
   final String senderName;
   final String createdAt;
-  Message_lisiview(
-      {required this.alignment,
-      required this.containsUrl,
-      required this.colors,
-      required this.right,
-      required this.left,
-      required this.content,
-      required this.isGroupChat,
-      required this.senderName, required this.createdAt});
+  final String storedUserId;
+  final String chatSenderId;
+  Message_lisiview({
+    //required this.alignment,
+    // required this.containsUrl,
+    // required this.colors,
+    // required this.right,
+    // required this.left,
+    required this.content,
+    required this.isGroupChat,
+    required this.senderName,
+    required this.createdAt,
+    required this.storedUserId,
+    required this.chatSenderId,
+  });
 
   String formatTime(DateTime dateTime) {
     final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
@@ -38,6 +44,25 @@ class Message_lisiview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool containsUrl = content
+        .toString()
+        .contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/");
+    CrossAxisAlignment alignment;
+    bool right;
+    bool left;
+    Color colors;
+    if (chatSenderId == storedUserId) {
+      alignment = CrossAxisAlignment.end;
+      right = true;
+      left = false;
+      colors = const Color.fromARGB(255, 190, 227, 248);
+    } else {
+      alignment = CrossAxisAlignment.start;
+      colors = const Color.fromARGB(255, 185, 245, 208);
+      right = false;
+      left = true;
+    }
+
     return ListTile(
       title: Column(
         crossAxisAlignment: alignment,
@@ -90,8 +115,7 @@ class Message_lisiview extends StatelessWidget {
                                   ),
                                 ),
                                 TextSpan(
-                                  text:
-                                      ' ${messageTime(createdAt)}',
+                                  text: ' ${messageTime(createdAt)}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.black,
@@ -122,8 +146,7 @@ class Message_lisiview extends StatelessWidget {
                                       ),
                                     ),
                                     TextSpan(
-                                      text:
-                                          ' ${messageTime(createdAt)}',
+                                      text: ' ${messageTime(createdAt)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.black,
