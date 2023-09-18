@@ -290,7 +290,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               backgroundImage: NetworkImage(widget.data['dp'].toString()),
             ),
             SizedBox(
-              width: 10.0,
+              width: 5.0,
             ),
             Text('${widget.data['name']}'),
           ],
@@ -324,6 +324,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             createdAt: chatMessage.createdAt,
                             storedUserId: storedUser!.userId,
                             chatSenderId: chatMessage.sender.id,
+                            onDeleteMes: () {
+                              deleteMsg(chatMessage.sender.id, chatMessage.id);
+                            },
                           );
                         } else {
                           final socketMessage =
@@ -335,6 +338,10 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             createdAt: socketMessage['createdAt'],
                             storedUserId: storedUser!.userId,
                             chatSenderId: socketMessage['sender']['_id'],
+                            onDeleteMes: () {
+                              deleteMsg(socketMessage['sender']['_id'],
+                                  socketMessage['_id']);
+                            },
                           );
                         }
                       },
@@ -345,14 +352,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     height: 8.0,
                   ),
                   ChatInputField(
-                    controller:
-                        _controller, // Pass your TextEditingController here
-                    isImg: isImg, // Pass the isImg value
-                    onAttachmentPressed:
-                        pickAndUploadImage, // Pass the attachment function
+                    controller: _controller,
+                    isImg: isImg,
+                    onAttachmentPressed: pickAndUploadImage,
                     onSendPressed: () {
-                      sendMessage(widget.data['chatId']
-                          .toString()); // Pass the send message function
+                      sendMessage(widget.data['chatId'].toString());
                     },
                   ),
                 ],

@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Message_lisiview extends StatelessWidget {
-  // final CrossAxisAlignment alignment;
-  // final bool containsUrl;
-  // final Color colors;
-  // final bool right;
-  // final bool left;
+  final VoidCallback onDeleteMes;
   final String content;
   final bool isGroupChat;
   final String senderName;
@@ -16,17 +12,13 @@ class Message_lisiview extends StatelessWidget {
   final String storedUserId;
   final String chatSenderId;
   Message_lisiview({
-    //required this.alignment,
-    // required this.containsUrl,
-    // required this.colors,
-    // required this.right,
-    // required this.left,
     required this.content,
     required this.isGroupChat,
     required this.senderName,
     required this.createdAt,
     required this.storedUserId,
-    required this.chatSenderId,
+    required this.chatSenderId, 
+    required this.onDeleteMes,
   });
 
   String formatTime(DateTime dateTime) {
@@ -95,14 +87,10 @@ class Message_lisiview extends StatelessWidget {
                   ),
             child: containsUrl
                 ? InkWell(
-                    onDoubleTap: () {
-                      // deleteMsg(chatMessage.sender.id, chatMessage.id);
-                    },
+                    onDoubleTap: onDeleteMes,
                     child: Image.network(content))
                 : InkWell(
-                    onDoubleTap: () {
-                      // deleteMsg(chatMessage.sender.id, chatMessage.id);
-                    },
+                    onDoubleTap: onDeleteMes,
                     child: !isGroupChat
                         ? RichText(
                             text: TextSpan(
