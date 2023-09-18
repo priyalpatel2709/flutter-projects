@@ -348,7 +348,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             right = false;
                             left = true;
                           }
-                          messageTime(chatMessage.createdAt);
+
                           return Message_lisiview(
                             alignment: alignment,
                             containsUrl: containsUrl,
@@ -358,7 +358,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             content: chatMessage.content.toString(),
                             isGroupChat: widget.data['isGroupChat'],
                             senderName: chatMessage.sender.name,
-                             createdAt: chatMessage.createdAt,
+                            createdAt: chatMessage.createdAt,
                           );
                         } else {
                           final socketMessage =
@@ -383,139 +383,16 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             right = false;
                             left = true;
                           }
-                          messageTime(socketMessage['createdAt']);
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Column(
-                                  crossAxisAlignment: alignment,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: containsUrl
-                                          ? BoxDecoration(
-                                              color: colors,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: right
-                                                      ? Radius.circular(0.0)
-                                                      : Radius.circular(20.0),
-                                                  bottomRight:
-                                                      Radius.circular(20.0),
-                                                  topLeft: left
-                                                      ? Radius.circular(0.0)
-                                                      : Radius.circular(20.0),
-                                                  bottomLeft:
-                                                      Radius.circular(20.0)),
-                                            )
-                                          : BoxDecoration(
-                                              color: colors,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: right
-                                                      ? Radius.circular(0.0)
-                                                      : Radius.circular(40.0),
-                                                  bottomRight:
-                                                      Radius.circular(40.0),
-                                                  topLeft: left
-                                                      ? Radius.circular(0.0)
-                                                      : Radius.circular(40.0),
-                                                  bottomLeft:
-                                                      Radius.circular(40.0)),
-                                            ),
-                                      child: containsUrl
-                                          ? InkWell(
-                                              onDoubleTap: () {
-                                                deleteMsg(
-                                                    socketMessage['sender']
-                                                        ['_id'],
-                                                    socketMessage['_id']);
-                                              },
-                                              child: Image.network(
-                                                  socketMessage['content']
-                                                      .toString()))
-                                          : InkWell(
-                                              onDoubleTap: () {
-                                                deleteMsg(
-                                                    socketMessage['sender']
-                                                        ['_id'],
-                                                    socketMessage['_id']);
-                                              },
-                                              child: !widget.data['isGroupChat']
-                                                  ? RichText(
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text: socketMessage[
-                                                                'content'],
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text:
-                                                                ' ${messageTime(socketMessage['createdAt'])}',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.black,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    )
-                                                  : Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        if (!right)
-                                                          RichText(
-                                                              text: TextSpan(
-                                                                  text:
-                                                                      '~ ${socketMessage['sender']['name']}',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ))),
-                                                        RichText(
-                                                          text: TextSpan(
-                                                            children: [
-                                                              TextSpan(
-                                                                text: socketMessage[
-                                                                    'content'],
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 18,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                              TextSpan(
-                                                                text:
-                                                                    ' ${messageTime(socketMessage['createdAt'])}',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        )
-                                                      ],
-                                                    )),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          return Message_lisiview(
+                            alignment: alignment,
+                            containsUrl: containsUrl,
+                            colors: colors,
+                            left: left,
+                            right: right,
+                            content: socketMessage['content'].toString(),
+                            isGroupChat: widget.data['isGroupChat'],
+                            senderName: socketMessage['sender']['name'],
+                            createdAt: socketMessage['createdAt'],
                           );
                         }
                       },
