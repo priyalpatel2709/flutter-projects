@@ -24,6 +24,7 @@ class _GroupchatState extends State<Groupchat> {
   User? storedUser;
   UserInfo userInfo = UserInfo();
   bool isTyping = false;
+  bool isData = false;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _GroupchatState extends State<Groupchat> {
 
   @override
   Widget build(BuildContext context) {
+    print('isData $isData');
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
@@ -59,6 +61,7 @@ class _GroupchatState extends State<Groupchat> {
                       decoration: InputDecoration(
                         labelText: 'Enter group name',
                         labelStyle: TextStyle(color: Colors.white70),
+                        border: InputBorder.none,
                       ),
                     ),
                     Row(
@@ -77,6 +80,7 @@ class _GroupchatState extends State<Groupchat> {
                               labelStyle: TextStyle(color: Colors.white70),
                               hintText: 'e.g., Maya',
                               hintStyle: TextStyle(color: Colors.white10),
+                              border: InputBorder.none,
                             ),
                           ),
                         ),
@@ -86,77 +90,88 @@ class _GroupchatState extends State<Groupchat> {
                             color: isTyping ? Colors.white70 : Colors.white10,
                           ),
                           child: IconButton(
-                            onPressed: () async {
-                              setState(() {
-                                isSearching = true;
-                                userList.clear();
-                              });
-                              if (_controller.text.isNotEmpty) {
-                                try {
-                                  final response = await http.get(
-                                    Uri.parse(
-                                        'https://single-chat-app.onrender.com/api/user?search=${_controller.text.toString()}'),
-                                    headers: {
-                                      'Authorization':
-                                          'Bearer ${storedUser!.token}',
-                                      'Content-Type': 'application/json'
-                                    },
-                                  );
-                                  var data =
-                                      jsonDecode(response.body.toString());
-
-                                  if (response.statusCode == 200) {
-                                    for (var i in data) {
-                                      userList.add(FetchUser.fromJson(i));
-                                    }
-
+                            onPressed: !isTyping
+                                ? null
+                                : () async {
                                     setState(() {
-                                      isSearching = false;
+                                      isSearching = true;
+                                      userList.clear();
                                     });
-                                  } else {
-                                    setState(() {
-                                      isSearching = false;
-                                    });
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return ErrorDialog(
-                                          title: 'Fail',
-                                          message:
-                                              'Error: ${response.statusCode}',
+                                    if (_controller.text.isNotEmpty) {
+                                      try {
+                                        final response = await http.get(
+                                          Uri.parse(
+                                              'https://single-chat-app.onrender.com/api/user?search=${_controller.text.toString()}'),
+                                          headers: {
+                                            'Authorization':
+                                                'Bearer ${storedUser!.token}',
+                                            'Content-Type': 'application/json'
+                                          },
                                         );
-                                      },
-                                    );
-                                  }
-                                } catch (e) {
-                                  setState(() {
-                                    isSearching = false;
-                                  });
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return ErrorDialog(
-                                        title: 'Fail',
-                                        message: 'Error: $e',
+                                        List data = jsonDecode(
+                                            response.body.toString());
+                                       
+                                        if (response.statusCode == 200) {
+                                          if (data.isEmpty) {
+                                            setState(() {
+                                              isData = false;
+                                              isSearching = false;
+                                            });
+                                          } else {
+                                            for (var i in data) {
+                                              userList
+                                                  .add(FetchUser.fromJson(i));
+                                            }
+
+                                            setState(() {
+                                              isSearching = false;
+                                              isData = true;
+                                            });
+                                          }
+                                        } else {
+                                          setState(() {
+                                            isSearching = false;
+                                          });
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return ErrorDialog(
+                                                title: 'Fail',
+                                                message:
+                                                    'Error: ${response.statusCode}',
+                                              );
+                                            },
+                                          );
+                                        }
+                                      } catch (e) {
+                                        setState(() {
+                                          isSearching = false;
+                                        });
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return ErrorDialog(
+                                              title: 'Fail',
+                                              message: 'Error: $e',
+                                            );
+                                          },
+                                        );
+                                      }
+                                    } else {
+                                      setState(() {
+                                        isSearching = false;
+                                      });
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return ErrorDialog(
+                                            title: 'Fail',
+                                            message: 'Enter a name...',
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
-                                }
-                              } else {
-                                setState(() {
-                                  isSearching = false;
-                                });
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return ErrorDialog(
-                                      title: 'Fail',
-                                      message: 'Enter a name...',
-                                    );
+                                    }
                                   },
-                                );
-                              }
-                            },
                             icon: Icon(Icons.search),
                             color: isTyping ? Colors.white70 : Colors.white10,
                           ),
@@ -205,13 +220,16 @@ class _GroupchatState extends State<Groupchat> {
                           ),
                         ),
                       )
-                    else
+                    else 
+                     if(!isData)
                       Center(
                         child: Text(
                           'No results found',
                           style: TextStyle(color: Colors.white70),
                         ),
-                      ),
+                      )
+                     else
+                     SizedBox() 
                   ],
                 ),
               ),
@@ -244,12 +262,7 @@ class _GroupchatState extends State<Groupchat> {
                   ),
                 )
               else
-                Center(
-                  child: Text(
-                    'No user Added',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                ),
+                SizedBox(),
               if (addedUserList.length >= 2)
                 ElevatedButton(
                   onPressed: () async {
@@ -282,7 +295,7 @@ class _GroupchatState extends State<Groupchat> {
 
                       if (response.statusCode == 200) {
                         final responseData = jsonDecode(response.body);
-                        print(responseData);
+                        // print(responseData);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('New Group Chat Created!'),

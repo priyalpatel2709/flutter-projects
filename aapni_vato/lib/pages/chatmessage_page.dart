@@ -672,8 +672,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                     height: 8.0,
                   ),
                   Container(
-                    width: 380,
-                    padding: EdgeInsets.all(10),
+                    // width: 380,
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: Colors.white60,
                       borderRadius: BorderRadius.only(
@@ -693,8 +694,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             enabled: !isImg,
                             controller: _controller,
                             decoration: InputDecoration(
-                              hintText: 'Type something...',
+                              hintText: 'message...',
                               enabled: !isImg,
+                              border: InputBorder.none,
                             ),
                           ),
                         ),
@@ -709,9 +711,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                         )
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 8.0,
                   ),
                 ],
               ),
