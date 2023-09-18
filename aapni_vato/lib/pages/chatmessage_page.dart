@@ -46,6 +46,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   bool imgLoading = false;
   bool isImg = false;
   var picUrl = '';
+  bool _cotectToServet = false;
 
   @override
   void initState() {
@@ -72,7 +73,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.onConnect((_) {
       print('Connected to server');
       socket.emit('setup', userData);
+
+      socket.on("connected", (data) {
+        print('data $data');
+      });
     });
+
+    socket.on("connect", (data) {
+      print('data $data');
+    });
+
+    socket.connect();
 
     socket.on("message recieved", (data) {
       // print('i am');
@@ -225,7 +236,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void unsubscribeFromSocketEvents() {
-    socket.off("setup");
+    socket.on('disconnect', (_) {
+      print('Disconnected from server');
+    });
   }
 
   @override
@@ -240,8 +253,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   Future<void> deleteMsg(String senderId, String messageId) async {
     try {
       final response = await http.delete(
-        Uri.parse(
-            'https://single-chat-app.onrender.com/api/message/$messageId/$senderId'),
+        Uri.parse('https://single-chat-app.onrender.com/api/message/$messageId/$senderId'),
         headers: {
           'Authorization': 'Bearer ${storedUser!.token}',
         },
@@ -271,105 +283,115 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     final chatProvider = Provider.of<SelectedChat>(context);
     final List chats = chatProvider.chats;
 
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          widget.data['isGroupChat']
-              ? IconButton(
-                  onPressed: () {
-                    grpInfo(chats, context, widget.data['name']);
-                  },
-                  icon: Icon(Icons.info))
-              : SizedBox()
-        ],
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.data['dp'].toString()),
-            ),
-            SizedBox(
-              width: 5.0,
-            ),
-            Text('${widget.data['name']}'),
+    return WillPopScope(
+      onWillPop: () async {
+        goback();
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 77, 80, 85),
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: [
+            widget.data['isGroupChat']
+                ? IconButton(
+                    onPressed: () {
+                      grpInfo(chats, context, widget.data['name']);
+                    },
+                    icon: Icon(Icons.info))
+                : SizedBox()
           ],
+          title: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: NetworkImage(widget.data['dp'].toString()),
+              ),
+              SizedBox(
+                width: 5.0,
+              ),
+              Text('${widget.data['name']}'),
+            ],
+          ),
         ),
+        body: loading
+            ? Skeletonizer(
+                enabled: true,
+                child: ListView.builder(
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return Loading_mes();
+                  },
+                ),
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Consumer<SelectedChat>(
+                      builder: (BuildContext context, value, _) {
+                        final List chats = chatProvider.chats;
+                        print(chats[0].isGroupChat);
+                        return Expanded(
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount:
+                                chatMessages.length + newChatMessages.length,
+                            itemBuilder: (context, index) {
+                              if (index < chatMessages.length) {
+                                final chatMessage = chatMessages[index];
+                                return Message_lisiview(
+                                  content: chatMessage.content.toString(),
+                                  isGroupChat: widget.data['isGroupChat'],
+                                  senderName: chatMessage.sender.name,
+                                  createdAt: chatMessage.createdAt,
+                                  storedUserId: storedUser!.userId,
+                                  chatSenderId: chatMessage.sender.id,
+                                  onDeleteMes: () {
+                                    deleteMsg(
+                                        chatMessage.sender.id, chatMessage.id);
+                                  },
+                                );
+                              } else {
+                                final socketMessage = newChatMessages[
+                                    index - chatMessages.length];
+                                return Message_lisiview(
+                                  content: socketMessage['content'].toString(),
+                                  isGroupChat: widget.data['isGroupChat'],
+                                  senderName: socketMessage['sender']['name'],
+                                  createdAt: socketMessage['createdAt'],
+                                  storedUserId: storedUser!.userId,
+                                  chatSenderId: socketMessage['sender']['_id'],
+                                  onDeleteMes: () {
+                                    deleteMsg(socketMessage['sender']['_id'],
+                                        socketMessage['_id']);
+                                  },
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    if (isImg) Image.network(picUrl.toString()),
+                    SizedBox(
+                      height: 8.0,
+                    ),
+                    ChatInputField(
+                      controller: _controller,
+                      isImg: isImg,
+                      onAttachmentPressed: pickAndUploadImage,
+                      onSendPressed: () {
+                        sendMessage(widget.data['chatId'].toString());
+                      },
+                    ),
+                  ],
+                ),
+              ),
       ),
-      body: loading
-          ? Skeletonizer(
-              enabled: true,
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return Loading_mes();
-                },
-              ),
-            )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Consumer<SelectedChat>(
-                    builder: (BuildContext context, value, _) {
-                      final List chats = chatProvider.chats;
-                      print(chats[0].isGroupChat);
-                    return  Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          itemCount:
-                              chatMessages.length + newChatMessages.length,
-                          itemBuilder: (context, index) {
-                            if (index < chatMessages.length) {
-                              final chatMessage = chatMessages[index];
-                              return Message_lisiview(
-                                content: chatMessage.content.toString(),
-                                isGroupChat: widget.data['isGroupChat'],
-                                senderName: chatMessage.sender.name,
-                                createdAt: chatMessage.createdAt,
-                                storedUserId: storedUser!.userId,
-                                chatSenderId: chatMessage.sender.id,
-                                onDeleteMes: () {
-                                  deleteMsg(
-                                      chatMessage.sender.id, chatMessage.id);
-                                },
-                              );
-                            } else {
-                              final socketMessage =
-                                  newChatMessages[index - chatMessages.length];
-                              return Message_lisiview(
-                                content: socketMessage['content'].toString(),
-                                isGroupChat: widget.data['isGroupChat'],
-                                senderName: socketMessage['sender']['name'],
-                                createdAt: socketMessage['createdAt'],
-                                storedUserId: storedUser!.userId,
-                                chatSenderId: socketMessage['sender']['_id'],
-                                onDeleteMes: () {
-                                  deleteMsg(socketMessage['sender']['_id'],
-                                      socketMessage['_id']);
-                                },
-                              );
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  if (isImg) Image.network(picUrl.toString()),
-                  SizedBox(
-                    height: 8.0,
-                  ),
-                  ChatInputField(
-                    controller: _controller,
-                    isImg: isImg,
-                    onAttachmentPressed: pickAndUploadImage,
-                    onSendPressed: () {
-                      sendMessage(widget.data['chatId'].toString());
-                    },
-                  ),
-                ],
-              ),
-            ),
     );
+  }
+
+  void goback() {
+    socket.disconnect();
   }
 }
