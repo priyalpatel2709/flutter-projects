@@ -19,6 +19,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../utilits/grputuls.dart';
 import '../utilits/uploadtocloude.dart';
+import '../widgets/chatInputfield.dart';
 import '../widgets/loading_mes.dart';
 import '../widgets/message_lisiview.dart';
 
@@ -343,45 +344,16 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   SizedBox(
                     height: 8.0,
                   ),
-                  Container(
-                    margin: EdgeInsets.only(left: 10, right: 10),
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white60,
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(40.0),
-                          bottomRight: Radius.circular(40.0),
-                          topLeft: Radius.circular(40.0),
-                          bottomLeft: Radius.circular(40.0)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SizedBox(
-                          width: 3.0,
-                        ),
-                        Expanded(
-                          child: TextField(
-                            enabled: !isImg,
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'message...',
-                              enabled: !isImg,
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                            onPressed: pickAndUploadImage,
-                            icon: Icon(Icons.attach_file)),
-                        IconButton(
-                          onPressed: () {
-                            sendMessage(widget.data['chatId'].toString());
-                          },
-                          icon: Icon(Icons.send),
-                        )
-                      ],
-                    ),
+                  ChatInputField(
+                    controller:
+                        _controller, // Pass your TextEditingController here
+                    isImg: isImg, // Pass the isImg value
+                    onAttachmentPressed:
+                        pickAndUploadImage, // Pass the attachment function
+                    onSendPressed: () {
+                      sendMessage(widget.data['chatId']
+                          .toString()); // Pass the send message function
+                    },
                   ),
                 ],
               ),
