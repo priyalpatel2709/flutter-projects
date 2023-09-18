@@ -213,19 +213,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     }
   }
 
-  String messageTime(utcdateTime) {
-    String utcTimestamp = utcdateTime;
-    DateTime dateTime = DateTime.parse(utcTimestamp);
-    String formattedTime = formatTime(dateTime);
-    return formattedTime; // Output: 10:47 AM
-  }
-
-  String formatTime(DateTime dateTime) {
-    final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
-    final indianTime = dateTime.toLocal(); // Convert to local time zone (IST)
-    return timeFormat.format(indianTime);
-  }
-
   void scrollToBottom() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       scrollController.animateTo(
