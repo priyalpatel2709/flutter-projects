@@ -2,16 +2,16 @@ import '../model/mychat.dart';
 import 'package:flutter/foundation.dart';
 
 class SelectedChat with ChangeNotifier {
-  List<Chat> _chats = [];
+  List _chats = [];
 
-  List<Chat> get chats => _chats;
+  List get chats => _chats;
 
-  void setChats(List<Chat> chats) {
+  void setChats(List chats) {
     _chats = chats;
     notifyListeners();
   }
 
-  void clearChats(List<Chat> chats) {
+  void clearChats(List chats) {
     _chats = [];
     notifyListeners();
   }

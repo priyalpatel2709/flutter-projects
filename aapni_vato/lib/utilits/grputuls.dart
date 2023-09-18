@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../model/mychat.dart';
 
 
-Future<void> grpInfo(List<Chat> chats,context,name) {
+Future<void> grpInfo(List chats,context,name) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {

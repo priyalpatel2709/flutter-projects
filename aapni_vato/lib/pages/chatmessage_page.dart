@@ -269,7 +269,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<SelectedChat>(context);
-    final List<Chat> chats = chatProvider.chats;
+    final List chats = chatProvider.chats;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
@@ -312,7 +312,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                 children: [
                   Consumer<SelectedChat>(
                     builder: (BuildContext context, value, _) {
-                      final List<Chat> chats = chatProvider.chats;
+                      final List chats = chatProvider.chats;
+                      print(chats[0].isGroupChat);
                     return  Expanded(
                         child: ListView.builder(
                           controller: scrollController,

@@ -35,7 +35,7 @@ class _ChatpageState extends State<Chatpage> {
         final List<dynamic> jsonList = json.decode(response.body);
         final List<Chat> chats =
             jsonList.map((json) => Chat.fromJson(json)).toList();
-         chatProvider.setChats(chats);   
+        //  chatProvider.setChats(chats);   
         return chats; 
       } else {
         // Handle the error if the request fails.
@@ -138,6 +138,7 @@ class _ChatpageState extends State<Chatpage> {
                     storedUser!.userId == chat.latestMessage?.sender.id;
                 return InkWell(
                   onTap: () {
+                    chatProvider.setChats([chat]);   
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
                           "chatId": chatId,
