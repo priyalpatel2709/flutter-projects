@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -13,6 +14,8 @@ void main() async {
   Hive.registerAdapter(UserAdapter());
   await Hive.initFlutter();
   await Hive.openBox('user_info');
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     ChangeNotifierProvider(
       create: (context) => SelectedChat(),

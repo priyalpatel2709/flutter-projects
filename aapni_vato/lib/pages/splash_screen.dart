@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../data/database.dart';
+import '../notifications/nodificationservices.dart';
 import '../route/routes_name.dart';
 
 class Splash_Screen extends StatefulWidget {
@@ -15,11 +16,17 @@ class Splash_Screen extends StatefulWidget {
 
 class _Splash_ScreenState extends State<Splash_Screen> {
   final _mybox = Hive.box('user_info');
+  NotificationServices notificationServices = NotificationServices();
 
 @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    notificationServices.reqOfNotifiction();
+    notificationServices.firebaceInit();
+    notificationServices.getToken().then((value){
+      print(value);
+    });
     wharetogo();
   }
 

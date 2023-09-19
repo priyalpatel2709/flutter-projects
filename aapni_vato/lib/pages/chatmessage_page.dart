@@ -107,7 +107,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
         setState(() {
           loading = false;
-          chatMessages.clear(); // Clear existing messages
+          chatMessages.clear(); 
           for (var i in data) {
             chatMessages.add(ChatMessage.fromJson(i));
           }
@@ -235,11 +235,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   @override
   void dispose() {
-    unsubscribeFromSocketEvents();
+    // unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
     newChatMessages.clear();
-    socket.disconnect();
+    // socket.disconnect();
     super.dispose();
   }
 
