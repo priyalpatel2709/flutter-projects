@@ -22,9 +22,9 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    notificationServices.reqOfNotifiction();
-    notificationServices.firebaceInit();
-    notificationServices.getToken().then((value){
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.getDeviceToken().then((value){
       print(value);
     });
     wharetogo();
