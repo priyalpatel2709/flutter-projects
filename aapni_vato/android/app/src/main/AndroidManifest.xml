@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Add the VIBRATE permission here -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:label="aapni_vato"
         android:name="${applicationName}"
@@ -32,6 +34,6 @@
             <!--for Notifications -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="high_importance_channel"/>    
+            android:value="high_importance_channel" /> 
     </application>
 </manifest>
