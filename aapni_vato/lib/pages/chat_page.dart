@@ -35,12 +35,21 @@ class _ChatpageState extends State<Chatpage> {
         final List<dynamic> jsonList = json.decode(response.body);
         final List<Chat> chats =
             jsonList.map((json) => Chat.fromJson(json)).toList();
-        //  chatProvider.setChats(chats);   
-        return chats; 
+        return chats;
       } else {
         // Handle the error if the request fails.
         print('Failed to load data: ${response.statusCode}');
         throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    }
+
+
+    Future<void> fetchDataAndRefresh() async {
+      try {
+         await fetchChatData(); 
+        setState(() {}); 
+      } catch (e) {
+        print('Error fetching data: $e');
       }
     }
 
@@ -137,8 +146,8 @@ class _ChatpageState extends State<Chatpage> {
                 bool subtitleText =
                     storedUser!.userId == chat.latestMessage?.sender.id;
                 return InkWell(
-                  onTap: () {
-                    chatProvider.setChats([chat]);   
+                  onTap: () async {
+                    chatProvider.setChats([chat]);
                     Navigator.pushNamed(context, RoutesName.Chatmessage_page,
                         arguments: {
                           "chatId": chatId,
@@ -149,6 +158,7 @@ class _ChatpageState extends State<Chatpage> {
                               : chatUser.pic,
                           "isGroupChat": chat.isGroupChat
                         });
+                        await fetchDataAndRefresh();
                   },
                   child: ListTile(
                     leading: CircleAvatar(
