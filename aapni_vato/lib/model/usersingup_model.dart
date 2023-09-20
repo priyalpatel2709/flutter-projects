@@ -5,9 +5,10 @@ class UserSingUp {
   String? password;
   String? token;
   String? pic;
+  String? deviceToken;
 
   UserSingUp(
-      {this.sId, this.name, this.email, this.password, this.token, this.pic});
+      {this.sId, this.name, this.email, this.password, this.token, this.pic,this.deviceToken});
 
   UserSingUp.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -16,6 +17,7 @@ class UserSingUp {
     password = json['password'];
     token = json['token'];
     pic = json['pic'];
+    deviceToken = json['deviceToken'];
   }
 
   Map<String, dynamic> toJson() {
@@ -26,6 +28,7 @@ class UserSingUp {
     data['password'] = this.password;
     data['token'] = this.token;
     data['pic'] = this.pic;
+    data['deviceToken'] = this.deviceToken;
     return data;
   }
 }

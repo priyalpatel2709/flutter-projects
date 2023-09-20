@@ -16,17 +16,12 @@ class Splash_Screen extends StatefulWidget {
 
 class _Splash_ScreenState extends State<Splash_Screen> {
   final _mybox = Hive.box('user_info');
-  NotificationServices notificationServices = NotificationServices();
+ 
 
 @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    notificationServices.requestNotificationPermission();
-    notificationServices.firebaseInit(context);
-    notificationServices.getDeviceToken().then((value){
-      print(value);
-    });
     wharetogo();
   }
 

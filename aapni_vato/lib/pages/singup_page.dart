@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/usersingup_model.dart';
+import '../notifications/nodificationservices.dart';
 import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
 import '../utilits/uploadtocloude.dart';
@@ -29,7 +30,8 @@ class _SingupState extends State<Singup> {
   final TextEditingController _confirmpassController = TextEditingController();
   UserInfo userData = UserInfo();
   var loading = false;
-
+  String deviceToken ='';
+  NotificationServices notificationServices = NotificationServices();
   File? selectedImage;
   final picker = ImagePicker();
   bool imgLoading = false;
@@ -57,6 +59,20 @@ class _SingupState extends State<Singup> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print('i am');
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.getDeviceToken().then((value) {
+      deviceToken = value;
+    });
+    super.initState();
+  }
+
+  void setUpForNOtification() {}
 
   Future<void> pickAndUploadImage() async {
     imgLoading = true;
@@ -99,7 +115,7 @@ class _SingupState extends State<Singup> {
             width: 300,
             child: loading
                 ? Center(
-                    child: Text('Loading'),
+                    child: CircularProgressIndicator(),
                   )
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -210,8 +226,9 @@ class _SingupState extends State<Singup> {
     loading = true;
     setState(() {});
     print(picUrl);
-    if(picUrl.isEmpty){
-      picUrl = 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg';
+    if (picUrl.isEmpty) {
+      picUrl =
+          'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg';
     }
     try {
       loading = false;
@@ -223,22 +240,27 @@ class _SingupState extends State<Singup> {
           'email': email,
           'password': password,
           'name': name,
-          'pic': picUrl.toString()
+          'pic': picUrl.toString(),
+          'deviceToken': deviceToken.toString(),
         }),
       );
 
       if (response.statusCode == 200) {
+        setUpForNOtification();
+        setState(() {
+          loading = false;
+        });
         final jsonData = await jsonDecode(response.body);
         UserSingUp user = UserSingUp.fromJson(jsonData);
 
         // Create a User object with the retrieved information
         User newUser = User(
-          userId: user.sId.toString(),
-          token: user.token.toString(),
-          name: user.name.toString(),
-          email: user.email.toString(),
-          imageUrl: user.pic.toString(),
-        );
+            userId: user.sId.toString(),
+            token: user.token.toString(),
+            name: user.name.toString(),
+            email: user.email.toString(),
+            imageUrl: user.pic.toString(),
+            deviceToken: deviceToken.toString());
 
         // Store the user in Hive
         userData.addUserInfo(newUser);

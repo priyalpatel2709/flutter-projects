@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
 import '../model/userlogin_model.dart';
+import '../model/usersingup_model.dart';
+import '../notifications/nodificationservices.dart';
 import '../route/routes_name.dart';
 import '../utilits/errordialog.dart';
 import 'chat_page.dart';
@@ -130,17 +132,18 @@ class _LoginState extends State<Login> {
         loading = false;
         setState(() {});
         final jsonData = await jsonDecode(response.body);
-        final user = UserLogIn.fromJson(jsonData);
+        final user = UserSingUp.fromJson(jsonData);
         User newUser = User(
           userId: user.sId.toString(),
           token: user.token.toString(),
           name: user.name.toString(),
           email: user.email.toString(),
           imageUrl: user.pic.toString(),
+          deviceToken: user.deviceToken.toString(),
         );
 
         userData.addUserInfo(newUser);
-        navigateToChatpage();
+        navigateToChatpage(context);
       } else {
         loading = false;
         setState(() {});
@@ -169,7 +172,7 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void navigateToChatpage() {
+  void navigateToChatpage(context) {
     Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
   }
 }

@@ -17,14 +17,19 @@ class User {
   String email;
 
   @HiveField(4)
-  String? imageUrl; // Make the imageUrl field optional
+  String? imageUrl;
+  
+  @HiveField(5)
+  String? deviceToken; 
+ 
 
   User({
     required this.userId,
     required this.token,
     required this.name,
     required this.email,
-    this.imageUrl, // Make imageUrl optional with a default value of null
+    this.imageUrl, 
+    this.deviceToken
   });
 }
 

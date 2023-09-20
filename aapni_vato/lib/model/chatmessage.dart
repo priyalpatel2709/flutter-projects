@@ -38,12 +38,14 @@ class ChatUser {
   final String name;
   final String email;
   final String pic;
+  final String deviceToken;
 
   ChatUser({
     required this.id,
     required this.name,
     required this.email,
     required this.pic,
+    required this.deviceToken,
   });
 
   factory ChatUser.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,7 @@ class ChatUser {
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       pic: json['pic'] ?? '',
+      deviceToken: json['deviceToken'] ?? '',
     );
   }
 }
