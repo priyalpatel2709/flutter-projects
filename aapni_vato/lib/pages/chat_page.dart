@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import '../data/database.dart';
 import '../model/mychat.dart';
+import '../notifications/nodificationservices.dart';
 import '../provider/seletedchat.dart';
 import '../route/routes_name.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,14 @@ class Chatpage extends StatefulWidget {
 }
 
 class _ChatpageState extends State<Chatpage> {
+  NotificationServices notificationServices = NotificationServices();
+  @override
+  void initState() {
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<SelectedChat>(context, listen: false);
@@ -25,7 +34,7 @@ class _ChatpageState extends State<Chatpage> {
     User? storedUser;
 
     Future<List<Chat>> fetchChatData() async {
-      final url = Uri.parse('https://single-chat-app.onrender.com/api/chat');
+      final url = Uri.parse('http://10.0.2.2:2709/api/chat');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer ${storedUser!.token}'},
@@ -43,11 +52,10 @@ class _ChatpageState extends State<Chatpage> {
       }
     }
 
-
     Future<void> fetchDataAndRefresh() async {
       try {
-         await fetchChatData(); 
-        setState(() {}); 
+        await fetchChatData();
+        setState(() {});
       } catch (e) {
         print('Error fetching data: $e');
       }
@@ -158,7 +166,7 @@ class _ChatpageState extends State<Chatpage> {
                               : chatUser.pic,
                           "isGroupChat": chat.isGroupChat
                         });
-                        await fetchDataAndRefresh();
+                    await fetchDataAndRefresh();
                   },
                   child: ListTile(
                     leading: CircleAvatar(

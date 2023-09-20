@@ -26,6 +26,19 @@ class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   var loading = false;
+  String deviceToken = '';
+  NotificationServices notificationServices = NotificationServices();
+
+
+  @override
+  void initState() {
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.getDeviceToken().then((value) {
+      deviceToken = value;
+    });
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -124,9 +137,9 @@ class _LoginState extends State<Login> {
     setState(() {});
     try {
       final response = await http.post(
-        Uri.parse('https://single-chat-app.onrender.com/api/user/login'),
+        Uri.parse('http://10.0.2.2:2709/api/user/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'email': email, 'password': password,'deviceToken':deviceToken}),
       );
       if (response.statusCode == 200) {
         loading = false;

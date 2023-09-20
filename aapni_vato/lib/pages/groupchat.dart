@@ -101,7 +101,7 @@ class _GroupchatState extends State<Groupchat> {
                                       try {
                                         final response = await http.get(
                                           Uri.parse(
-                                              'https://single-chat-app.onrender.com/api/user?search=${_controller.text.toString()}'),
+                                              'http://10.0.2.2:2709/api/user?search=${_controller.text.toString()}'),
                                           headers: {
                                             'Authorization':
                                                 'Bearer ${storedUser!.token}',
@@ -288,7 +288,7 @@ class _GroupchatState extends State<Groupchat> {
                       // Send a POST request to create the group chat
                       final response = await http.post(
                         Uri.parse(
-                            'https://single-chat-app.onrender.com/api/chat/group'),
+                            'http://10.0.2.2:2709/api/chat/group'),
                         headers: headers,
                         body: jsonEncode(requestBody),
                       );

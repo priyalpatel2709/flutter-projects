@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/chatmessage.dart';
 import '../model/mychat.dart';
+import '../notifications/nodificationservices.dart';
 import '../provider/seletedchat.dart';
 import '../utilits/errordialog.dart';
 import 'package:intl/intl.dart';
@@ -47,7 +48,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   bool isImg = false;
   var picUrl = '';
   bool _cotectToServet = false;
-
+  NotificationServices notificationServices = NotificationServices();
   @override
   void initState() {
     super.initState();
@@ -58,7 +59,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void connectToServer() {
-    socket = IO.io('https://single-chat-app.onrender.com', <String, dynamic>{
+    socket = IO.io('http://10.0.2.2:2709', <String, dynamic>{
       'transports': ['websocket'],
       'query': {'device': "flutter"},
     });
@@ -78,7 +79,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.on("connect", (data) {});
     socket.connect();
 
-    socket.on("message recieved", (data) {
+    socket.on("message recieved", (data)  async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
           setState(() {
@@ -86,7 +87,36 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             scrollToBottom();
           });
         } else {
-          print('new message ${data['sender']['name']}: ${data['content']}');
+          final url = Uri.parse('https://fcm.googleapis.com/fcm/send');
+          const serverKey =
+              'AAAA___8Jg4:APA91bGmXUMubaJ-k7-IqK2fc3b9RcNmn6IwfaRcv4eFsO3lb00yK0JhyUWH4duunJEUzPcwtXNPyI_A-FoJYRhQ1QbT7WyWI16AnICtui9zhj8cZTX1LAT9wT963g6y1SixplVbZudu';
+
+          final headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'key=$serverKey',
+          };
+
+          final payload = {
+            'to': data['chat']['users'][0]['deviceToken'],
+            'notification': {
+              'title': data['sender']['name'],
+              'body': data['content'],
+            },
+          };
+
+          final response = await http.post(
+            url,
+            headers: headers,
+            body: jsonEncode(payload),
+          );
+
+          if (response.statusCode == 200) {
+            print('from  ${data['sender']['deviceToken']}');
+            print('Notification sent successfully');
+          } else {
+            print(
+                'Failed to send notification. Status code: ${response.statusCode}');
+          }
         }
       }
     });
@@ -98,7 +128,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
     try {
       final response = await http.get(
-        Uri.parse('https://single-chat-app.onrender.com/api/message/$chatId'),
+        Uri.parse('http://10.0.2.2:2709/api/message/$chatId'),
         headers: {'Authorization': 'Bearer ${storedUser!.token}'},
       );
 
@@ -107,7 +137,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
         setState(() {
           loading = false;
-          chatMessages.clear(); 
+          chatMessages.clear();
           for (var i in data) {
             chatMessages.add(ChatMessage.fromJson(i));
           }
@@ -140,7 +170,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   void sendMessage(String chatId) async {
     try {
       final response = await http.post(
-        Uri.parse('https://single-chat-app.onrender.com/api/message'),
+        Uri.parse('http://10.0.2.2:2709/api/message'),
         headers: {
           'Authorization': 'Bearer ${storedUser!.token}',
           'Content-Type': 'application/json',
@@ -246,7 +276,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   Future<void> deleteMsg(String senderId, String messageId) async {
     try {
       final response = await http.delete(
-        Uri.parse('https://single-chat-app.onrender.com/api/message/$messageId/$senderId'),
+        Uri.parse('http://10.0.2.2:2709/api/message/$messageId/$senderId'),
         headers: {
           'Authorization': 'Bearer ${storedUser!.token}',
         },

@@ -113,7 +113,7 @@ class _AddFriendState extends State<AddFriend> {
     try {
       if (name != '') {
         final url = Uri.parse(
-            'https://single-chat-app.onrender.com/api/user?search=$name');
+            'http://10.0.2.2:2709/api/user?search=$name');
         final response = await http.get(
           url,
           headers: {'Authorization': 'Bearer ${storedUser!.token}'},
@@ -174,7 +174,7 @@ class _AddFriendState extends State<AddFriend> {
     print(sId);
     try {
       final response = await http.post(
-          Uri.parse('https://single-chat-app.onrender.com/api/chat'),
+          Uri.parse('http://10.0.2.2:2709/api/chat'),
           headers: {
             'Authorization': 'Bearer ${storedUser!.token}',
             'Content-Type': 'application/json'

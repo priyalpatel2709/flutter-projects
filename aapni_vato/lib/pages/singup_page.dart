@@ -62,8 +62,6 @@ class _SingupState extends State<Singup> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    print('i am');
     notificationServices.requestNotificationPermission();
     notificationServices.firebaseInit(context);
     notificationServices.getDeviceToken().then((value) {
@@ -234,7 +232,7 @@ class _SingupState extends State<Singup> {
       loading = false;
       setState(() {});
       var response = await http.post(
-        Uri.parse('https://single-chat-app.onrender.com/api/user'),
+        Uri.parse('http://10.0.2.2:2709/api/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
