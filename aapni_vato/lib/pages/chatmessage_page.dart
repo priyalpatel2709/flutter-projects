@@ -86,38 +86,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             newChatMessages.add(data);
             scrollToBottom();
           });
-        } else {
-          final url = Uri.parse('https://fcm.googleapis.com/fcm/send');
-          const serverKey =
-              'AAAA___8Jg4:APA91bGmXUMubaJ-k7-IqK2fc3b9RcNmn6IwfaRcv4eFsO3lb00yK0JhyUWH4duunJEUzPcwtXNPyI_A-FoJYRhQ1QbT7WyWI16AnICtui9zhj8cZTX1LAT9wT963g6y1SixplVbZudu';
-
-          final headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=$serverKey',
-          };
-
-          final payload = {
-            'to': data['chat']['users'][0]['deviceToken'],
-            'notification': {
-              'title': data['sender']['name'],
-              'body': data['content'],
-            },
-          };
-
-          final response = await http.post(
-            url,
-            headers: headers,
-            body: jsonEncode(payload),
-          );
-
-          if (response.statusCode == 200) {
-            print('from  ${data['sender']['deviceToken']}');
-            print('Notification sent successfully');
-          } else {
-            print(
-                'Failed to send notification. Status code: ${response.statusCode}');
-          }
-        }
+        } 
       }
     });
   }
