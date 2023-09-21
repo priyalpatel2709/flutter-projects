@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../route/routes_name.dart';
+
 class NotificationServices {
   //initialising firebase message plugin
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -30,7 +32,7 @@ class NotificationServices {
     await _flutterLocalNotificationsPlugin.initialize(initializationSetting,
         onDidReceiveNotificationResponse: (payload) {
       // handle interaction when app is active for android
-      // handleMessage(context, message);
+      handleMessage(context, message);
     });
   }
 
@@ -45,10 +47,7 @@ class NotificationServices {
         print('count:${android!.count}');
         print('data:${message.data.toString()}');
       }
-
-      // if (Platform.isIOS) {
-      //   forgroundMessage();
-      // }
+      print('data:${message.data.toString()}');
 
       if (Platform.isAndroid) {
         initLocalNotifications(context, message);
@@ -103,7 +102,6 @@ class NotificationServices {
             priority: Priority.high,
             playSound: true,
             ticker: 'ticker',
-            sound: channel.sound
             );
 
     const DarwinNotificationDetails darwinNotificationDetails =
@@ -139,31 +137,30 @@ class NotificationServices {
   }
 
   //handle tap on notification when app is in background or terminated
-  // Future<void> setupInteractMessage(BuildContext context) async {
-  //   // when app is terminated
-  //   RemoteMessage? initialMessage =
-  //       await FirebaseMessaging.instance.getInitialMessage();
+  Future<void> setupInteractMessage(BuildContext context) async {
+    // when app is terminated
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
 
-  //   if (initialMessage != null) {
-  //     handleMessage(context, initialMessage);
-  //   }
+    if (initialMessage != null) {
+      print('kare');
+      handleMessage(context, initialMessage);
+    }
 
-  //   //when app ins background
-  //   FirebaseMessaging.onMessageOpenedApp.listen((event) {
-  //     handleMessage(context, event);
-  //   });
-  // }
+    //when app ins background
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      handleMessage(context, event);
+      print('object $event');
+    });
+  }
 
-  // void handleMessage(BuildContext context, RemoteMessage message) {
-  //   if (message.data['type'] == 'msj') {
-  //     Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (context) => MessageScreen(
-  //                   id: message.data['id'],
-  //                 )));
-  //   }
-  // }
+  void handleMessage(BuildContext context, RemoteMessage message) {
+    
+      Navigator.pushNamed(
+          context,RoutesName.Chatpage
+          );
+    
+  }
 
   // Future forgroundMessage() async {
   //   await FirebaseMessaging.instance

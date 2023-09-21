@@ -238,7 +238,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     scrollController.dispose();
     _controller.dispose();
     newChatMessages.clear();
-    // socket.disconnect();
+    socket.disconnect();
     super.dispose();
   }
 
