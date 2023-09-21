@@ -265,12 +265,13 @@ class _SingupState extends State<Singup> {
 
         navigateToChatpage();
       } else {
+        print(response.body);
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return ErrorDialog(
               title: 'Fail',
-              message: 'User Already Exists !!!',
+              message: 'User Already Exists !!! ${response.statusCode}',
             );
           },
         );

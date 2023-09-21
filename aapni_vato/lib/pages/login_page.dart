@@ -165,7 +165,7 @@ class _LoginState extends State<Login> {
           builder: (BuildContext context) {
             return ErrorDialog(
               title: 'Fail',
-              message: 'Something went wrong',
+              message: 'Something went wrong ${response.statusCode}',
             );
           },
         );
