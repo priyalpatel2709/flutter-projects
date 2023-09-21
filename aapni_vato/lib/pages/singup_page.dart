@@ -172,7 +172,7 @@ class _SingupState extends State<Singup> {
                               password != '' &&
                               conformpassword != '') {
                             if (password == conformpassword) {
-                              singupuser(name, email, password);
+                              singupuser(name, email, password,context);
                             } else {
                               showDialog(
                                 context: context,
@@ -203,10 +203,7 @@ class _SingupState extends State<Singup> {
                       ),
                       TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => Login()),
-                            );
+                            Navigator.pushReplacementNamed(context, RoutesName.Login);
                           },
                           child: Text(
                             'go to singup',
@@ -220,7 +217,7 @@ class _SingupState extends State<Singup> {
     );
   }
 
-  void singupuser(String name, String email, String password) async {
+  void singupuser(String name, String email, String password, BuildContext context,) async {
     loading = true;
     setState(() {});
     print(picUrl);
@@ -263,7 +260,7 @@ class _SingupState extends State<Singup> {
         // Store the user in Hive
         userData.addUserInfo(newUser);
 
-        navigateToChatpage();
+        navigateToChatpage(context);
       } else {
         print(response.body);
         showDialog(
@@ -291,7 +288,7 @@ class _SingupState extends State<Singup> {
     }
   }
 
-  void navigateToChatpage() {
+  void navigateToChatpage(context) {
     Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
   }
 }

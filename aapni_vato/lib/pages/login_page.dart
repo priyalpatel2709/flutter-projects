@@ -29,7 +29,6 @@ class _LoginState extends State<Login> {
   String deviceToken = '';
   NotificationServices notificationServices = NotificationServices();
 
-
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
@@ -76,7 +75,7 @@ class _LoginState extends State<Login> {
                         final email = _emailController.text;
                         final password = _passwordController.text;
                         if (email.isNotEmpty && password.isNotEmpty) {
-                          loginuser(email, password);
+                          loginuser(email, password,context);
                         } else {
                           showDialog(
                             context: context,
@@ -94,6 +93,33 @@ class _LoginState extends State<Login> {
                     SizedBox(
                       height: 8.0,
                     ),
+                    TextButton(
+                        onPressed: () async {
+                          try {
+                            if (_emailController.text.toString() != '') {
+                              final responce = await http.get(
+                                Uri.parse(
+                                    'http://10.0.2.2:2709/api/user/forgotPassword/${_emailController.text.toString()}'),
+                                headers: {'Content-Type': 'application/json'},
+                              );
+
+                              print(responce.body);
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return ErrorDialog(
+                                    title: 'Fail',
+                                    message: 'Enter Email...',
+                                  );
+                                },
+                              );
+                            }
+                          } catch (e) {
+                            print(e);
+                          }
+                        },
+                        child: Text('Forget Password ?',style: TextStyle(color: Colors.white),)),
                     TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -132,14 +158,15 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<void> loginuser(String email, String password) async {
+  Future<void> loginuser(String email, String password, BuildContext context) async {
     loading = true;
     setState(() {});
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:2709/api/user/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password,'deviceToken':deviceToken}),
+        body: jsonEncode(
+            {'email': email, 'password': password, 'deviceToken': deviceToken}),
       );
       if (response.statusCode == 200) {
         loading = false;
