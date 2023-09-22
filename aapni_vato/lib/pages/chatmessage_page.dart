@@ -104,6 +104,13 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void unsubscribeFromSocketEvents() {
+    final userData = {
+      'email': storedUser!.email,
+      'name': storedUser!.name,
+      'token': storedUser!.token,
+      '_id': storedUser!.userId,
+    };
+    socket.emit('on_disconnect', userData);
     socket.on('disconnect', (_) {
       if (kDebugMode) {
         print('Disconnected from server');
@@ -189,24 +196,23 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                       return Expanded(
                         child: ListView.builder(
                           controller: scrollController,
-                          itemCount:
-                              chatMessages.length,
+                          itemCount: chatMessages.length,
                           itemBuilder: (context, index) {
                             // if (index < chatMessages.length) {
-                              final chatMessage = chatMessages[index];
-                              return Message_lisiview(
-                                content: chatMessage.content.toString(),
-                                isGroupChat: widget.data['isGroupChat'],
-                                senderName: chatMessage.sender.name,
-                                createdAt: chatMessage.createdAt,
-                                storedUserId: storedUser!.userId,
-                                chatSenderId: chatMessage.sender.id,
-                                onDeleteMes: () {
-                                  deleteMsg(
-                                      chatMessage.sender.id, chatMessage.id);
-                                },
-                              );
-                            // } 
+                            final chatMessage = chatMessages[index];
+                            return Message_lisiview(
+                              content: chatMessage.content.toString(),
+                              isGroupChat: widget.data['isGroupChat'],
+                              senderName: chatMessage.sender.name,
+                              createdAt: chatMessage.createdAt,
+                              storedUserId: storedUser!.userId,
+                              chatSenderId: chatMessage.sender.id,
+                              onDeleteMes: () {
+                                deleteMsg(
+                                    chatMessage.sender.id, chatMessage.id);
+                              },
+                            );
+                            // }
                             // else {
                             //   final socketMessage =
                             //       newChatMessages[index - chatMessages.length];
