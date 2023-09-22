@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/alluserData.dart';
 import '../route/routes_name.dart';
+import '../services/services.dart';
 import '../utilits/errordialog.dart';
 
 class AddFriend extends StatefulWidget {
@@ -85,7 +86,10 @@ class _AddFriendState extends State<AddFriend> {
                       child: ListTile(
                         leading: CircleAvatar(
                             backgroundImage: NetworkImage(user.pic.toString())),
-                        title: Text(user.name.toString(), style: TextStyle(color: Colors.white), ),
+                        title: Text(
+                          user.name.toString(),
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     );
                   },
@@ -111,59 +115,24 @@ class _AddFriendState extends State<AddFriend> {
 
   Future<void> fetchUser(String name) async {
     try {
-      if (name != '') {
-        final url = Uri.parse(
-            'http://10.0.2.2:2709/api/user?search=$name');
-        final response = await http.get(
-          url,
-          headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-        );
+      List<FetchUser> users =
+          await ChatServices.fetchUser(name, storedUser!.token);
 
-        if (response.statusCode == 200) {
-          loading = false;
-          setState(() {});
-          final jsonData = jsonDecode(response.body);
-
-          for (var i in jsonData) {
-            userlist.add(FetchUser.fromJson(i));
-          }
-          setState(() {});
-          _controller.clear();
-        } else {
-          loading = false;
-          setState(() {});
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorDialog(
-                title: 'Fail',
-                message: 'some this went wrong ${response.body}',
-              );
-            },
-          );
-        }
-      } else {
+      // Handle success here by using the 'users' list
+      setState(() {
+        userlist.clear();
+        userlist.addAll(users);
         loading = false;
-        setState(() {});
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ErrorDialog(
-              title: 'Fail',
-              message: 'Enter name or email..',
-            );
-          },
-        );
-      }
-    } catch (e) {
-      loading = false;
-      setState(() {});
+        _controller.clear();
+      });
+    } catch (error) {
+      // Handle error
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return ErrorDialog(
             title: 'Fail',
-            message: 'Error $e',
+            message: 'Error: $error',
           );
         },
       );
@@ -171,19 +140,21 @@ class _AddFriendState extends State<AddFriend> {
   }
 
   void accessChat(String? sId) async {
-    print(sId);
     try {
-      final response = await http.post(
-          Uri.parse('http://10.0.2.2:2709/api/chat'),
-          headers: {
-            'Authorization': 'Bearer ${storedUser!.token}',
-            'Content-Type': 'application/json'
-          },
-          body: jsonEncode({'userId': sId}));
+      var responce = await ChatServices.accessChat(sId, storedUser!.token);
 
-      //  print(response.body);
-      if (response.statusCode == 200) {
+      if (responce) {
         Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Error to access',
+            );
+          },
+        );
       }
     } catch (e) {
       showDialog(

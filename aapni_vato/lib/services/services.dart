@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../model/alluserData.dart';
 import '../model/chatmessage.dart';
+import '../route/routes_name.dart';
+
+
+const String baseUrl = 'http://10.0.2.2:2709/api';
 
 class ApiResult<T> {
   final bool success;
@@ -21,7 +26,7 @@ class ChatServices {
       String chatId, String token) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:2709/api/message/$chatId'),
+        Uri.parse('$baseUrl/message/$chatId'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -44,7 +49,7 @@ class ChatServices {
       String chatId, String token, String content) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:2709/api/message'),
+        Uri.parse('$baseUrl/message'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -68,7 +73,7 @@ class ChatServices {
       String senderId, String messageId, String token) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:2709/api/message/$messageId/$senderId'),
+        Uri.parse('$baseUrl/message/$messageId/$senderId'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -82,6 +87,60 @@ class ChatServices {
     } catch (error) {
       // Handle any network or other errors here
       throw error; // Re-throw the error for higher-level handling
+    }
+  }
+
+  static Future<List<FetchUser>> fetchUser(String name, String token) async {
+    try {
+      if (name != '') {
+        final url = Uri.parse('$baseUrl/user?search=$name');
+        final response = await http.get(
+          url,
+          headers: {'Authorization': 'Bearer $token'},
+        );
+
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          List<FetchUser> userlist = [];
+
+          for (var i in jsonData) {
+            userlist.add(FetchUser.fromJson(i));
+          }
+
+          return userlist; // Return the list of fetched users as a result
+        } else {
+          throw Exception('Failed to fetch users: ${response.body}');
+        }
+      } else {
+        throw Exception('Name is empty');
+      }
+    } catch (e) {
+      throw e; // Re-throw the error for higher-level handling
+    }
+  }
+
+  static Future<bool> accessChat(String? sId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:2709/api/chat'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'userId': sId}),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle success
+        // Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
+        return true;
+      } else {
+        throw Exception('Failed to access chat');
+        
+      }
+    } catch (e) {
+      throw Exception('Failed to access chat');
+
     }
   }
 }
