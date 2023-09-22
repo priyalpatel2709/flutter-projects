@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../model/AppointmentsOfUser_model.dart';
@@ -30,11 +31,15 @@ Future<Map<String, dynamic>?> addUser(
       // print("User added successfully");
       return jsonData; // Return the jsonData
     } else {
-      print("Failed to add user. Error: ${response.body}");
+      if (kDebugMode) {
+        print("Failed to add user. Error: ${response.body}");
+      }
       return null; // Return null in case of failure
     }
   } catch (err) {
-    print(err);
+    if (kDebugMode) {
+      print(err);
+    }
   }
 }
 
@@ -54,7 +59,9 @@ Future<List<UserModel>> getUserInfo() async {
       return [];
     }
   } catch (err) {
-    print(err);
+    if (kDebugMode) {
+      print(err);
+    }
     return [];
   }
 }
@@ -67,11 +74,15 @@ Future<dynamic> deleteuser(id) async {
     if (response.statusCode == 200) {
       return json.decode(response.body); // Use json.decode to parse JSON
     } else {
-      print('Delete request failed with status code ${response.statusCode}');
+      if (kDebugMode) {
+        print('Delete request failed with status code ${response.statusCode}');
+      }
       return 'Delete operation failed';
     }
   } catch (error) {
-    print('Error during delete request: $error');
+    if (kDebugMode) {
+      print('Error during delete request: $error');
+    }
     return 'An error occurred';
   }
 }
@@ -101,11 +112,12 @@ Future<String> updateUser(
         return "can't able to update";
       }
     } else {
-      print('Error during update request: ${response.body}');
+      if (kDebugMode) {
+        print('Error during update request: ${response.body}');
+      }
       return 'Error during update request: ${response.body}';
     }
   } catch (err) {
-    print('Error during update request: $err');
     return 'Error during update request: $err';
   }
 }
@@ -124,11 +136,15 @@ Future<Map<String, dynamic>> addSubscriptions(Subscription) async {
       final jsonData = jsonDecode(response.body);
       return jsonData;
     } else {
-      print("Failed to add subscription. Error: ${response.body}");
+      if (kDebugMode) {
+        print("Failed to add subscription. Error: ${response.body}");
+      }
       throw Exception("Failed to add subscription");
     }
   } catch (error) {
-    print("Error during subscription request: $error");
+    if (kDebugMode) {
+      print("Error during subscription request: $error");
+    }
     throw Exception("Error during subscription request");
   }
 }
@@ -148,11 +164,15 @@ Future<dynamic> fetchUserAppointments(String date, String name) async {
       final jsonData = jsonDecode(response.body);
       return jsonData;
     } else {
-      print("Request failed with status: ${response.statusCode}");
+      if (kDebugMode) {
+        print("Request failed with status: ${response.statusCode}");
+      }
       throw Exception("Error during subscription request");
     }
   } catch (err) {
-    print("Error during subscription request: $err");
+    if (kDebugMode) {
+      print("Error during subscription request: $err");
+    }
     throw Exception("Error during subscription request");
   }
 }
@@ -170,11 +190,15 @@ Future<List<appointmentsOfUser>> getAppointmentsOfUser() async {
 
       return AppointmentsList;
     } else {
-      print("Request failed with status: ${response.statusCode}");
+      if (kDebugMode) {
+        print("Request failed with status: ${response.statusCode}");
+      }
       throw Exception("Error during subscription request");
     }
   } catch (err) {
-    print("Error during subscription request: $err");
+    if (kDebugMode) {
+      print("Error during subscription request: $err");
+    }
     throw Exception("Error during subscription request");
   }
 }

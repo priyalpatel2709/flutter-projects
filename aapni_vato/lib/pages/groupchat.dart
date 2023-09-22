@@ -34,7 +34,6 @@ class _GroupchatState extends State<Groupchat> {
 
   @override
   Widget build(BuildContext context) {
-    print('isData $isData');
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
@@ -110,7 +109,7 @@ class _GroupchatState extends State<Groupchat> {
                                         );
                                         List data = jsonDecode(
                                             response.body.toString());
-                                       
+
                                         if (response.statusCode == 200) {
                                           if (data.isEmpty) {
                                             setState(() {
@@ -220,16 +219,15 @@ class _GroupchatState extends State<Groupchat> {
                           ),
                         ),
                       )
-                    else 
-                     if(!isData)
+                    else if (!isData)
                       Center(
                         child: Text(
                           'No results found',
                           style: TextStyle(color: Colors.white70),
                         ),
                       )
-                     else
-                     SizedBox() 
+                    else
+                      SizedBox()
                   ],
                 ),
               ),
@@ -287,8 +285,7 @@ class _GroupchatState extends State<Groupchat> {
 
                       // Send a POST request to create the group chat
                       final response = await http.post(
-                        Uri.parse(
-                            'http://10.0.2.2:2709/api/chat/group'),
+                        Uri.parse('http://10.0.2.2:2709/api/chat/group'),
                         headers: headers,
                         body: jsonEncode(requestBody),
                       );

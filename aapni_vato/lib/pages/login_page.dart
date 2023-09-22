@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 
+import 'package:aapni_vato/model/mychat.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -75,7 +77,7 @@ class _LoginState extends State<Login> {
                         final email = _emailController.text;
                         final password = _passwordController.text;
                         if (email.isNotEmpty && password.isNotEmpty) {
-                          loginuser(email, password,context);
+                          loginuser(email, password, context);
                         } else {
                           showDialog(
                             context: context,
@@ -103,7 +105,9 @@ class _LoginState extends State<Login> {
                                 headers: {'Content-Type': 'application/json'},
                               );
 
-                              print(responce.body);
+                              if (kDebugMode) {
+                                print(responce.body);
+                              }
                             } else {
                               showDialog(
                                 context: context,
@@ -116,10 +120,17 @@ class _LoginState extends State<Login> {
                               );
                             }
                           } catch (e) {
-                            print(e);
+                            if (kDebugMode) {
+                              print(e);
+                            }
+                            throw Exception(
+                                'Some thing went Wrong... /n Pleess try after some time');
                           }
                         },
-                        child: Text('Forget Password ?',style: TextStyle(color: Colors.white),)),
+                        child: Text(
+                          'Forget Password ?',
+                          style: TextStyle(color: Colors.white),
+                        )),
                     TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -158,7 +169,8 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<void> loginuser(String email, String password, BuildContext context) async {
+  Future<void> loginuser(
+      String email, String password, BuildContext context) async {
     loading = true;
     setState(() {});
     try {

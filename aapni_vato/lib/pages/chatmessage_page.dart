@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -38,7 +39,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   late IO.Socket socket;
   bool loading = false;
   late List<ChatMessage> chatMessages = [];
-  final List<dynamic> newChatMessages = [];
+  // final List<dynamic> newChatMessages = [];
 
   File? selectedImage;
   final picker = ImagePicker();
@@ -71,7 +72,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     };
 
     socket.onConnect((_) {
-      print('Connected to server');
+      if (kDebugMode) {
+        print('Connected to server');
+      }
       socket.emit('setup', userData);
       socket.on("connected", (data) {});
     });
@@ -82,7 +85,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
           setState(() {
-            newChatMessages.add(data);
+            chatMessages.add(ChatMessage.fromJson(data));
             scrollToBottom();
           });
         }
@@ -102,7 +105,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   void unsubscribeFromSocketEvents() {
     socket.on('disconnect', (_) {
-      print('Disconnected from server');
+      if (kDebugMode) {
+        print('Disconnected from server');
+      }
     });
   }
 
@@ -111,7 +116,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
-    newChatMessages.clear();
+    // newChatMessages.clear();
     socket.disconnect();
     super.dispose();
   }
@@ -185,9 +190,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                         child: ListView.builder(
                           controller: scrollController,
                           itemCount:
-                              chatMessages.length + newChatMessages.length,
+                              chatMessages.length,
                           itemBuilder: (context, index) {
-                            if (index < chatMessages.length) {
+                            // if (index < chatMessages.length) {
                               final chatMessage = chatMessages[index];
                               return Message_lisiview(
                                 content: chatMessage.content.toString(),
@@ -201,22 +206,23 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                                       chatMessage.sender.id, chatMessage.id);
                                 },
                               );
-                            } else {
-                              final socketMessage =
-                                  newChatMessages[index - chatMessages.length];
-                              return Message_lisiview(
-                                content: socketMessage['content'].toString(),
-                                isGroupChat: widget.data['isGroupChat'],
-                                senderName: socketMessage['sender']['name'],
-                                createdAt: socketMessage['createdAt'],
-                                storedUserId: storedUser!.userId,
-                                chatSenderId: socketMessage['sender']['_id'],
-                                onDeleteMes: () {
-                                  deleteMsg(socketMessage['sender']['_id'],
-                                      socketMessage['_id']);
-                                },
-                              );
-                            }
+                            // } 
+                            // else {
+                            //   final socketMessage =
+                            //       newChatMessages[index - chatMessages.length];
+                            //   return Message_lisiview(
+                            //     content: socketMessage['content'].toString(),
+                            //     isGroupChat: widget.data['isGroupChat'],
+                            //     senderName: socketMessage['sender']['name'],
+                            //     createdAt: socketMessage['createdAt'],
+                            //     storedUserId: storedUser!.userId,
+                            //     chatSenderId: socketMessage['sender']['_id'],
+                            //     onDeleteMes: () {
+                            //       deleteMsg(socketMessage['sender']['_id'],
+                            //           socketMessage['_id']);
+                            //     },
+                            //   );
+                            // }
                           },
                         ),
                       );
@@ -274,7 +280,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       var data = json.decode(responseMessage);
       socket.emit("new message", data);
       setState(() {
-        newChatMessages.add(data);
+        chatMessages.add(ChatMessage.fromJson(data));
         isImg = false;
       });
 

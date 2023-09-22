@@ -327,7 +327,6 @@ class _AddappointmentState extends State<Addappointment> {
 
   void getUserNames() async {
     List<UserModel> userModels = await getUserInfo();
-    print(userModels.length);
     for (UserModel user in userModels) {
       items.add(user.name);
     }

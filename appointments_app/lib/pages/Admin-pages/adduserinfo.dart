@@ -151,8 +151,7 @@ class _AdduserinfoState extends State<Adduserinfo> {
                                 );
                               }
                             } catch (err) {
-                              print('or me also');
-                              print(err);
+                              throw Exception('Some thing went Wrong... /n Pleess try after some time');
                             }
                           },
                           child: Text('Submit'),

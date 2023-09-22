@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -30,7 +31,7 @@ class _SingupState extends State<Singup> {
   final TextEditingController _confirmpassController = TextEditingController();
   UserInfo userData = UserInfo();
   var loading = false;
-  String deviceToken ='';
+  String deviceToken = '';
   NotificationServices notificationServices = NotificationServices();
   File? selectedImage;
   final picker = ImagePicker();
@@ -88,14 +89,20 @@ class _SingupState extends State<Singup> {
         isImg = true;
         picUrl = imageUrl;
         setState(() {});
-        print('Uploaded image URL: $imageUrl');
+        if (kDebugMode) {
+          print('Uploaded image URL: $imageUrl');
+        }
       } else {
         imgLoading = false;
-        print('Failed to upload image to Cloudinary');
+        if (kDebugMode) {
+          print('Failed to upload image to Cloudinary');
+        }
       }
     } else {
       imgLoading = false;
-      print('No image selected');
+      if (kDebugMode) {
+        print('No image selected');
+      }
     }
   }
 
@@ -172,7 +179,7 @@ class _SingupState extends State<Singup> {
                               password != '' &&
                               conformpassword != '') {
                             if (password == conformpassword) {
-                              singupuser(name, email, password,context);
+                              singupuser(name, email, password, context);
                             } else {
                               showDialog(
                                 context: context,
@@ -203,7 +210,8 @@ class _SingupState extends State<Singup> {
                       ),
                       TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, RoutesName.Login);
+                            Navigator.pushReplacementNamed(
+                                context, RoutesName.Login);
                           },
                           child: Text(
                             'go to singup',
@@ -217,10 +225,14 @@ class _SingupState extends State<Singup> {
     );
   }
 
-  void singupuser(String name, String email, String password, BuildContext context,) async {
+  void singupuser(
+    String name,
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
     loading = true;
     setState(() {});
-    print(picUrl);
     if (picUrl.isEmpty) {
       picUrl =
           'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg';
@@ -262,7 +274,9 @@ class _SingupState extends State<Singup> {
 
         navigateToChatpage(context);
       } else {
-        print(response.body);
+        if (kDebugMode) {
+          print(response.body);
+        }
         showDialog(
           context: context,
           builder: (BuildContext context) {

@@ -47,7 +47,7 @@ class NotificationServices {
         print('count:${android!.count}');
         print('data:${message.data.toString()}');
       }
-      print('data:${message.data.toString()}');
+      // print('data:${message.data.toString()}');
 
       if (Platform.isAndroid) {
         initLocalNotifications(context, message);
@@ -143,14 +143,14 @@ class NotificationServices {
         await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
-      print('kare');
+      // print('kare');
       handleMessage(context, initialMessage);
     }
 
     //when app ins background
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
       handleMessage(context, event);
-      print('object $event');
+      // print('object $event');
     });
   }
 

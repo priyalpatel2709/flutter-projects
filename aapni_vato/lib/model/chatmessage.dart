@@ -25,7 +25,7 @@ class ChatMessage {
       sender: ChatUser.fromJson(json['sender'] ?? {}),
       content: json['content'] ?? '',
       chat: ChatInfo.fromJson(json['chat'] ?? {}),
-      readBy: json['readBy'] ?? [],
+      readBy: List<dynamic>.from(json['readBy'] ?? []),
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
       v: json['__v'] ?? 0,
@@ -63,7 +63,8 @@ class ChatInfo {
   final String id;
   final String chatName;
   final bool isGroupChat;
-  final List<String> users;
+  final List<dynamic> users;
+  // final List<ChatUser> users;
   final String createdAt;
   final String updatedAt;
   final String latestMessage;
@@ -83,10 +84,23 @@ class ChatInfo {
       id: json['_id'] ?? '',
       chatName: json['chatName'] ?? '',
       isGroupChat: json['isGroupChat'] ?? false,
-      users: List<String>.from(json['users'] ?? []),
+      users: (json['users'] as List<dynamic>?) ?? [],
+      // users: (json['users'] as List<dynamic>?)
+      //         ?.map((userData) => ChatUser.fromJson(userData))
+      //         .toList() ??
+      //     [],
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
       latestMessage: json['latestMessage'] ?? '',
     );
+  }
+
+  List<String> getUserIds() {
+    // Filter and extract user IDs from the list of users
+    return users
+        .where(
+            (user) => user is Map<String, dynamic> && user.containsKey('_id'))
+        .map((user) => user['_id'].toString())
+        .toList();
   }
 }

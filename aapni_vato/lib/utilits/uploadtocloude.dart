@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
@@ -33,12 +34,16 @@ Future<String?> uploadImageToCloudinary(File imageFile) async {
       final responseData = json.decode(response.body);
       return responseData['url'].toString();
     } else {
-      print(
+      if (kDebugMode) {
+        print(
           'Failed to upload image to Cloudinary. Status code: ${response.statusCode}');
+      }
       return null;
     }
   } catch (e) {
-    print('Error uploading image to Cloudinary: $e');
+    if (kDebugMode) {
+      print('Error uploading image to Cloudinary: $e');
+    }
     return null;
   }
 }

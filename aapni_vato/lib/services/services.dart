@@ -41,7 +41,7 @@ class ChatServices {
         return ApiResult.error('Failed to load chat messages');
       }
     } catch (e) {
-      return ApiResult.error('An error occurred: $e');
+      return ApiResult.error('An error occurred123: $e');
     }
   }
 

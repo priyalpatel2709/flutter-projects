@@ -53,13 +53,12 @@ class _GetuserState extends State<Getuser> {
                 onCheck: (date) async {
                   if (date != null) {
                     selectedAppointmentDate = date;
-                    DateTime parsedDate = DateTime.parse(
-                        date);
+                    DateTime parsedDate = DateTime.parse(date);
                     String formattedDate =
                         DateFormat("yyyy-MM-dd").format(parsedDate);
                     if (user.name != null) {
-                      var result =
-                          await fetchUserAppointments(formattedDate, user.name!);
+                      var result = await fetchUserAppointments(
+                          formattedDate, user.name!);
 
                       return result['bookedTimeSlots'];
                     } else {
@@ -171,8 +170,7 @@ class _GetuserState extends State<Getuser> {
                                       child: Text('Delete'),
                                     ),
                                   ],
-                                )
-                                ),
+                                )),
                           );
                         },
                       ),
@@ -274,7 +272,7 @@ class _GetuserState extends State<Getuser> {
                       );
                     }
                   } catch (error) {
-                    print('Error occurred: $error');
+                    throw Exception('Error occurred: $error');
                   }
                 },
               ),

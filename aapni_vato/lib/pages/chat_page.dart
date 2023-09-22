@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -47,7 +48,9 @@ class _ChatpageState extends State<Chatpage> {
         return chats;
       } else {
         // Handle the error if the request fails.
-        print('Failed to load data: ${response.statusCode}');
+        if (kDebugMode) {
+          print('Failed to load data: ${response.statusCode}');
+        }
         throw Exception('Failed to load data: ${response.statusCode}');
       }
     }
@@ -57,7 +60,11 @@ class _ChatpageState extends State<Chatpage> {
         await fetchChatData();
         setState(() {});
       } catch (e) {
-        print('Error fetching data: $e');
+        if (kDebugMode) {
+          print('Error fetching data: $e');
+        }
+        throw Exception('Failed to load data: $e');
+        
       }
     }
 
