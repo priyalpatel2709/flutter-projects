@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables, camel_case_types
 
 import 'dart:convert';
 import 'dart:developer';
@@ -10,14 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../data/database.dart';
 import '../model/chatmessage.dart';
-import '../model/mychat.dart';
 import '../notifications/nodificationservices.dart';
 import '../provider/seletedchat.dart';
+import '../services/services.dart';
 import '../utilits/errordialog.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../utilits/grputuls.dart';
 import '../utilits/uploadtocloude.dart';
 import '../widgets/chatInputfield.dart';
@@ -39,7 +37,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   ScrollController scrollController = ScrollController();
   late IO.Socket socket;
   bool loading = false;
-  final List<ChatMessage> chatMessages = [];
+  late List<ChatMessage> chatMessages = [];
   final List<dynamic> newChatMessages = [];
 
   File? selectedImage;
@@ -49,12 +47,13 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   var picUrl = '';
   bool _cotectToServet = false;
   NotificationServices notificationServices = NotificationServices();
+
   @override
   void initState() {
     super.initState();
     storedUser = userInfo.getUserInfo();
     initializeDateFormatting('en_IN', null);
-    fetchChatMessages(widget.data['chatId'].toString());
+    callfetchChatMessages();
     connectToServer();
   }
 
@@ -79,141 +78,16 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.on("connect", (data) {});
     socket.connect();
 
-    socket.on("message recieved", (data)  async {
+    socket.on("message recieved", (data) async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
           setState(() {
             newChatMessages.add(data);
             scrollToBottom();
           });
-        } 
+        }
       }
     });
-  }
-
-  Future<void> fetchChatMessages(String chatId) async {
-    setState(() {
-      loading = true;
-    });
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:2709/api/message/$chatId'),
-        headers: {'Authorization': 'Bearer ${storedUser!.token}'},
-      );
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body.toString());
-
-        setState(() {
-          loading = false;
-          chatMessages.clear();
-          for (var i in data) {
-            chatMessages.add(ChatMessage.fromJson(i));
-          }
-        });
-
-        socket.emit("join chat", chatId);
-        scrollToBottom();
-      } else {
-        setState(() {
-          loading = false;
-        });
-        throw Exception('Failed to load chat messages');
-      }
-    } catch (e) {
-      setState(() {
-        loading = false;
-      });
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Error $e',
-          );
-        },
-      );
-    }
-  }
-
-  void sendMessage(String chatId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:2709/api/message'),
-        headers: {
-          'Authorization': 'Bearer ${storedUser!.token}',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(
-            {'content': _controller.text.toString(), 'chatId': chatId}),
-      );
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        socket.emit("new message", data);
-        setState(() {
-          newChatMessages.add(data);
-          isImg = false;
-        });
-
-        scrollToBottom();
-        _controller.clear();
-      }
-    } catch (e) {
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Error $e',
-          );
-        },
-      );
-    }
-  }
-
-  Future<void> pickAndUploadImage() async {
-    imgLoading = true;
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
-
-      final imageUrl = await uploadImageToCloudinary(selectedImage!);
-
-      if (imageUrl != null) {
-        imgLoading = false;
-        isImg = true;
-        picUrl = imageUrl;
-        _controller.text = picUrl;
-        setState(() {});
-        // print('Uploaded image URL: $imageUrl');
-      } else {
-        imgLoading = false;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ErrorDialog(
-              title: 'Fail',
-              message: 'Failed to upload image to Cloudinary ',
-            );
-          },
-        );
-      }
-    } else {
-      imgLoading = false;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'No image selected',
-          );
-        },
-      );
-    }
   }
 
   void scrollToBottom() {
@@ -234,7 +108,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   @override
   void dispose() {
-    // unsubscribeFromSocketEvents();
+    unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
     newChatMessages.clear();
@@ -244,20 +118,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   Future<void> deleteMsg(String senderId, String messageId) async {
     try {
-      final response = await http.delete(
-        Uri.parse('http://10.0.2.2:2709/api/message/$messageId/$senderId'),
-        headers: {
-          'Authorization': 'Bearer ${storedUser!.token}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          fetchChatMessages(widget.data['chatId'].toString());
-        });
-      }
+      await ChatServices.deleteMsg(senderId, messageId, storedUser!.token);
+      setState(() {
+        callfetchChatMessages();
+      });
     } catch (error) {
-      // Handle any network or other errors here
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -373,5 +238,104 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               ),
             ),
     );
+  }
+
+  Future<void> callfetchChatMessages() async {
+    final chatMessagesResult = await ChatServices.fetchChatMessages(
+        widget.data['chatId'].toString(), storedUser!.token);
+
+    if (chatMessagesResult.success) {
+      // Handle success
+      setState(() {
+        chatMessages = chatMessagesResult.data!;
+      });
+      scrollToBottom();
+      socket.emit("join chat", widget.data['chatId'].toString());
+    } else {
+      // Handle error
+      String errorMessage = chatMessagesResult.errorMessage!;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error: $errorMessage',
+          );
+        },
+      );
+    }
+  }
+
+  void sendMessage(String chatId) async {
+    dynamic responseMessage = await ChatServices.sendMessage(
+        chatId, storedUser!.token, _controller.text.toString());
+
+    if (responseMessage.isNotEmpty) {
+      var data = json.decode(responseMessage);
+      socket.emit("new message", data);
+      setState(() {
+        newChatMessages.add(data);
+        isImg = false;
+      });
+
+      scrollToBottom();
+      _controller.clear();
+      // print('Message sent successfully: $data');
+    } else {
+      // Handle error
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Failed to send message',
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> pickAndUploadImage() async {
+    imgLoading = true;
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
+
+      final imageUrl = await uploadImageToCloudinary(selectedImage!);
+
+      if (imageUrl != null) {
+        imgLoading = false;
+        isImg = true;
+        picUrl = imageUrl;
+        _controller.text = picUrl;
+        setState(() {});
+        // print('Uploaded image URL: $imageUrl');
+      } else {
+        imgLoading = false;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Failed to upload image to Cloudinary ',
+            );
+          },
+        );
+      }
+    } else {
+      imgLoading = false;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'No image selected',
+          );
+        },
+      );
+    }
   }
 }
