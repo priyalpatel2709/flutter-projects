@@ -210,12 +210,18 @@ Future<dynamic> DeleteAppointment(id) async {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
-      print('Delete request failed with status code ${response.statusCode}');
-      print('Delete request failed with body  ${response.body}');
+      if (kDebugMode) {
+        print('Delete request failed with status code ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('Delete request failed with body  ${response.body}');
+      }
       return 'Delete operation failed';
     }
   } catch (err) {
-    print("Error during subscription request: $err");
+    if (kDebugMode) {
+      print("Error during subscription request: $err");
+    }
     throw Exception("Error during subscription request");
   }
 }
@@ -238,11 +244,15 @@ Future<List<appointmentsOfUser>> onlyUserAppointment(name) async {
       }
       return AppointmentsList;
     } else {
-      print("Request failed with status: ${response.statusCode}");
+      if (kDebugMode) {
+        print("Request failed with status: ${response.statusCode}");
+      }
       throw Exception("Error during subscription request");
     }
   } catch (err) {
-    print("Error during subscription request: $err");
+    if (kDebugMode) {
+      print("Error during subscription request: $err");
+    }
     throw Exception("Error during subscription request");
   }
 }
