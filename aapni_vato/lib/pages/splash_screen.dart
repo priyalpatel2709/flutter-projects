@@ -14,15 +14,25 @@ class Splash_Screen extends StatefulWidget {
   _Splash_ScreenState createState() => _Splash_ScreenState();
 }
 
-class _Splash_ScreenState extends State<Splash_Screen> {
+class _Splash_ScreenState extends State<Splash_Screen>
+    with SingleTickerProviderStateMixin {
   final _mybox = Hive.box('user_info');
- 
+  late AnimationController _controller;
+  late Animation _animation;
 
-@override
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    wharetogo();
+    super.initState();
+    _controller =
+        AnimationController(duration: const Duration(seconds: 3), vsync: this);
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.bounceOut),
+    );
+    _controller.forward().then((value) {
+      wharetogo();
+    });
   }
 
   void wharetogo() async {
@@ -38,15 +48,42 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 77,80,85),
-      appBar: AppBar(
-        title: Text('Splash_Screen'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       body: Center(
-        child: Text('This is Splash_Screen content. bla bla lla'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) => Container(
+                height: 200,
+                width: 200,
+                transform:
+                    Matrix4.translationValues(0, -_animation.value * 100, 0),
+                child: Image.network(
+                  'http://res.cloudinary.com/dtzrtlyuu/image/upload/v1695622144/chat-app/wxhexgz1bfznluehel0f.png',
+                  fit: BoxFit.fitHeight,
+                ),
+              ),
+            ),
+            //SizedBox(height: 20),
+            const Text(
+              'PradeeptheDeveloper',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange),
+            ),
+          ],
+        ),
       ),
     );
   }
