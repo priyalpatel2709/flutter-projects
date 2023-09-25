@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:aapni_vato/model/mychat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
@@ -30,7 +31,9 @@ class _LoginState extends State<Login> {
   var loading = false;
   String deviceToken = '';
   NotificationServices notificationServices = NotificationServices();
+  String baseUrl = dotenv.get('API_ENDPOINT');
 
+  
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
@@ -101,7 +104,7 @@ class _LoginState extends State<Login> {
                             if (_emailController.text.toString() != '') {
                               final responce = await http.get(
                                 Uri.parse(
-                                    'http://10.0.2.2:2709/api/user/forgotPassword/${_emailController.text.toString()}'),
+                                    '$baseUrl/user/forgotPassword/${_emailController.text.toString()}'),
                                 headers: {'Content-Type': 'application/json'},
                               );
 
@@ -175,7 +178,7 @@ class _LoginState extends State<Login> {
     setState(() {});
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:2709/api/user/login'),
+        Uri.parse('$baseUrl/user/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(
             {'email': email, 'password': password, 'deviceToken': deviceToken}),

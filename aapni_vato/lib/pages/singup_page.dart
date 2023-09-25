@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../data/database.dart';
@@ -38,6 +39,8 @@ class _SingupState extends State<Singup> {
   bool imgLoading = false;
   bool isImg = false;
   var picUrl = '';
+  String baseUrl = dotenv.get('API_ENDPOINT');
+
 
   Widget _buildTextField(TextEditingController controller, String label,
       IconData icon, String hintText) {
@@ -241,7 +244,7 @@ class _SingupState extends State<Singup> {
       loading = false;
       setState(() {});
       var response = await http.post(
-        Uri.parse('http://10.0.2.2:2709/api/user'),
+        Uri.parse('$baseUrl/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

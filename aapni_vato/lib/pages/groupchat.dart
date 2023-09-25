@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ class _GroupchatState extends State<Groupchat> {
   UserInfo userInfo = UserInfo();
   bool isTyping = false;
   bool isData = false;
+  String baseUrl = dotenv.get('API_ENDPOINT');
 
   @override
   void initState() {
@@ -100,7 +102,7 @@ class _GroupchatState extends State<Groupchat> {
                                       try {
                                         final response = await http.get(
                                           Uri.parse(
-                                              'http://10.0.2.2:2709/api/user?search=${_controller.text.toString()}'),
+                                              '$baseUrl/user?search=${_controller.text.toString()}'),
                                           headers: {
                                             'Authorization':
                                                 'Bearer ${storedUser!.token}',
@@ -285,7 +287,7 @@ class _GroupchatState extends State<Groupchat> {
 
                       // Send a POST request to create the group chat
                       final response = await http.post(
-                        Uri.parse('http://10.0.2.2:2709/api/chat/group'),
+                        Uri.parse('$baseUrl/chat/group'),
                         headers: headers,
                         body: jsonEncode(requestBody),
                       );

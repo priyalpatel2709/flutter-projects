@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
 class ChatInputField extends StatelessWidget {
@@ -8,7 +6,7 @@ class ChatInputField extends StatelessWidget {
   final VoidCallback onAttachmentPressed;
   final VoidCallback onSendPressed;
 
-  ChatInputField({
+  const ChatInputField({super.key, 
     required this.controller,
     required this.isImg,
     required this.onAttachmentPressed,
@@ -18,9 +16,9 @@ class ChatInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 8, right: 8, bottom: 5 ),
-      padding: EdgeInsets.all(5),
-      decoration: BoxDecoration(
+      margin: const EdgeInsets.only(left: 8, right: 8, bottom: 5 ),
+      padding: const EdgeInsets.all(5),
+      decoration: const BoxDecoration(
         color: Colors.white60,
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(40.0),
@@ -32,7 +30,7 @@ class ChatInputField extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          SizedBox(width: 3.0),
+          const SizedBox(width: 3.0),
           Expanded(
             child: TextField(
               enabled: !isImg,
@@ -46,11 +44,11 @@ class ChatInputField extends StatelessWidget {
           ),
           IconButton(
             onPressed: onAttachmentPressed,
-            icon: Icon(Icons.attach_file),
+            icon: const Icon(Icons.attach_file),
           ),
           IconButton(
             onPressed: onSendPressed,
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
           ),
         ],
       ),

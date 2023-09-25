@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_constructors
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ import 'route/route.dart';
 import 'route/routes_name.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   Hive.registerAdapter(UserAdapter());
   await Hive.initFlutter();
   await Hive.openBox('user_info');
@@ -27,7 +28,7 @@ void main() async {
 }
 
 @pragma('vm:entry-point')
-Future<void> _firrebacebackgroundhandler(RemoteMessage message) async{
+Future<void> _firrebacebackgroundhandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
@@ -38,7 +39,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Appni vato',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 24,26,32)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 24, 26, 32)),
         useMaterial3: true,
       ),
       initialRoute: RoutesName.Splash_Screen,
@@ -46,4 +48,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

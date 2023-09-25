@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../model/alluserData.dart';
 import '../model/chatmessage.dart';
 import '../route/routes_name.dart';
 
 
-const String baseUrl = 'http://10.0.2.2:2709/api';
+// const String baseUrl = 'http://10.0.2.2:2709/api';
+
+String baseUrl = dotenv.get('API_ENDPOINT');
 
 class ApiResult<T> {
   final bool success;
@@ -122,7 +125,7 @@ class ChatServices {
   static Future<bool> accessChat(String? sId, String token) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:2709/api/chat'),
+        Uri.parse('$baseUrl/chat'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -20,6 +21,8 @@ class Chatpage extends StatefulWidget {
 
 class _ChatpageState extends State<Chatpage> {
   NotificationServices notificationServices = NotificationServices();
+
+  String baseUrl = dotenv.get('API_ENDPOINT');
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
@@ -35,7 +38,7 @@ class _ChatpageState extends State<Chatpage> {
     User? storedUser;
 
     Future<List<Chat>> fetchChatData() async {
-      final url = Uri.parse('http://10.0.2.2:2709/api/chat');
+      final url = Uri.parse('$baseUrl/chat');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer ${storedUser!.token}'},
@@ -64,7 +67,6 @@ class _ChatpageState extends State<Chatpage> {
           print('Error fetching data: $e');
         }
         throw Exception('Failed to load data: $e');
-        
       }
     }
 

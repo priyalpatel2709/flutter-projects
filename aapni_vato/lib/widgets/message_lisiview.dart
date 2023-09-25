@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors,
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,15 +9,16 @@ class Message_lisiview extends StatelessWidget {
   final String createdAt;
   final String storedUserId;
   final String chatSenderId;
-  Message_lisiview({
-    required this.content,
-    required this.isGroupChat,
-    required this.senderName,
-    required this.createdAt,
-    required this.storedUserId,
-    required this.chatSenderId, 
-    required this.onDeleteMes,
-  });
+  const Message_lisiview(
+      {super.key, 
+      required this.content,
+      required this.isGroupChat,
+      required this.senderName,
+      required this.createdAt,
+      required this.storedUserId,
+      required this.chatSenderId,
+      required this.onDeleteMes
+      });
 
   String formatTime(DateTime dateTime) {
     final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
@@ -33,6 +32,8 @@ class Message_lisiview extends StatelessWidget {
     String formattedTime = formatTime(dateTime);
     return formattedTime; // Output: 10:47 AM
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -56,39 +57,39 @@ class Message_lisiview extends StatelessWidget {
     }
 
     return ListTile(
+      key: key,
       title: Column(
         crossAxisAlignment: alignment,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: containsUrl
                 ? BoxDecoration(
                     color: colors,
                     borderRadius: BorderRadius.only(
                         topRight: right
-                            ? Radius.circular(0.0)
-                            : Radius.circular(20.0),
-                        bottomRight: Radius.circular(20.0),
+                            ? const Radius.circular(0.0)
+                            : const Radius.circular(20.0),
+                        bottomRight: const Radius.circular(20.0),
                         topLeft:
-                            left ? Radius.circular(0.0) : Radius.circular(20.0),
-                        bottomLeft: Radius.circular(20.0)),
+                            left ? const Radius.circular(0.0) : const Radius.circular(20.0),
+                        bottomLeft: const Radius.circular(20.0)),
                   )
                 : BoxDecoration(
                     color: colors,
                     borderRadius: BorderRadius.only(
                         topRight: right
-                            ? Radius.circular(0.0)
-                            : Radius.circular(40.0),
-                        bottomRight: Radius.circular(40.0),
+                            ? const Radius.circular(0.0)
+                            : const Radius.circular(40.0),
+                        bottomRight: const Radius.circular(40.0),
                         topLeft:
-                            left ? Radius.circular(0.0) : Radius.circular(40.0),
-                        bottomLeft: Radius.circular(40.0)),
+                            left ? const Radius.circular(0.0) : const Radius.circular(40.0),
+                        bottomLeft: const Radius.circular(40.0)),
                   ),
             child: containsUrl
                 ? InkWell(
-                    onDoubleTap: onDeleteMes,
-                    child: Image.network(content))
+                    onDoubleTap: onDeleteMes, child: Image.network(content))
                 : InkWell(
                     onDoubleTap: onDeleteMes,
                     child: !isGroupChat
@@ -97,14 +98,14 @@ class Message_lisiview extends StatelessWidget {
                               children: [
                                 TextSpan(
                                   text: content,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     color: Colors.black,
                                   ),
                                 ),
                                 TextSpan(
                                   text: ' ${messageTime(createdAt)}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.black,
                                   ),
@@ -119,7 +120,7 @@ class Message_lisiview extends StatelessWidget {
                                 RichText(
                                     text: TextSpan(
                                         text: '~ $senderName',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.black,
                                         ))),
@@ -128,14 +129,14 @@ class Message_lisiview extends StatelessWidget {
                                   children: [
                                     TextSpan(
                                       text: content,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 18,
                                         color: Colors.black,
                                       ),
                                     ),
                                     TextSpan(
                                       text: ' ${messageTime(createdAt)}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.black,
                                       ),
