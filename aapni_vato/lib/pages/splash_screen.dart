@@ -76,7 +76,7 @@ class _Splash_ScreenState extends State<Splash_Screen>
             ),
             //SizedBox(height: 20),
             const Text(
-              'PradeeptheDeveloper',
+              'Appni Vato',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
