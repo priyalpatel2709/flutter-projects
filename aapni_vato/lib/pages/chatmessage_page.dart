@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables, camel_case_types
+//use_build_context_synchronously, prefer_const_literals_to_create_immutables, camel_case_types
 
 import 'dart:convert';
 import 'dart:developer';
@@ -94,7 +94,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void scrollToBottom() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 300),
@@ -135,15 +135,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         callfetchChatMessages();
       });
     } catch (error) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Error :- $error',
-          );
-        },
-      );
+      showImageUploadErrorDialog(context, 'Error :- $error');
     }
   }
 
@@ -170,7 +162,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             CircleAvatar(
               backgroundImage: NetworkImage(widget.data['dp'].toString()),
             ),
-            SizedBox(
+            const SizedBox(
               width: 5.0,
             ),
             Text('${widget.data['name']}'),
@@ -191,51 +183,29 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Consumer<SelectedChat>(
-                    builder: (BuildContext context, value, _) {
-                      return Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          itemCount: chatMessages.length,
-                          itemBuilder: (context, index) {
-                            // if (index < chatMessages.length) {
-                            final chatMessage = chatMessages[index];
-                            return Message_lisiview(
-                              content: chatMessage.content.toString(),
-                              isGroupChat: widget.data['isGroupChat'],
-                              senderName: chatMessage.sender.name,
-                              createdAt: chatMessage.createdAt,
-                              storedUserId: storedUser!.userId,
-                              chatSenderId: chatMessage.sender.id,
-                              onDeleteMes: () {
-                                deleteMsg(
-                                    chatMessage.sender.id, chatMessage.id);
-                              },
-                            );
-                            // }
-                            // else {
-                            //   final socketMessage =
-                            //       newChatMessages[index - chatMessages.length];
-                            //   return Message_lisiview(
-                            //     content: socketMessage['content'].toString(),
-                            //     isGroupChat: widget.data['isGroupChat'],
-                            //     senderName: socketMessage['sender']['name'],
-                            //     createdAt: socketMessage['createdAt'],
-                            //     storedUserId: storedUser!.userId,
-                            //     chatSenderId: socketMessage['sender']['_id'],
-                            //     onDeleteMes: () {
-                            //       deleteMsg(socketMessage['sender']['_id'],
-                            //           socketMessage['_id']);
-                            //     },
-                            //   );
-                            // }
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: chatMessages.length,
+                      itemBuilder: (context, index) {
+                        // if (index < chatMessages.length) {
+                        final chatMessage = chatMessages[index];
+                        return Message_lisiview(
+                          content: chatMessage.content.toString(),
+                          isGroupChat: widget.data['isGroupChat'],
+                          senderName: chatMessage.sender.name,
+                          createdAt: chatMessage.createdAt,
+                          storedUserId: storedUser!.userId,
+                          chatSenderId: chatMessage.sender.id,
+                          onDeleteMes: () {
+                            deleteMsg(chatMessage.sender.id, chatMessage.id);
                           },
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                   if (isImg) Image.network(picUrl.toString()),
-                  SizedBox(
+                  const SizedBox(
                     height: 8.0,
                   ),
                   ChatInputField(
@@ -257,24 +227,18 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         widget.data['chatId'].toString(), storedUser!.token);
 
     if (chatMessagesResult.success) {
+      socket.emit("join chat", widget.data['chatId'].toString());
+
       // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
       });
       scrollToBottom();
-      socket.emit("join chat", widget.data['chatId'].toString());
     } else {
       // Handle error
       String errorMessage = chatMessagesResult.errorMessage!;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Error: $errorMessage',
-          );
-        },
-      );
+      showImageUploadErrorDialog(context, 'Error: $errorMessage');
+
     }
   }
 
@@ -295,59 +259,48 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // print('Message sent successfully: $data');
     } else {
       // Handle error
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'Failed to send message',
-          );
-        },
-      );
+      showImageUploadErrorDialog(context, 'Failed to send message');
     }
   }
 
-  Future<void> pickAndUploadImage() async {
-    imgLoading = true;
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  void pickAndUploadImage() async {
+  imgLoading = true;
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
+  if (pickedFile != null) {
+    setState(() {
+      selectedImage = File(pickedFile.path);
+    });
 
-      final imageUrl = await uploadImageToCloudinary(selectedImage!);
+    final imageUrl = await uploadImageToCloudinary(selectedImage!);
 
-      if (imageUrl != null) {
-        imgLoading = false;
-        isImg = true;
-        picUrl = imageUrl;
-        _controller.text = picUrl;
-        setState(() {});
-        // print('Uploaded image URL: $imageUrl');
-      } else {
-        imgLoading = false;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ErrorDialog(
-              title: 'Fail',
-              message: 'Failed to upload image to Cloudinary ',
-            );
-          },
-        );
-      }
+    if (imageUrl != null) {
+      imgLoading = false;
+      isImg = true;
+      picUrl = imageUrl;
+      _controller.text = picUrl;
+      setState(() {});
     } else {
       imgLoading = false;
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return ErrorDialog(
-            title: 'Fail',
-            message: 'No image selected',
-          );
-        },
-      );
+      // Use the captured context here
+      showImageUploadErrorDialog(context, 'Failed to upload image to Cloudinary');
     }
+  } else {
+    imgLoading = false;
+    // Use the captured context here
+    showImageUploadErrorDialog(context, 'No image selected');
+  }
+}
+
+  void showImageUploadErrorDialog(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return ErrorDialog(
+          title: 'Fail',
+          message: errorMessage,
+        );
+      },
+    );
   }
 }
