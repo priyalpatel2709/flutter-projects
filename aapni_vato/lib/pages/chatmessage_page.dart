@@ -1,7 +1,10 @@
-//use_build_context_synchronously, camel_case_types
+// ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -38,15 +41,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   late IO.Socket socket;
   bool loading = false;
   late List<ChatMessage> chatMessages = [];
-  // final List<dynamic> newChatMessages = [];
-
   File? selectedImage;
   final picker = ImagePicker();
   bool imgLoading = false;
   bool isImg = false;
   var picUrl = '';
-  final bool _cotectToServet = false;
+  bool _cotectToServet = false;
   NotificationServices notificationServices = NotificationServices();
+  List<String> temp = [];
+
+  // Stream controller for the chat messages
+  final _messageStreamController = StreamController<ChatMessage>();
 
   @override
   void initState() {
@@ -65,9 +70,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     final userData = {
       'email': storedUser!.email,
-      'name': storedUser!.name,
-      'token': storedUser!.token,
       '_id': storedUser!.userId,
+      'chatId': widget.data['chatId']
     };
 
     socket.onConnect((_) {
@@ -83,35 +87,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.on("message recieved", (data) async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
-          setState(() {
-            chatMessages.add(ChatMessage.fromJson(data));
-            // scrollToBottom();
-          });
+          // Add new message to the stream when it arrives
+          _messageStreamController.sink.add(ChatMessage.fromJson(data));
+          scrollToBottom(scrollController);
         }
       }
     });
   }
 
-  void scrollToBottom() {
-    // Check if there's a message to scroll to
-    if (scrollController.hasClients) {
-      print(scrollController);
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   scrollController.animateTo(
-      //     scrollController.position.maxScrollExtent,
-      //     duration: const Duration(milliseconds: 300),
-      //     curve: Curves.easeOut,
-      //   );
-      // });
-    }
-  }
-
   void unsubscribeFromSocketEvents() {
     final userData = {
       'email': storedUser!.email,
-      'name': storedUser!.name,
-      'token': storedUser!.token,
-      '_id': storedUser!.userId,
+      'userId': storedUser!.userId,
+      'chatId': widget.data['chatId']
     };
     socket.emit('on_disconnect', userData);
     socket.on('disconnect', (_) {
@@ -121,13 +109,27 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
   }
 
+  void scrollToBottom(ScrollController controller) {
+    // if (kDebugMode) {
+    print('controller $controller');
+    // }
+    if (controller.hasClients) {
+      controller.animateTo(
+        controller.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   void dispose() {
     unsubscribeFromSocketEvents();
     scrollController.dispose();
     _controller.dispose();
-    // newChatMessages.clear();
     socket.disconnect();
+    // Close the stream controller
+    _messageStreamController.close();
     super.dispose();
   }
 
@@ -138,14 +140,30 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         callfetchChatMessages();
       });
     } catch (error) {
-      showImageUploadErrorDialog(context, 'Error :- $error');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error :- $error',
+          );
+        },
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('re-blild');
     final chatProvider = Provider.of<SelectedChat>(context);
     final List chats = chatProvider.chats;
+
+    
+    if (chatMessages.isNotEmpty) {
+      chatMessages.asMap().forEach((i, m) {
+        temp.add(isSameDate(chatMessages,m,i));
+      });
+    }
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
@@ -172,56 +190,65 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           ],
         ),
       ),
-      body: loading
-          ? Skeletonizer(
-              enabled: true,
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return const Loading_mes();
-                },
-              ),
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: chatMessages.length,
-                    itemBuilder: (context, index) {
-                      // if (index < chatMessages.length) {
-                      final chatMessage = chatMessages[index];
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            child: StreamBuilder<ChatMessage>(
+              stream: _messageStreamController.stream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  chatMessages.add(snapshot.data!);
+                }
 
-                      return Message_lisiview(
-                        content: chatMessage.content.toString(),
-                        isGroupChat: widget.data['isGroupChat'],
-                        senderName: chatMessage.sender.name,
-                        createdAt: chatMessage.createdAt,
-                        storedUserId: storedUser!.userId,
-                        chatSenderId: chatMessage.sender.id,
-                        onDeleteMes: () {
-                          deleteMsg(chatMessage.sender.id, chatMessage.id);
+                return loading
+                    ? Skeletonizer(
+                        enabled: true,
+                        child: ListView.builder(
+                          itemCount: 6,
+                          itemBuilder: (context, index) {
+                            return const Loading_mes();
+                          },
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: scrollController,
+                        itemCount: chatMessages.length,
+                        itemBuilder: (context, index) {
+                          final chatMessage = chatMessages[index];
+                          return Message_lisiview(
+                            content: chatMessage.content.toString(),
+                            isGroupChat: widget.data['isGroupChat'],
+                            senderName: chatMessage.sender.name,
+                            createdAt: chatMessage.createdAt,
+                            storedUserId: storedUser!.userId,
+                            chatSenderId: chatMessage.sender.id,
+                            onDeleteMes: () {
+                              deleteMsg(chatMessage.sender.id, chatMessage.id);
+                            },
+                            temp: temp,
+                            index: index,
+
+                          );
                         },
                       );
-                    },
-                  ),
-                ),
-                if (isImg) Image.network(picUrl.toString()),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                ChatInputField(
-                  controller: _controller,
-                  isImg: isImg,
-                  onAttachmentPressed: pickAndUploadImage,
-                  onSendPressed: () {
-                    sendMessage(widget.data['chatId'].toString());
-                  },
-                ),
-              ],
+              },
             ),
+          ),
+          if (isImg) Image.network(picUrl.toString()),
+          const SizedBox(
+            height: 8.0,
+          ),
+          ChatInputField(
+            controller: _controller,
+            isImg: isImg,
+            onAttachmentPressed: pickAndUploadImage,
+            onSendPressed: () {
+              sendMessage(widget.data['chatId'].toString());
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -230,17 +257,25 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         widget.data['chatId'].toString(), storedUser!.token);
 
     if (chatMessagesResult.success) {
-      socket.emit("join chat", widget.data['chatId'].toString());
-
       // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
+        scrollToBottom(scrollController);
       });
-      // scrollToBottom();
+
+      socket.emit("join chat", widget.data['chatId'].toString());
     } else {
       // Handle error
       String errorMessage = chatMessagesResult.errorMessage!;
-      showImageUploadErrorDialog(context, 'Error: $errorMessage');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Error: $errorMessage',
+          );
+        },
+      );
     }
   }
 
@@ -250,22 +285,24 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     if (responseMessage.isNotEmpty) {
       var data = json.decode(responseMessage);
+      _messageStreamController.sink.add(ChatMessage.fromJson(data));
       socket.emit("new message", data);
-      setState(() {
-        chatMessages.add(ChatMessage.fromJson(data));
-        isImg = false;
-      });
-
-      // scrollToBottom();
+      scrollToBottom(scrollController);
       _controller.clear();
-      // print('Message sent successfully: $data');
     } else {
-      // Handle error
-      showImageUploadErrorDialog(context, 'Failed to send message');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'Failed to send message',
+          );
+        },
+      );
     }
   }
 
-  void pickAndUploadImage() async {
+  Future<void> pickAndUploadImage() async {
     imgLoading = true;
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -284,26 +321,40 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         setState(() {});
       } else {
         imgLoading = false;
-        // Use the captured context here
-        showImageUploadErrorDialog(
-            context, 'Failed to upload image to Cloudinary');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(
+              title: 'Fail',
+              message: 'Failed to upload image to Cloudinary ',
+            );
+          },
+        );
       }
     } else {
       imgLoading = false;
-      // Use the captured context here
-      showImageUploadErrorDialog(context, 'No image selected');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return ErrorDialog(
+            title: 'Fail',
+            message: 'No image selected',
+          );
+        },
+      );
     }
   }
 
-  void showImageUploadErrorDialog(BuildContext context, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return ErrorDialog(
-          title: 'Fail',
-          message: errorMessage,
-        );
-      },
-    );
+  String isSameDate(List<ChatMessage> messages, ChatMessage m, int i,) {
+    final messagesCreatedAtDate =
+        (messages[messages.length - 1].createdAt).substring(0, 10);
+    final mCreatedAtDate =
+        (m.createdAt).substring(0, 10);
+
+    if (messagesCreatedAtDate == mCreatedAtDate) {
+      return mCreatedAtDate;
+    } else {
+      return mCreatedAtDate;
+    }
   }
 }
