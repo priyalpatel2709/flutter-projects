@@ -77,8 +77,8 @@ class _LoginState extends State<Login> {
                     SizedBox(height: 8.0),
                     ElevatedButton(
                       onPressed: () {
-                        final email = _emailController.text;
-                        final password = _passwordController.text;
+                        final email = _emailController.text.trim();
+                        final password = _passwordController.text.trim();
                         if (email.isNotEmpty && password.isNotEmpty) {
                           loginuser(email, password, context);
                         } else {

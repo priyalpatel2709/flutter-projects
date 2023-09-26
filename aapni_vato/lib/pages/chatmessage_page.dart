@@ -47,7 +47,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   bool imgLoading = false;
   bool isImg = false;
   var picUrl = '';
-  bool _cotectToServet = false;
   NotificationServices notificationServices = NotificationServices();
   List<String> temp = [];
 
@@ -79,26 +78,27 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       if (kDebugMode) {
         print('Connected to server');
       }
-      socket.on("connected", (data) {});
+      socket.on("connected", (data) {
+        if (data) {
+          imgLoading = false;
+        } else {
+          imgLoading = true;
+        }
+      });
     });
 
     socket.connect();
 
-    socket.on('startChatWithUser', (data) {
-      print('Received startChatWithUser event: $data');
-
-      // Handle the event data here
-      // You can update your Flutter UI or take any other actions as needed
-    });
     socket.emit('setup', userData);
-    socket.emit('startChatWithUser', {'targetUserId': widget.data['id']});
 
     socket.on("message recieved", (data) async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
           // Add new message to the stream when it arrives
           _messageStreamController.sink.add(ChatMessage.fromJson(data));
-          scrollToBottom(scrollController);
+          setState(() {
+            scrollToBottom(scrollController);
+          });
         }
       }
     });
@@ -120,9 +120,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void scrollToBottom(ScrollController controller) {
-    // if (kDebugMode) {
-    print('controller $controller');
-    // }
     if (controller.hasClients) {
       controller.animateTo(
         controller.position.maxScrollExtent,
@@ -164,7 +161,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
   @override
   Widget build(BuildContext context) {
-    print('re-blild');
     final chatProvider = Provider.of<SelectedChat>(context);
     final List chats = chatProvider.chats;
 
@@ -181,7 +177,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushReplacementNamed(context,RoutesName.Chatpage); // Navigate back to the previous page
+            Navigator.pushReplacementNamed(context,
+                RoutesName.Chatpage); // Navigate back to the previous page
           },
         ),
         actions: [
@@ -228,8 +225,13 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                       )
                     : ListView.builder(
                         controller: scrollController,
-                        itemCount: chatMessages.length,
+                        itemCount: chatMessages.length + 1,
                         itemBuilder: (context, index) {
+                          if (index == chatMessages.length) {
+                            return (const SizedBox(
+                              height: 50,
+                            ));
+                          }
                           final chatMessage = chatMessages[index];
                           return Message_lisiview(
                             content: chatMessage.content.toString(),
@@ -274,9 +276,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
-        scrollToBottom(scrollController);
       });
-
+      scrollToBottom(scrollController);
       socket.emit("join chat", widget.data['chatId'].toString());
     } else {
       // Handle error

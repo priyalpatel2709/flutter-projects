@@ -45,9 +45,7 @@ class _SingupState extends State<Singup> {
   Widget _buildTextField(TextEditingController controller, String label,
       IconData icon, String hintText, bool ispassword) {
     return TextField(
-      obscureText: ispassword
-          ? !passwordVisible
-          : false, 
+      obscureText: ispassword ? !passwordVisible : false,
       controller: controller,
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
@@ -189,11 +187,12 @@ class _SingupState extends State<Singup> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          final name = _nameController.text.toString();
-                          final email = _emailController.text.toString();
-                          final password = _passwordController.text.toString();
+                          final name = _nameController.text.toString().trim();
+                          final email = _emailController.text.toString().trim();
+                          final password =
+                              _passwordController.text.toString().trim();
                           final conformpassword =
-                              _confirmpassController.text.toString();
+                              _confirmpassController.text.toString().trim();
 
                           if (name != '' &&
                               email != '' &&
