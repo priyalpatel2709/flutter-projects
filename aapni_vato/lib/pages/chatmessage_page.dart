@@ -15,6 +15,7 @@ import '../data/database.dart';
 import '../model/chatmessage.dart';
 import '../notifications/nodificationservices.dart';
 import '../provider/seletedchat.dart';
+import '../route/routes_name.dart';
 import '../services/services.dart';
 import '../utilits/errordialog.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -78,11 +79,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       if (kDebugMode) {
         print('Connected to server');
       }
-      socket.emit('setup', userData);
       socket.on("connected", (data) {});
     });
-    socket.on("connect", (data) {});
+
     socket.connect();
+
+    socket.on('startChatWithUser', (data) {
+      print('Received startChatWithUser event: $data');
+
+      // Handle the event data here
+      // You can update your Flutter UI or take any other actions as needed
+    });
+    socket.emit('setup', userData);
+    socket.emit('startChatWithUser', {'targetUserId': widget.data['id']});
 
     socket.on("message recieved", (data) async {
       if (mounted) {
@@ -99,7 +108,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     final userData = {
       'email': storedUser!.email,
       'userId': storedUser!.userId,
-      'chatId': widget.data['chatId']
+      'chatId': widget.data['chatId'],
+      'targetUserId': widget.data['id']
     };
     socket.emit('on_disconnect', userData);
     socket.on('disconnect', (_) {
@@ -158,10 +168,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     final chatProvider = Provider.of<SelectedChat>(context);
     final List chats = chatProvider.chats;
 
-    
     if (chatMessages.isNotEmpty) {
       chatMessages.asMap().forEach((i, m) {
-        temp.add(isSameDate(chatMessages,m,i));
+        temp.add(isSameDate(chatMessages, m, i));
       });
     }
 
@@ -169,6 +178,12 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context,RoutesName.Chatpage); // Navigate back to the previous page
+          },
+        ),
         actions: [
           widget.data['isGroupChat']
               ? IconButton(
@@ -228,7 +243,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                             },
                             temp: temp,
                             index: index,
-
                           );
                         },
                       );
@@ -345,11 +359,14 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     }
   }
 
-  String isSameDate(List<ChatMessage> messages, ChatMessage m, int i,) {
+  String isSameDate(
+    List<ChatMessage> messages,
+    ChatMessage m,
+    int i,
+  ) {
     final messagesCreatedAtDate =
         (messages[messages.length - 1].createdAt).substring(0, 10);
-    final mCreatedAtDate =
-        (m.createdAt).substring(0, 10);
+    final mCreatedAtDate = (m.createdAt).substring(0, 10);
 
     if (messagesCreatedAtDate == mCreatedAtDate) {
       return mCreatedAtDate;
