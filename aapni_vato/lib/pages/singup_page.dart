@@ -40,10 +40,14 @@ class _SingupState extends State<Singup> {
   bool isImg = false;
   var picUrl = '';
   String baseUrl = dotenv.get('API_ENDPOINT');
+  bool passwordVisible = false;
 
   Widget _buildTextField(TextEditingController controller, String label,
-      IconData icon, String hintText) {
+      IconData icon, String hintText, bool ispassword) {
     return TextField(
+      obscureText: ispassword
+          ? !passwordVisible
+          : false, 
       controller: controller,
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
@@ -59,6 +63,19 @@ class _SingupState extends State<Singup> {
         prefixIcon: Icon(icon),
         border:
             OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+        suffixIcon: ispassword
+            ? IconButton(
+                icon: Icon(
+                  passwordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
+                onPressed: () {
+                  setState(() {
+                    passwordVisible = !passwordVisible;
+                  });
+                },
+              )
+            : null,
       ),
     );
   }
@@ -133,7 +150,8 @@ class _SingupState extends State<Singup> {
                             ? CircularProgressIndicator()
                             : CircleAvatar(
                                 backgroundImage: !isImg
-                                    ? AssetImage('assets/img/anonymous-avatar-icon-25.jpg')
+                                    ? AssetImage(
+                                        'assets/img/anonymous-avatar-icon-25.jpg')
                                     : NetworkImage(picUrl.toString())
                                         as ImageProvider<Object>?,
                                 radius: 50,
@@ -143,17 +161,17 @@ class _SingupState extends State<Singup> {
                         height: 8.0,
                       ),
                       _buildTextField(_nameController, 'name',
-                          Icons.perm_identity_sharp, 'e.g. Raj'),
+                          Icons.perm_identity_sharp, 'e.g. Raj', false),
                       SizedBox(
                         height: 8.0,
                       ),
                       _buildTextField(_emailController, 'email', Icons.email,
-                          'e.g. raj123@gmail.com'),
+                          'e.g. raj123@gmail.com', false),
                       SizedBox(
                         height: 8.0,
                       ),
                       _buildTextField(_passwordController, 'password',
-                          Icons.password, 'e.g. Raj@Patel_23454'),
+                          Icons.password, 'e.g. Raj@Patel_23454', true),
                       SizedBox(
                         height: 8.0,
                       ),
@@ -161,7 +179,8 @@ class _SingupState extends State<Singup> {
                           _confirmpassController,
                           'confirm password',
                           Icons.password,
-                          'e.g. Raj@Patel_23454'),
+                          'e.g. Raj@Patel_23454',
+                          true),
                       SizedBox(
                         height: 8.0,
                       ),

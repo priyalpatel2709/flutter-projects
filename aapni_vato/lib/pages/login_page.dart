@@ -32,8 +32,8 @@ class _LoginState extends State<Login> {
   String deviceToken = '';
   NotificationServices notificationServices = NotificationServices();
   String baseUrl = dotenv.get('API_ENDPOINT');
+  bool passwordVisible = false;
 
-  
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
@@ -70,10 +70,10 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildTextField(_emailController, 'Enter Email',
-                        Icons.perm_identity_sharp, 'e.g. raj123@gmail.com'),
+                        Icons.perm_identity_sharp, 'e.g. raj123@gmail.com', false ),
                     SizedBox(height: 8.0),
                     _buildTextField(_passwordController, 'Enter Password',
-                        Icons.password, 'e.g. Raj@Patel_23454'),
+                        Icons.password, 'e.g. Raj@Patel_23454',true),
                     SizedBox(height: 8.0),
                     ElevatedButton(
                       onPressed: () {
@@ -151,23 +151,40 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildTextField(TextEditingController controller, String label,
-      IconData icon, String hintText) {
+      IconData icon, String hintText, bool ispassword) {
     return TextField(
       controller: controller,
+      obscureText: ispassword
+          ? !passwordVisible
+          : false, 
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(11),
-            borderSide: BorderSide(color: Colors.white, width: 2)),
+          borderRadius: BorderRadius.circular(11),
+          borderSide: BorderSide(color: Colors.white, width: 2),
+        ),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(11),
-            borderSide: BorderSide(color: Colors.white24, width: 2)),
+          borderRadius: BorderRadius.circular(11),
+          borderSide: BorderSide(color: Colors.white24, width: 2),
+        ),
         labelText: label,
         labelStyle: TextStyle(color: Colors.white),
         hintText: hintText,
         hintStyle: TextStyle(color: Colors.white10),
         prefixIcon: Icon(icon),
-        border:
-            OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white24),
+        ),
+        suffixIcon: ispassword
+            ? IconButton(
+                icon: Icon(
+                    passwordVisible ? Icons.visibility : Icons.visibility_off  , color: Colors.white70,),
+                onPressed: () {
+                  setState(() {
+                    passwordVisible = !passwordVisible;
+                  });
+                },
+              )
+            : null, // If it's not a password field, don't show a suffixIcon
       ),
     );
   }
