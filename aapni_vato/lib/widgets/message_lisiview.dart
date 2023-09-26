@@ -55,7 +55,8 @@ class Message_lisiview extends StatelessWidget {
     bool right;
     bool left;
     Color colors;
-    if (chatSenderId == storedUserId) {
+    bool isSameSender = chatSenderId == storedUserId;
+    if (isSameSender) {
       alignment = CrossAxisAlignment.end;
       right = true;
       left = false;
@@ -84,6 +85,9 @@ class Message_lisiview extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 300,
+                ),
                 padding: const EdgeInsets.all(8),
                 decoration: containsUrl
                     ? BoxDecoration(
@@ -118,25 +122,35 @@ class Message_lisiview extends StatelessWidget {
                     : InkWell(
                         onDoubleTap: onDeleteMes,
                         child: !isGroupChat
-                            ? RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: content,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: content,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: ' ${messageTime(createdAt)}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    TextSpan(
-                                      text: ' ${messageTime(createdAt)}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  if (isSameSender)
+                                    const Icon(
+                                      Icons.check,
+                                      size: 18,
+                                    )
+                                ],
                               )
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -41,7 +41,6 @@ class _SingupState extends State<Singup> {
   var picUrl = '';
   String baseUrl = dotenv.get('API_ENDPOINT');
 
-
   Widget _buildTextField(TextEditingController controller, String label,
       IconData icon, String hintText) {
     return TextField(
@@ -134,9 +133,9 @@ class _SingupState extends State<Singup> {
                             ? CircularProgressIndicator()
                             : CircleAvatar(
                                 backgroundImage: !isImg
-                                    ? NetworkImage(
-                                        'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg')
-                                    : NetworkImage(picUrl.toString()),
+                                    ? AssetImage('assets/img/anonymous-avatar-icon-25.jpg')
+                                    : NetworkImage(picUrl.toString())
+                                        as ImageProvider<Object>?,
                                 radius: 50,
                               ),
                       ),

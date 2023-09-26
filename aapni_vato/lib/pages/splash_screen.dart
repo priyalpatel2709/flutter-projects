@@ -26,9 +26,12 @@ class _Splash_ScreenState extends State<Splash_Screen>
     super.initState();
     super.initState();
     _controller =
-        AnimationController(duration: const Duration(seconds: 3), vsync: this);
+        AnimationController(duration: const Duration(seconds: 4), vsync: this);
+
+
     _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.bounceOut),
+      CurvedAnimation(parent: _controller, curve: Curves.bounceIn),
+      
     );
     _controller.forward().then((value) {
       wharetogo();
@@ -36,7 +39,7 @@ class _Splash_ScreenState extends State<Splash_Screen>
   }
 
   void wharetogo() async {
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(Duration(milliseconds: 10), () {
       // Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
 
       if (_mybox.get("user") == null) {
@@ -67,10 +70,10 @@ class _Splash_ScreenState extends State<Splash_Screen>
                 height: 200,
                 width: 200,
                 transform:
-                    Matrix4.translationValues(0, -_animation.value * 100, 0),
-                child: Image.network(
-                  'http://res.cloudinary.com/dtzrtlyuu/image/upload/v1695622144/chat-app/wxhexgz1bfznluehel0f.png',
-                  fit: BoxFit.fitHeight,
+                    Matrix4.translationValues(0, -_animation.value * 100, 100),
+                child: Image.asset(
+                  'assets/img/mainlogo.png',
+                  scale: 0.8
                 ),
               ),
             ),
