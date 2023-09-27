@@ -25,6 +25,7 @@ import '../utilits/uploadtocloude.dart';
 import '../widgets/chatInputfield.dart';
 import '../widgets/loading_mes.dart';
 import '../widgets/message_lisiview.dart';
+import '../widgets/message_page_appbar.dart';
 import '../widgets/typingindicator.dart';
 
 class Chatmessage_page extends StatefulWidget {
@@ -213,48 +214,17 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 77, 80, 85),
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context,
-                RoutesName.Chatpage); // Navigate back to the previous page
-          },
-        ),
-        actions: [
-          widget.data['isGroupChat']
-              ? IconButton(
-                  onPressed: () {
-                    grpInfo(chats, context, widget.data['name']);
-                  },
-                  icon: const Icon(Icons.info))
-              : const SizedBox()
-        ],
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.data['dp'].toString()),
-            ),
-            const SizedBox(
-              width: 5.0,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${widget.data['name']}',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Text(
-                  status,
-                  style: const TextStyle(fontSize: 15),
-                )
-              ],
-            ),
-          ],
-        ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(
+            kToolbarHeight), // Adjust the height as needed
+        child: MessagepageAppbar(
+            isGrpChat: widget.data['isGroupChat'],
+            status: status,
+            userName: widget.data['name'],
+            userProfile: widget.data['dp'].toString(),
+            grpInfo: () {
+              grpInfo(chats, context, widget.data['name']);
+            }),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
