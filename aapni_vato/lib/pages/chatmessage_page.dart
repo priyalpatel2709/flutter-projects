@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -25,6 +25,7 @@ import '../utilits/uploadtocloude.dart';
 import '../widgets/chatInputfield.dart';
 import '../widgets/loading_mes.dart';
 import '../widgets/message_lisiview.dart';
+import '../widgets/typingindicator.dart';
 
 class Chatmessage_page extends StatefulWidget {
   final dynamic data;
@@ -50,9 +51,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   NotificationServices notificationServices = NotificationServices();
   List<String> temp = [];
   String status = '';
+  bool typing = false;
+  bool istyping = false;
 
   // Stream controller for the chat messages
-  final _messageStreamController = StreamController<ChatMessage>();
+  // final _messageStreamController = StreamController<ChatMessage>();
 
   @override
   void initState() {
@@ -86,6 +89,18 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           loading = true;
         }
       });
+
+      socket.on("typing", (data) {
+        setState(() {
+          istyping = true;
+        });
+      });
+
+      socket.on("stop typing", (data) {
+        setState(() {
+          istyping = false;
+        });
+      });
     });
 
     socket.connect();
@@ -95,7 +110,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.on("message recieved", (data) async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
-          _messageStreamController.sink.add(ChatMessage.fromJson(data));
+          // _messageStreamController.sink.add(ChatMessage.fromJson(data));
+          chatMessages.add(ChatMessage.fromJson(data));
           setState(() {
             scrollToBottom(scrollController);
           });
@@ -122,6 +138,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       }
     });
     socket.off("userIn chat");
+    socket.off("typing");
+    socket.off("stop typing");
   }
 
   void scrollToBottom(ScrollController controller) {
@@ -141,7 +159,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     _controller.dispose();
     socket.disconnect();
     // Close the stream controller
-    _messageStreamController.close();
+    // _messageStreamController.close();
     super.dispose();
   }
 
@@ -161,6 +179,24 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
           );
         },
       );
+    }
+  }
+
+  void startTyping() {
+    if (!typing) {
+      setState(() {
+        typing = true;
+      });
+      socket.emit("typing", widget.data['chatId']);
+    }
+  }
+
+  void stopTyping() {
+    if (typing) {
+      setState(() {
+        typing = false;
+      });
+      socket.emit("stop typing", widget.data['chatId']);
     }
   }
 
@@ -221,56 +257,45 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         ),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: StreamBuilder<ChatMessage>(
-              stream: _messageStreamController.stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  chatMessages.add(snapshot.data!);
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: chatMessages.length + 1,
+              itemBuilder: (context, index) {
+                if (index == chatMessages.length) {
+                  return const SizedBox(
+                    height: 50.0,
+                  );
                 }
-
-                return loading
-                    ? Skeletonizer(
-                        enabled: true,
-                        child: ListView.builder(
-                          itemCount: 6,
-                          itemBuilder: (context, index) {
-                            return const Loading_mes();
-                          },
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        itemCount: chatMessages.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == chatMessages.length) {
-                            return (const SizedBox(
-                              height: 50,
-                            ));
-                          }
-                          final chatMessage = chatMessages[index];
-                          return Message_lisiview(
-                              content: chatMessage.content.toString(),
-                              isGroupChat: widget.data['isGroupChat'],
-                              senderName: chatMessage.sender.name,
-                              createdAt: chatMessage.createdAt,
-                              storedUserId: storedUser!.userId,
-                              chatSenderId: chatMessage.sender.id,
-                              onDeleteMes: () {
-                                deleteMsg(
-                                    chatMessage.sender.id, chatMessage.id);
-                              },
-                              temp: temp,
-                              index: index,
-                              status: status);
-                        },
-                      );
+                final chatMessage = chatMessages[index];
+                return Message_lisiview(
+                  content: chatMessage.content.toString(),
+                  isGroupChat: widget.data['isGroupChat'],
+                  senderName: chatMessage.sender.name,
+                  createdAt: chatMessage.createdAt,
+                  storedUserId: storedUser!.userId,
+                  chatSenderId: chatMessage.sender.id,
+                  onDeleteMes: () {
+                    deleteMsg(chatMessage.sender.id, chatMessage.id);
+                  },
+                  temp: temp,
+                  index: index,
+                  status: status,
+                );
               },
             ),
           ),
           if (isImg) Image.network(picUrl.toString()),
+          const SizedBox(
+            height: 8.0,
+          ),
+          const SizedBox(
+            height: 1.0,
+          ),
+          istyping ? const Typingindicator() : const SizedBox(),
           const SizedBox(
             height: 8.0,
           ),
@@ -280,6 +305,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             onAttachmentPressed: pickAndUploadImage,
             onSendPressed: () {
               sendMessage(widget.data['chatId'].toString());
+            },
+            onChange: () {
+              if (!typing) {
+                startTyping(); // User starts typing
+              }
+              const int timerLength = 3000; // 3 seconds
+              Timer? typingTimer;
+
+              typingTimer?.cancel();
+              typingTimer =
+                  Timer(const Duration(milliseconds: timerLength), () {
+                stopTyping();
+              });
             },
           ),
         ],
@@ -319,7 +357,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
     if (responseMessage.isNotEmpty) {
       var data = json.decode(responseMessage);
-      _messageStreamController.sink.add(ChatMessage.fromJson(data));
+      // _messageStreamController.sink.add(ChatMessage.fromJson(data));
+      chatMessages.add(ChatMessage.fromJson(data));
+      setState(() {});
       socket.emit("new message", data);
 
       final userData = {

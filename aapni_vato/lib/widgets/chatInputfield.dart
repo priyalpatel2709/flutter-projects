@@ -5,18 +5,21 @@ class ChatInputField extends StatelessWidget {
   final bool isImg;
   final VoidCallback onAttachmentPressed;
   final VoidCallback onSendPressed;
+  final VoidCallback onChange;
 
-  const ChatInputField({super.key, 
+  const ChatInputField({
+    super.key,
     required this.controller,
     required this.isImg,
     required this.onAttachmentPressed,
     required this.onSendPressed,
+    required this.onChange,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 8, right: 8, bottom: 5 ),
+      margin: const EdgeInsets.only(left: 8, right: 8, bottom: 5),
       padding: const EdgeInsets.all(5),
       decoration: const BoxDecoration(
         color: Colors.white60,
@@ -33,6 +36,11 @@ class ChatInputField extends StatelessWidget {
           const SizedBox(width: 3.0),
           Expanded(
             child: TextField(
+              onChanged: (value) {
+                if (value != '') {
+                  onChange();
+                }
+              },
               enabled: !isImg,
               controller: controller,
               decoration: InputDecoration(
