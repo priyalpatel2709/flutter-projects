@@ -192,15 +192,23 @@ class _ChatpageState extends State<Chatpage> {
                               chatUser.name,
                               style: TextStyle(color: Colors.white),
                             ),
-                      subtitle: subtitleText
-                          ? Text('You: ${chat.latestMessage?.content ?? ''}',
+                      subtitle: chat.isGroupChat
+                          ? Text(
+                              '${chat.latestMessage?.sender.name}:- ${chat.latestMessage?.content ?? ''}',
                               style: TextStyle(
                                   color: Colors.white30,
-                                  fontWeight: FontWeight.w400))
-                          : Text(chat.latestMessage?.content ?? '',
-                              style: TextStyle(
-                                  color: Colors.white30,
-                                  fontWeight: FontWeight.w400)),
+                                  fontWeight: FontWeight.w400),
+                            )
+                          : subtitleText
+                              ? Text(
+                                  'You: ${chat.latestMessage?.content ?? ''}',
+                                  style: TextStyle(
+                                      color: Colors.white30,
+                                      fontWeight: FontWeight.w400))
+                              : Text(chat.latestMessage?.content ?? '',
+                                  style: TextStyle(
+                                      color: Colors.white30,
+                                      fontWeight: FontWeight.w400)),
                     ),
                   );
                 },

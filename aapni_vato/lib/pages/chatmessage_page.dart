@@ -91,17 +91,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         }
       });
 
-      socket.on("typing", (data) {
-        setState(() {
-          istyping = true;
+      if (!widget.data['isGroupChat']) {
+        socket.on("typing", (data) {
+          setState(() {
+            istyping = true;
+          });
         });
-      });
 
-      socket.on("stop typing", (data) {
-        setState(() {
-          istyping = false;
+        socket.on("stop typing", (data) {
+          setState(() {
+            istyping = false;
+          });
         });
-      });
+      }
     });
 
     socket.connect();
@@ -223,6 +225,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             userName: widget.data['name'],
             userProfile: widget.data['dp'].toString(),
             grpInfo: () {
+              print('me');
               grpInfo(chats, context, widget.data['name']);
             }),
       ),
@@ -253,7 +256,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   },
                   temp: temp,
                   index: index,
-                  status: status,
+                  status:  widget.data['isGroupChat'] ? status :'',
                 );
               },
             ),

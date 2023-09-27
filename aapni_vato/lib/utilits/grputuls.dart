@@ -22,7 +22,7 @@ Future<void> grpInfo(List chats, context, name) {
                       ? isAdmin = true
                       : isAdmin = false;
                   if (isAdmin) {
-                    color = Color.fromARGB(255, 0, 0, 0);
+                    color = const Color.fromARGB(255, 0, 0, 0);
                     bgcolor = const Color.fromARGB(255, 255, 255, 255);
                   } else {
                     color = Colors.white;
@@ -31,7 +31,7 @@ Future<void> grpInfo(List chats, context, name) {
 
                   return Chip(
                     avatar: !isAdmin
-                        ? SizedBox()
+                        ? const SizedBox()
                         : const CircleAvatar(
                             child: Icon(
                               Icons.admin_panel_settings,

@@ -34,7 +34,7 @@ class MessagepageAppbar extends StatelessWidget {
       actions: [
         isGrpChat
             ? IconButton(
-                onPressed: (){},
+                onPressed: grpInfo,
                 icon: const Icon(Icons.info))
             : const SizedBox()
       ],
