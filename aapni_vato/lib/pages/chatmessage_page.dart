@@ -256,7 +256,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   },
                   temp: temp,
                   index: index,
-                  status:  widget.data['isGroupChat'] ? status :'',
+                  status: widget.data['isGroupChat'] ? status : '',
                 );
               },
             ),
@@ -280,17 +280,21 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               sendMessage(widget.data['chatId'].toString());
             },
             onChange: () {
-              if (!typing) {
-                startTyping(); // User starts typing
-              }
-              const int timerLength = 3000; // 3 seconds
-              Timer? typingTimer;
+              if (widget.data['isGroupChat']) {
+                print('object');
+              } else {
+                if (!typing) {
+                  startTyping(); // User starts typing
+                }
+                const int timerLength = 3000; // 3 seconds
+                Timer? typingTimer;
 
-              typingTimer?.cancel();
-              typingTimer =
-                  Timer(const Duration(milliseconds: timerLength), () {
-                stopTyping();
-              });
+                typingTimer?.cancel();
+                typingTimer =
+                    Timer(const Duration(milliseconds: timerLength), () {
+                  stopTyping();
+                });
+              }
             },
           ),
         ],
