@@ -49,6 +49,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   var picUrl = '';
   NotificationServices notificationServices = NotificationServices();
   List<String> temp = [];
+  String status = '';
 
   // Stream controller for the chat messages
   final _messageStreamController = StreamController<ChatMessage>();
@@ -69,9 +70,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     final userData = {
-      'email': storedUser!.email,
-      '_id': storedUser!.userId,
-      'chatId': widget.data['chatId']
+      'userId': storedUser!.userId,
+      'chatId': widget.data['chatId'],
+      'targetUserId': widget.data['id']
     };
 
     socket.onConnect((_) {
@@ -94,7 +95,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     socket.on("message recieved", (data) async {
       if (mounted) {
         if (widget.data['chatId'] == data['chat']['_id']) {
-          // Add new message to the stream when it arrives
           _messageStreamController.sink.add(ChatMessage.fromJson(data));
           setState(() {
             scrollToBottom(scrollController);
@@ -102,11 +102,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         }
       }
     });
+
+    socket.on('userIn chat', (data) {
+      status = data.toString();
+      setState(() {});
+    });
   }
 
   void unsubscribeFromSocketEvents() {
     final userData = {
-      'email': storedUser!.email,
       'userId': storedUser!.userId,
       'chatId': widget.data['chatId'],
       'targetUserId': widget.data['id']
@@ -117,6 +121,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         print('Disconnected from server');
       }
     });
+    socket.off("userIn chat");
   }
 
   void scrollToBottom(ScrollController controller) {
@@ -198,7 +203,20 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             const SizedBox(
               width: 5.0,
             ),
-            Text('${widget.data['name']}'),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${widget.data['name']}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                Text(
+                  status,
+                  style: const TextStyle(fontSize: 15),
+                )
+              ],
+            ),
           ],
         ),
       ),
@@ -234,18 +252,19 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                           }
                           final chatMessage = chatMessages[index];
                           return Message_lisiview(
-                            content: chatMessage.content.toString(),
-                            isGroupChat: widget.data['isGroupChat'],
-                            senderName: chatMessage.sender.name,
-                            createdAt: chatMessage.createdAt,
-                            storedUserId: storedUser!.userId,
-                            chatSenderId: chatMessage.sender.id,
-                            onDeleteMes: () {
-                              deleteMsg(chatMessage.sender.id, chatMessage.id);
-                            },
-                            temp: temp,
-                            index: index,
-                          );
+                              content: chatMessage.content.toString(),
+                              isGroupChat: widget.data['isGroupChat'],
+                              senderName: chatMessage.sender.name,
+                              createdAt: chatMessage.createdAt,
+                              storedUserId: storedUser!.userId,
+                              chatSenderId: chatMessage.sender.id,
+                              onDeleteMes: () {
+                                deleteMsg(
+                                    chatMessage.sender.id, chatMessage.id);
+                              },
+                              temp: temp,
+                              index: index,
+                              status: status);
                         },
                       );
               },
@@ -302,6 +321,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       var data = json.decode(responseMessage);
       _messageStreamController.sink.add(ChatMessage.fromJson(data));
       socket.emit("new message", data);
+
+      final userData = {
+        'userId': storedUser!.userId,
+        'chatId': widget.data['chatId'],
+        'targetUserId': widget.data['id'],
+      };
+
+      socket.emit('check user', userData);
+
       scrollToBottom(scrollController);
       _controller.clear();
     } else {

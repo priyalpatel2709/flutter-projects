@@ -12,6 +12,7 @@ class Message_lisiview extends StatelessWidget {
   final String chatSenderId;
   final temp;
   final int index;
+  final String status;
 
   // Constructor
   Message_lisiview({
@@ -25,6 +26,7 @@ class Message_lisiview extends StatelessWidget {
     required this.onDeleteMes,
     required this.index,
     this.temp,
+    required this.status,
   }) : super(key: key);
 
   // Method to format time
@@ -146,10 +148,23 @@ class Message_lisiview extends StatelessWidget {
                                     ),
                                   ),
                                   if (isSameSender)
-                                    const Icon(
-                                      Icons.check,
-                                      size: 18,
-                                    )
+                                    if (status == 'Offline')
+                                      const Icon(
+                                        Icons.check,
+                                        size: 18,
+                                      )
+                                    else if (status == 'Inchat')
+                                      SizedBox(
+                                          height: 20,
+                                          child: Image.asset(
+                                            'assets/img/double-tick-indicator.png',
+                                            color: Colors.blue,
+                                          ))
+                                    else
+                                      SizedBox(
+                                          height: 20,
+                                          child: Image.asset(
+                                              'assets/img/double-tick-indicator.png'))
                                 ],
                               )
                             : Column(
