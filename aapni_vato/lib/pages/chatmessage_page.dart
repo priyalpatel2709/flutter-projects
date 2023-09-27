@@ -81,9 +81,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       }
       socket.on("connected", (data) {
         if (data) {
-          imgLoading = false;
+          loading = false;
         } else {
-          imgLoading = true;
+          loading = true;
         }
       });
     });

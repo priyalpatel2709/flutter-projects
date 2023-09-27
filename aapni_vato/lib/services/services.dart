@@ -5,7 +5,6 @@ import '../model/alluserData.dart';
 import '../model/chatmessage.dart';
 import '../route/routes_name.dart';
 
-
 // const String baseUrl = 'http://10.0.2.2:2709/api';
 
 String baseUrl = dotenv.get('API_ENDPOINT');
@@ -61,14 +60,12 @@ class ChatServices {
       );
 
       if (response.statusCode == 200) {
-        // var data = json.decode(response.body);
-        // print(data);
-        return response.body; // Return the response body as a String
+        return response.body;
       } else {
-        throw Exception('Failed to send message');
+        throw Exception('Failed to send message ${response.statusCode}');
       }
     } catch (e) {
-      throw e;
+      throw Exception(e);
     }
   }
 
@@ -139,11 +136,9 @@ class ChatServices {
         return true;
       } else {
         throw Exception('Failed to access chat');
-        
       }
     } catch (e) {
       throw Exception('Failed to access chat');
-
     }
   }
 }

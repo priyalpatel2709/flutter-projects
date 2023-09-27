@@ -3,7 +3,7 @@ class ChatMessage {
   final ChatUser sender;
   final String content;
   final ChatInfo chat;
-  final List<dynamic> readBy;
+  final List<ChatUser> readBy;
   final String createdAt;
   final String updatedAt;
   final int v;
@@ -25,7 +25,10 @@ class ChatMessage {
       sender: ChatUser.fromJson(json['sender'] ?? {}),
       content: json['content'] ?? '',
       chat: ChatInfo.fromJson(json['chat'] ?? {}),
-      readBy: List<dynamic>.from(json['readBy'] ?? []),
+      readBy: (json['readBy'] as List<dynamic>?)
+              ?.map((readByData) => ChatUser.fromJson(readByData))
+              .toList() ??
+          [],
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
       v: json['__v'] ?? 0,
