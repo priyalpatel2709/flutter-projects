@@ -5,7 +5,6 @@ import '../model/alluserData.dart';
 import '../model/chatmessage.dart';
 import '../route/routes_name.dart';
 
-// const String baseUrl = 'http://10.0.2.2:2709/api';
 
 String baseUrl = dotenv.get('API_ENDPOINT');
 
@@ -54,8 +53,6 @@ class ChatServices {
     String status,
     bool isRead,
   ) async {
-    print('isRead------>$isRead');
-    print('status------>$status');
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/message'),

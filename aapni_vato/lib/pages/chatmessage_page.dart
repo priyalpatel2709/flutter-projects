@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +55,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   String status = '';
   bool typing = false;
   bool istyping = false;
-
+  String baseUrl = dotenv.get('SOKET_API');
   // Stream controller for the chat messages
   // final _messageStreamController = StreamController<ChatMessage>();
 
@@ -68,7 +69,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void connectToServer() {
-    socket = IO.io('http://10.0.2.2:2709', <String, dynamic>{
+    socket = IO.io(baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'query': {'device': "flutter"},
     });
@@ -93,15 +94,21 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
 
       if (!widget.data['isGroupChat']) {
         socket.on("typing", (data) {
-          setState(() {
-            istyping = true;
-          });
+          if (mounted) {
+            // Check if the widget is still mounted
+            setState(() {
+              istyping = true;
+            });
+          }
         });
 
         socket.on("stop typing", (data) {
-          setState(() {
-            istyping = false;
-          });
+          if (mounted) {
+            // Check if the widget is still mounted
+            setState(() {
+              istyping = false;
+            });
+          }
         });
       }
     });
@@ -310,6 +317,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   Future<void> callfetchChatMessages() async {
+    // scrollToBottom(scrollController);
     final chatMessagesResult = await ChatServices.fetchChatMessages(
         widget.data['chatId'].toString(), storedUser!.token);
 
@@ -317,8 +325,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
+        scrollToBottom(scrollController);
       });
-      scrollToBottom(scrollController);
+
       socket.emit("join chat", widget.data['chatId'].toString());
     } else {
       // Handle error
