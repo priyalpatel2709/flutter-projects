@@ -256,7 +256,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   },
                   temp: temp,
                   index: index,
-                  status: widget.data['isGroupChat'] ? status : '',
+                  status: chatMessage.status,
                 );
               },
             ),
@@ -344,7 +344,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     }
 
     dynamic responseMessage = await ChatServices.sendMessage(
-        chatId, storedUser!.token, _controller.text.toString(), status, isRead );
+        chatId, storedUser!.token, _controller.text.toString(), status, isRead);
 
     if (responseMessage.isNotEmpty) {
       var data = json.decode(responseMessage);

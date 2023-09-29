@@ -3,6 +3,7 @@ import '../pages/chat_page.dart';
 import '../pages/chatmessage_page.dart';
 import '../pages/groupchat.dart';
 import '../pages/login_page.dart';
+import '../pages/offlinescreen.dart';
 import '../pages/singup_page.dart';
 import '../pages/splash_screen.dart';
 import 'routes_name.dart';
@@ -16,23 +17,28 @@ class Routes {
       case RoutesName.Splash_Screen:
         return MaterialPageRoute(builder: (context) => Splash_Screen());
 
-      case RoutesName.Login :
-        return   MaterialPageRoute(builder: (context) => Login());
+      case RoutesName.Login:
+        return MaterialPageRoute(builder: (context) => Login());
 
-      case RoutesName.Singup :
-        return   MaterialPageRoute(builder: (context) => Singup());  
+      case RoutesName.Singup:
+        return MaterialPageRoute(builder: (context) => Singup());
 
-      case RoutesName.Chatpage :
-        return   MaterialPageRoute(builder: (context) => Chatpage());   
+      case RoutesName.Chatpage:
+        return MaterialPageRoute(builder: (context) => Chatpage());
 
-      case RoutesName.AddFriend :
-        return   MaterialPageRoute(builder: (context) => AddFriend());     
+      case RoutesName.AddFriend:
+        return MaterialPageRoute(builder: (context) => AddFriend());
 
-      case RoutesName.Chatmessage_page :
-        return   MaterialPageRoute(builder: (context) => Chatmessage_page(data : settings.arguments as Map));   
+      case RoutesName.Chatmessage_page:
+        return MaterialPageRoute(
+            builder: (context) =>
+                Chatmessage_page(data: settings.arguments as Map));
 
-      case RoutesName.Groupchat :
-        return   MaterialPageRoute(builder: (context) => Groupchat());    
+      case RoutesName.Groupchat:
+        return MaterialPageRoute(builder: (context) => Groupchat());
+
+      case RoutesName.OfflineScreen:
+        return MaterialPageRoute(builder: (context) => Offlinescreen());
 
       default:
         return MaterialPageRoute(

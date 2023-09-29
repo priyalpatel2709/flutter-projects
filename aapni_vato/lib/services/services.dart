@@ -43,7 +43,7 @@ class ChatServices {
         return ApiResult.error('Failed to load chat messages');
       }
     } catch (e) {
-      return ApiResult.error('An error occurred123: $e');
+      return ApiResult.error('An error occurred: $e');
     }
   }
 
@@ -54,6 +54,8 @@ class ChatServices {
     String status,
     bool isRead,
   ) async {
+    print('isRead------>$isRead');
+    print('status------>$status');
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/message'),
