@@ -158,6 +158,9 @@ class _ChatpageState extends State<Chatpage> {
                       : chat.users.first;
 
                   final chatId = chat.id;
+                  final lastMessage = chat.latestMessage?.content ?? '';
+                  final bool islastMessageImg = lastMessage!.contains(
+                      'http://res.cloudinary.com/dtzrtlyuu/image/upload/');
                   bool subtitleText =
                       storedUser!.userId == chat.latestMessage?.sender.id;
                   return InkWell(
@@ -192,23 +195,32 @@ class _ChatpageState extends State<Chatpage> {
                               chatUser.name,
                               style: TextStyle(color: Colors.white),
                             ),
-                      subtitle: chat.isGroupChat
-                          ? Text(
-                              '${chat.latestMessage?.sender.name}:- ${chat.latestMessage?.content ?? ''}',
-                              style: TextStyle(
-                                  color: Colors.white30,
-                                  fontWeight: FontWeight.w400),
+                      subtitle: islastMessageImg
+                          ? Row(
+                              children: const [
+                                Icon(Icons.image,size: 20 ,color: Colors.white30),
+                                Text(
+                                  'Photo',
+                                  style: TextStyle(color: Colors.white30),
+                                )
+                              ],
                             )
-                          : subtitleText
+                          : chat.isGroupChat
                               ? Text(
-                                  'You: ${chat.latestMessage?.content ?? ''}',
+                                  '${chat.latestMessage?.sender.name}:- ${lastMessage ?? ''}',
                                   style: TextStyle(
                                       color: Colors.white30,
-                                      fontWeight: FontWeight.w400))
-                              : Text(chat.latestMessage?.content ?? '',
-                                  style: TextStyle(
-                                      color: Colors.white30,
-                                      fontWeight: FontWeight.w400)),
+                                      fontWeight: FontWeight.w400),
+                                )
+                              : subtitleText
+                                  ? Text('You: ${lastMessage ?? ''}',
+                                      style: TextStyle(
+                                          color: Colors.white30,
+                                          fontWeight: FontWeight.w400))
+                                  : Text(lastMessage ?? '',
+                                      style: TextStyle(
+                                          color: Colors.white30,
+                                          fontWeight: FontWeight.w400)),
                     ),
                   );
                 },

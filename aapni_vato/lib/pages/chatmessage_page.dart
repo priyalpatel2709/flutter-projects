@@ -247,7 +247,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               itemBuilder: (context, index) {
                 if (index == chatMessages.length) {
                   return const SizedBox(
-                    height: 50.0,
+                    height: 45.0,
                   );
                 }
                 final chatMessage = chatMessages[index];
@@ -325,6 +325,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
+        print(chatMessages.length);
         scrollToBottom(scrollController);
       });
 
