@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -45,20 +46,20 @@ class _Splash_ScreenState extends State<Splash_Screen>
   void wharetogo() async {
     await initConnectivity();
 
-    print('_connectionStatus--->$_connectionStatus');
-
     if (_connectionStatus == ConnectivityResult.none) {
-      // Show offline screen
-      Navigator.pushReplacementNamed(context, RoutesName.OfflineScreen);
+      _switchToScreen(RoutesName.OfflineScreen);
     } else {
-      // Check if the user is logged in
       final user = _mybox.get("user");
       if (user == null) {
-        Navigator.pushReplacementNamed(context, RoutesName.Login);
+        _switchToScreen(RoutesName.Login);
       } else {
-        Navigator.pushReplacementNamed(context, RoutesName.Chatpage);
+        _switchToScreen(RoutesName.Chatpage);
       }
     }
+  }
+
+  void _switchToScreen(rouename) {
+    Navigator.pushReplacementNamed(context, rouename);
   }
 
   Future<void> initConnectivity() async {
@@ -66,14 +67,11 @@ class _Splash_ScreenState extends State<Splash_Screen>
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      print('error:- $e');
-      // developer.log('Couldn\'t check connectivity status', error: e);
+      if (kDebugMode) {
+        print('error:- $e');
+      }
       return;
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) {
       return Future.value(null);
     }
@@ -90,7 +88,7 @@ class _Splash_ScreenState extends State<Splash_Screen>
   @override
   void dispose() {
     _controller.dispose();
-
+    _connectivitySubscription.cancel();
     super.dispose();
   }
 
