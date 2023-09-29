@@ -3,9 +3,10 @@ class ChatMessage {
   final ChatUser sender;
   final String content;
   final ChatInfo chat;
-  final List<ChatUser> readBy;
+  final bool isRead;
   final String createdAt;
   final String updatedAt;
+  final String status;
   final int v;
 
   ChatMessage({
@@ -13,9 +14,10 @@ class ChatMessage {
     required this.sender,
     required this.content,
     required this.chat,
-    required this.readBy,
+    required this.isRead,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
     required this.v,
   });
 
@@ -25,12 +27,10 @@ class ChatMessage {
       sender: ChatUser.fromJson(json['sender'] ?? {}),
       content: json['content'] ?? '',
       chat: ChatInfo.fromJson(json['chat'] ?? {}),
-      readBy: (json['readBy'] as List<dynamic>?)
-              ?.map((readByData) => ChatUser.fromJson(readByData))
-              .toList() ??
-          [],
+      isRead: json['isRead'] ?? '',
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
+      status: json['status'] ?? '',
       v: json['__v'] ?? 0,
     );
   }

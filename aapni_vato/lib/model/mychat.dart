@@ -78,7 +78,8 @@ class Message {
   ChatUser sender;
   String content;
   String chat;
-  List<String> readBy;
+  bool isRead;
+  String status;
   String createdAt;
   String updatedAt;
   int v;
@@ -88,7 +89,8 @@ class Message {
     required this.sender,
     required this.content,
     required this.chat,
-    required this.readBy,
+    required this.isRead,
+    required this.status,
     required this.createdAt,
     required this.updatedAt,
     required this.v,
@@ -100,7 +102,8 @@ class Message {
       sender: ChatUser.fromJson(json['sender']),
       content: json['content'],
       chat: json['chat'],
-      readBy: (json['readBy'] as List).cast<String>(),
+      isRead: json['isRead'],
+      status: json['status'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
       v: json['__v'] ?? 0,

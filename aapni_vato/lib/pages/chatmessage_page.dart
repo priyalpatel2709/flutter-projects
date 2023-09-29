@@ -283,6 +283,13 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               if (widget.data['isGroupChat']) {
                 print('object');
               } else {
+                final userData = {
+                  'userId': storedUser!.userId,
+                  'chatId': widget.data['chatId'],
+                  'targetUserId': widget.data['id'],
+                };
+
+                socket.emit('check user', userData);
                 if (!typing) {
                   startTyping(); // User starts typing
                 }
@@ -329,8 +336,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   void sendMessage(String chatId) async {
+    bool isRead;
+    if (status == 'Inchat') {
+      isRead = true;
+    } else {
+      isRead = false;
+    }
+
     dynamic responseMessage = await ChatServices.sendMessage(
-        chatId, storedUser!.token, _controller.text.toString());
+        chatId, storedUser!.token, _controller.text.toString(), status, isRead );
 
     if (responseMessage.isNotEmpty) {
       var data = json.decode(responseMessage);
@@ -338,15 +352,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       chatMessages.add(ChatMessage.fromJson(data));
       setState(() {});
       socket.emit("new message", data);
-
-      final userData = {
-        'userId': storedUser!.userId,
-        'chatId': widget.data['chatId'],
-        'targetUserId': widget.data['id'],
-      };
-
-      socket.emit('check user', userData);
-
       scrollToBottom(scrollController);
       _controller.clear();
     } else {

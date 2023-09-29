@@ -48,7 +48,12 @@ class ChatServices {
   }
 
   static Future<String> sendMessage(
-      String chatId, String token, String content) async {
+    String chatId,
+    String token,
+    String content,
+    String status,
+    bool isRead,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/message'),
@@ -56,7 +61,12 @@ class ChatServices {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({'content': content, 'chatId': chatId}),
+        body: jsonEncode({
+          'content': content,
+          'chatId': chatId,
+          'isRead': isRead,
+          'status': status
+        }),
       );
 
       if (response.statusCode == 200) {
