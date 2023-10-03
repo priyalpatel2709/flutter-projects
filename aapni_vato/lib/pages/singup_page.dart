@@ -58,7 +58,7 @@ class _SingupState extends State<Singup> {
         labelStyle: TextStyle(color: Colors.white),
         hintText: hintText,
         hintStyle: TextStyle(color: Colors.white10),
-        prefixIcon: Icon(icon),
+        prefixIcon: Icon(icon, color: Colors.white70),
         border:
             OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
         suffixIcon: ispassword

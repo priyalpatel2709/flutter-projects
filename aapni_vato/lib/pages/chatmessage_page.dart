@@ -268,7 +268,34 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
               },
             ),
           ),
-          if (isImg) Image.network(picUrl.toString()),
+          if (isImg)
+            Stack(
+              children: [
+                Image.network(
+                  picUrl.toString(),
+                  width: 250,
+                  height: 250,
+                ),
+                Positioned(
+                  // left: 20,
+                  right: 20,
+                  top: 5,
+                  child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isImg = false;
+                          picUrl = '';
+                          _controller.text = '';
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white70,
+                      )),
+                )
+              ],
+            ),
+          // ),
           const SizedBox(
             height: 8.0,
           ),

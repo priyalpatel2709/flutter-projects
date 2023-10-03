@@ -69,11 +69,15 @@ class _LoginState extends State<Login> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildTextField(_emailController, 'Enter Email',
-                        Icons.perm_identity_sharp, 'e.g. raj123@gmail.com', false ),
+                    _buildTextField(
+                        _emailController,
+                        'Enter Email',
+                        Icons.perm_identity_sharp,
+                        'e.g. raj123@gmail.com',
+                        false),
                     SizedBox(height: 8.0),
                     _buildTextField(_passwordController, 'Enter Password',
-                        Icons.password, 'e.g. Raj@Patel_23454',true),
+                        Icons.password, 'e.g. Raj@Patel_23454', true),
                     SizedBox(height: 8.0),
                     ElevatedButton(
                       onPressed: () {
@@ -154,9 +158,7 @@ class _LoginState extends State<Login> {
       IconData icon, String hintText, bool ispassword) {
     return TextField(
       controller: controller,
-      obscureText: ispassword
-          ? !passwordVisible
-          : false, 
+      obscureText: ispassword ? !passwordVisible : false,
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(11),
@@ -170,14 +172,16 @@ class _LoginState extends State<Login> {
         labelStyle: TextStyle(color: Colors.white),
         hintText: hintText,
         hintStyle: TextStyle(color: Colors.white10),
-        prefixIcon: Icon(icon),
+        prefixIcon: Icon(icon, color: Colors.white70),
         border: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white24),
         ),
         suffixIcon: ispassword
             ? IconButton(
                 icon: Icon(
-                    passwordVisible ? Icons.visibility : Icons.visibility_off  , color: Colors.white70,),
+                  passwordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.white70,
+                ),
                 onPressed: () {
                   setState(() {
                     passwordVisible = !passwordVisible;
