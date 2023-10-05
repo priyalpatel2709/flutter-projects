@@ -232,7 +232,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             userName: widget.data['name'],
             userProfile: widget.data['dp'].toString(),
             grpInfo: () {
-              print('me');
               grpInfo(chats, context, widget.data['name']);
             }),
       ),
@@ -315,7 +314,6 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
             },
             onChange: () {
               if (widget.data['isGroupChat']) {
-                print('object');
               } else {
                 final userData = {
                   'userId': storedUser!.userId,
@@ -344,15 +342,11 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   }
 
   Future<void> callfetchChatMessages() async {
-    // scrollToBottom(scrollController);
     final chatMessagesResult = await ChatServices.fetchChatMessages(
         widget.data['chatId'].toString(), storedUser!.token);
-
     if (chatMessagesResult.success) {
-      // Handle success
       setState(() {
         chatMessages = chatMessagesResult.data!;
-        print(chatMessages.length);
         scrollToBottom(scrollController);
       });
 

@@ -188,7 +188,7 @@ class _LoginState extends State<Login> {
                   });
                 },
               )
-            : null, // If it's not a password field, don't show a suffixIcon
+            : null,
       ),
     );
   }

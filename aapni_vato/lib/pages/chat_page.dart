@@ -181,11 +181,17 @@ class _ChatpageState extends State<Chatpage> {
                           });
                     },
                     child: ListTile(
-                      leading: CircleAvatar(
-                          backgroundImage: chat.isGroupChat
-                              ? NetworkImage(
-                                  "http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694608918/chat-app/c4r0jhcmq2t9uxfkl40c.png")
-                              : NetworkImage(chatUser.pic)),
+                      leading: Hero(
+                        placeholderBuilder: (context, size, widget) {
+                          return CircularProgressIndicator(); // Show a loading indicator
+                        },
+                        tag: 'HeroCircleAvatar',
+                        child: CircleAvatar(
+                            backgroundImage: chat.isGroupChat
+                                ? NetworkImage(
+                                    "http://res.cloudinary.com/dtzrtlyuu/image/upload/v1694608918/chat-app/c4r0jhcmq2t9uxfkl40c.png")
+                                : NetworkImage(chatUser.pic)),
+                      ),
                       title: chat.isGroupChat
                           ? Text(
                               chat.chatName,
@@ -198,7 +204,8 @@ class _ChatpageState extends State<Chatpage> {
                       subtitle: islastMessageImg
                           ? Row(
                               children: const [
-                                Icon(Icons.image,size: 20 ,color: Colors.white30),
+                                Icon(Icons.image,
+                                    size: 20, color: Colors.white30),
                                 Text(
                                   'Photo',
                                   style: TextStyle(color: Colors.white30),
