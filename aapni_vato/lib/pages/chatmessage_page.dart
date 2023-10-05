@@ -227,13 +227,15 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
         preferredSize: const Size.fromHeight(
             kToolbarHeight), // Adjust the height as needed
         child: MessagepageAppbar(
-            isGrpChat: widget.data['isGroupChat'],
-            status: status,
-            userName: widget.data['name'],
-            userProfile: widget.data['dp'].toString(),
-            grpInfo: () {
-              grpInfo(chats, context, widget.data['name']);
-            }),
+          isGrpChat: widget.data['isGroupChat'],
+          status: status,
+          userName: widget.data['name'],
+          userProfile: widget.data['dp'].toString(),
+          grpInfo: () {
+            grpInfo(chats, context, widget.data['name']);
+          },
+          chatId: widget.data['chatId'].toString(),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

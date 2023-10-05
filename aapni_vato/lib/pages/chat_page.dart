@@ -185,7 +185,7 @@ class _ChatpageState extends State<Chatpage> {
                         placeholderBuilder: (context, size, widget) {
                           return CircularProgressIndicator(); // Show a loading indicator
                         },
-                        tag: 'HeroCircleAvatar',
+                        tag: chatId,
                         child: CircleAvatar(
                             backgroundImage: chat.isGroupChat
                                 ? NetworkImage(

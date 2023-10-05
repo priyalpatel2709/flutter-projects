@@ -10,6 +10,7 @@ class MessagepageAppbar extends StatelessWidget {
   final String userName;
   final String status;
   final VoidCallback grpInfo;
+  final String chatId;
   const MessagepageAppbar(
       {Key? key,
       required this.isGrpChat,
@@ -17,7 +18,8 @@ class MessagepageAppbar extends StatelessWidget {
       required this.userName,
       required this.status,
       // required Future<void> grpInfo,
-      required this.grpInfo})
+      required this.grpInfo, 
+      required this.chatId})
       : super(key: key);
 
   @override
@@ -39,7 +41,7 @@ class MessagepageAppbar extends StatelessWidget {
       title: Row(
         children: [
           Hero(
-            tag: 'HeroCircleAvatar',
+            tag: chatId,
             placeholderBuilder: (context, size, widget) {
               return CircularProgressIndicator(); // Show a loading indicator
             },
