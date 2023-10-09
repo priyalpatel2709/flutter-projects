@@ -82,15 +82,15 @@ class _ChatpageState extends State<Chatpage> {
             children: [
               UserAccountsDrawerHeader(
                 currentAccountPicture: storedUser!.imageUrl == null
-                    ? null // If imageUrl is null, don't display currentAccountPicture
+                    ? null
                     : GestureDetector(
                         child: CircleAvatar(
                           backgroundImage:
-                              NetworkImage(storedUser!.imageUrl.toString()),
+                              NetworkImage(storedUser.imageUrl.toString()),
                         ),
                       ),
-                accountName: Text(storedUser!.name),
-                accountEmail: Text(storedUser!.email),
+                accountName: Text(storedUser.name),
+                accountEmail: Text(storedUser.email),
               ),
               ListTile(
                 leading: Icon(
