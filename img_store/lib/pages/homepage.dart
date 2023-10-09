@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 // import '../utilities/upload_to_cloudinary.dart';
 import '../models/cloudinaryimage.dart';
+import '../utilits/downloadImg.dart';
 import '../utilits/uploadtocloude.dart'; // Update this import based on your project structure
 
 class Homepage extends StatefulWidget {
@@ -79,8 +80,13 @@ class _HomepageState extends State<Homepage> {
                         var img = imgUrls[index];
                         // print(img.secureUrl);
                         return ListTile(
-                          title: Image.network(
-                              img.secureUrl), // Display images from URLs
+                          title: InkWell(
+                            onDoubleTap: () {
+                              final imageUrl = img.secureUrl;
+                              downloadImage(imageUrl);
+                            },
+                            child: Image.network(img.secureUrl),
+                          ), // Display images from URLs
                         );
                       },
                     ),
@@ -103,7 +109,6 @@ class _HomepageState extends State<Homepage> {
     if (response.isNotEmpty) {
       setState(() {
         imgUrls = response;
-        print(response[0].secureUrl);
       });
     }
   }
