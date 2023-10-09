@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../utilits/uploadtocloude.dart';
+// import '../utilities/upload_to_cloudinary.dart';
+import '../models/cloudinaryimage.dart';
+import '../utilits/uploadtocloude.dart'; // Update this import based on your project structure
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -19,47 +21,42 @@ class _HomepageState extends State<Homepage> {
   File? selectedImage;
   bool isImg = false;
   var picUrl = '';
+  List<CloudinaryImage> imgUrls = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchImagesFromCloudinary(); // Renamed to a more descriptive function name
+  }
 
   Future<void> pickAndUploadImage() async {
-    imgLoading = true;
+    setState(() {
+      imgLoading = true;
+    });
+
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
+      selectedImage = File(pickedFile.path);
 
       final imageUrl = await uploadImageToCloudinary(selectedImage!);
 
       if (imageUrl != null) {
-        imgLoading = false;
-        isImg = true;
-        picUrl = imageUrl;
-        // _controller.text = picUrl;
-        setState(() {});
+        fetchImagesFromCloudinary();
+        setState(() {
+          imgLoading = false;
+          isImg = true;
+          picUrl = imageUrl;
+        });
       } else {
-        imgLoading = false;
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     return ErrorDialog(
-        //       title: 'Fail',
-        //       message: 'Failed to upload image to Cloudinary ',
-        //     );
-        //   },
-        // );
+        setState(() {
+          imgLoading = false;
+        });
       }
     } else {
-      imgLoading = false;
-      // showDialog(
-      //   context: context,
-      //   builder: (BuildContext context) {
-      //     return ErrorDialog(
-      //       title: 'Fail',
-      //       message: 'No image selected',
-      //     );
-      //   },
-      // );
+      setState(() {
+        imgLoading = false;
+      });
     }
   }
 
@@ -67,7 +64,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text('Gallery'),
       ),
       body: Center(
@@ -75,17 +72,39 @@ class _HomepageState extends State<Homepage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             !imgLoading
-                ? const Text(
-                    'You have pushed the button this many times:',
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: imgUrls.length,
+                      itemBuilder: (context, index) {
+                        var img = imgUrls[index];
+                        // print(img.secureUrl);
+                        return ListTile(
+                          title: Image.network(
+                              img.secureUrl), // Display images from URLs
+                        );
+                      },
+                    ),
                   )
-                : CircularProgressIndicator(),
+                : const CircularProgressIndicator(),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: pickAndUploadImage,
-        child: const Icon(Icons.cloud),
+        child: const Icon(Icons.cloud_upload),
       ),
     );
+  }
+
+  Future<void> fetchImagesFromCloudinary() async {
+    final response =
+        await fetchFolderFromCloudinary(); // Assume this function fetches image URLs
+
+    if (response.isNotEmpty) {
+      setState(() {
+        imgUrls = response;
+        print(response[0].secureUrl);
+      });
+    }
   }
 }
