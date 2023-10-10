@@ -50,6 +50,14 @@ class _HomepageState extends State<Homepage> {
           picUrl = imageUrl;
         });
       } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Fail to upload , Max Size is 10MB')),
+            duration: Duration(seconds: 2),
+          ),
+        );
         setState(() {
           imgLoading = false;
         });
@@ -68,31 +76,37 @@ class _HomepageState extends State<Homepage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text('Gallery'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            !imgLoading
-                ? Expanded(
-                    child: ListView.builder(
-                      itemCount: imgUrls.length,
-                      itemBuilder: (context, index) {
-                        var img = imgUrls[index];
-                        // print(img.secureUrl);
-                        return ListTile(
-                          title: InkWell(
-                            onDoubleTap: () {
-                              final imageUrl = img.secureUrl;
-                              downloadImage(imageUrl);
-                            },
-                            child: Image.network(img.secureUrl),
-                          ), // Display images from URLs
-                        );
-                      },
-                    ),
-                  )
-                : const CircularProgressIndicator(),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            fetchImagesFromCloudinary();
+          });
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              !imgLoading
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: imgUrls.length,
+                        itemBuilder: (context, index) {
+                          var img = imgUrls[index];
+                          return ListTile(
+                            title: InkWell(
+                              onDoubleTap: () {
+                                final imageUrl = img.secureUrl;
+                                downloadImage(imageUrl);
+                              },
+                              child: Image.network(img.secureUrl),
+                            ), // Display images from URLs
+                          );
+                        },
+                      ),
+                    )
+                  : const CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

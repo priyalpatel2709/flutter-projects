@@ -36,6 +36,7 @@ Future<String?> uploadImageToCloudinary(File imageFile) async {
       final responseData = json.decode(response.body);
       return responseData['url'].toString();
     } else {
+      print(response.body);
       if (kDebugMode) {
         print(
             'Failed to upload image to Cloudinary. Status code: ${response.statusCode}');
@@ -77,5 +78,35 @@ Future<List<CloudinaryImage>> fetchFolderFromCloudinary() async {
     print('Failed to fetch folder. Status code: ${response.statusCode}');
     print('Response body: ${response.body}');
     return []; // Return an empty list or handle the error as needed.
+  }
+}
+
+Future<bool> deleteImageFromCloudinary(String publicId, String formate) async {
+  
+  const cloudName = 'dtzrtlyuu';
+  const apiKey = '527636931343465';
+  const apiSecret = '14EcuwEgGHw6F0hqdBIz7KKIMJo';
+
+  const apiUrl = 'https://api.cloudinary.com/v1_1/$cloudName/image/destroy';
+
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: {
+      'Authorization': 'Basic ${base64Encode('$apiKey:$apiSecret'.codeUnits)}',
+    },
+    body: {'public_id': publicId},
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    // Handle the error
+    if (kDebugMode) {
+      print('Failed to delete image. Status code: ${response.statusCode}');
+    }
+    if (kDebugMode) {
+      print('Response body: ${response.body}');
+    }
+    return false;
   }
 }
