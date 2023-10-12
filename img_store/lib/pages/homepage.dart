@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -104,25 +105,36 @@ class _HomepageState extends State<Homepage> {
                                   MaterialPageRoute<void>(
                                     builder: (BuildContext context) {
                                       return FullScreenImage(
-                                          imageUrl: img.secureUrl, imageName: '${img.publicId}.${img.format}',);
+                                        imageUrl: img.secureUrl,
+                                        imageName:
+                                            '${img.publicId}.${img.format}', imageTag: img.publicId,
+                                      );
                                     },
                                   ),
                                 );
                               },
                               child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 2.0,
+                                  width: 200,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2.0,
+                                    ),
                                   ),
-                                ),
-                                child: Image.network(
-                                  img.secureUrl,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                                  child: Hero(
+                                    tag: img.publicId,
+                                    child: CachedNetworkImage(
+                                      fadeInDuration: const Duration(milliseconds: 500) ,
+                                      fit: BoxFit.cover,
+                                      imageUrl: img.secureUrl,
+                                      placeholder: (context, url) =>
+                                          Transform.scale(scale: 0.2,  child: const CircularProgressIndicator( strokeWidth: 5,)),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                    ),
+                                  )
+                                  ),
                             ),
                           );
                         },
