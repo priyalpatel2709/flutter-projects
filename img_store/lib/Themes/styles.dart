@@ -19,7 +19,7 @@ abstract class MyThems {
     errorContainer: Color(0xFFFFDAD6),
     onError: Color(0xFFFFFFFF),
     onErrorContainer: Color(0xFF410002),
-    background: Color(0xFFFFFBFF),
+    background: Color.fromARGB(255, 235, 235, 235),
     onBackground: Color(0xFF341100),
     surface: Color(0xFFFFFBFF),
     onSurface: Color(0xFF341100),

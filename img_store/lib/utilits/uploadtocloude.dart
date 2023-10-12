@@ -82,7 +82,6 @@ Future<List<CloudinaryImage>> fetchFolderFromCloudinary() async {
 }
 
 Future<bool> deleteImageFromCloudinary(String publicId, String formate) async {
-  
   const cloudName = 'dtzrtlyuu';
   const apiKey = '527636931343465';
   const apiSecret = '14EcuwEgGHw6F0hqdBIz7KKIMJo';

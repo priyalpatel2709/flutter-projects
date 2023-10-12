@@ -7,7 +7,8 @@ import 'package:image_picker/image_picker.dart';
 // import '../utilities/upload_to_cloudinary.dart';
 import '../models/cloudinaryimage.dart';
 import '../utilits/downloadImg.dart';
-import '../utilits/uploadtocloude.dart'; // Update this import based on your project structure
+import '../utilits/uploadtocloude.dart';
+import '../widgets/fullpageimg.dart'; // Update this import based on your project structure
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -88,7 +89,7 @@ class _HomepageState extends State<Homepage> {
             children: <Widget>[
               !imgLoading
                   ? Expanded(
-                      child: ListView.builder(
+                      child: GridView.builder(
                         itemCount: imgUrls.length,
                         itemBuilder: (context, index) {
                           var img = imgUrls[index];
@@ -98,10 +99,38 @@ class _HomepageState extends State<Homepage> {
                                 final imageUrl = img.secureUrl;
                                 downloadImage(imageUrl);
                               },
-                              child: Image.network(img.secureUrl),
-                            ), // Display images from URLs
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (BuildContext context) {
+                                      return FullScreenImage(
+                                          imageUrl: img.secureUrl, imageName: '${img.publicId}.${img.format}',);
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                child: Image.network(
+                                  img.secureUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                           );
                         },
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.8,
+                        ),
                       ),
                     )
                   : const CircularProgressIndicator(),
