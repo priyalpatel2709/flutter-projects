@@ -1,15 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-// import '../utilities/upload_to_cloudinary.dart';
 import '../models/cloudinaryimage.dart';
+import '../models/cloudinaryresponse .dart';
 import '../utilits/downloadImg.dart';
 import '../utilits/uploadtocloude.dart';
-import '../widgets/fullpageimg.dart'; // Update this import based on your project structure
+import '../widgets/fullpageimg.dart'; 
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -25,11 +23,12 @@ class _HomepageState extends State<Homepage> {
   bool isImg = false;
   var picUrl = '';
   List<CloudinaryImage> imgUrls = [];
+  CloudinaryService cloudinaryService = CloudinaryService();
 
   @override
   void initState() {
     super.initState();
-    fetchImagesFromCloudinary(); // Renamed to a more descriptive function name
+    fetchImagesFromCloudinary();
   }
 
   Future<void> pickAndUploadImage() async {
@@ -42,26 +41,30 @@ class _HomepageState extends State<Homepage> {
     if (pickedFile != null) {
       selectedImage = File(pickedFile.path);
 
-      final imageUrl = await uploadImageToCloudinary(selectedImage!);
+      CloudinaryResponse response =
+          await cloudinaryService.uploadImageToCloudinary(selectedImage!);
 
-      if (imageUrl != null) {
-        fetchImagesFromCloudinary();
-        setState(() {
-          imgLoading = false;
-          isImg = true;
-          picUrl = imageUrl;
-        });
-      } else {
+      if (response.errorMessage != null) {
+ 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text('Fail to upload , Max Size is 10MB')),
-            duration: Duration(seconds: 2),
+                padding: const EdgeInsets.all(10),
+                child: Text('${response.errorMessage}')),
+            duration: const Duration(seconds: 2),
           ),
         );
+        if (kDebugMode) {
+          print("Error: ${response.errorMessage}");
+        }
+      } else {
         setState(() {
-          imgLoading = false;
+          fetchImagesFromCloudinary();
+          setState(() {
+            imgLoading = false;
+            isImg = true;
+            picUrl = response.imageUrl!;
+          });
         });
       }
     } else {
@@ -107,7 +110,8 @@ class _HomepageState extends State<Homepage> {
                                       return FullScreenImage(
                                         imageUrl: img.secureUrl,
                                         imageName:
-                                            '${img.publicId}.${img.format}', imageTag: img.publicId,
+                                            '${img.publicId}.${img.format}',
+                                        imageTag: img.publicId,
                                       );
                                     },
                                   ),
@@ -125,16 +129,21 @@ class _HomepageState extends State<Homepage> {
                                   child: Hero(
                                     tag: img.publicId,
                                     child: CachedNetworkImage(
-                                      fadeInDuration: const Duration(milliseconds: 500) ,
+                                      fadeInDuration:
+                                          const Duration(milliseconds: 500),
                                       fit: BoxFit.cover,
                                       imageUrl: img.secureUrl,
                                       placeholder: (context, url) =>
-                                          Transform.scale(scale: 0.2,  child: const CircularProgressIndicator( strokeWidth: 5,)),
+                                          Transform.scale(
+                                              scale: 0.2,
+                                              child:
+                                                  const CircularProgressIndicator(
+                                                strokeWidth: 5,
+                                              )),
                                       errorWidget: (context, url, error) =>
                                           const Icon(Icons.error),
                                     ),
-                                  )
-                                  ),
+                                  )),
                             ),
                           );
                         },
@@ -158,13 +167,29 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> fetchImagesFromCloudinary() async {
-    final response =
-        await fetchFolderFromCloudinary(); // Assume this function fetches image URLs
+    setState(() {
+      imgLoading = true;
+    });
 
-    if (response.isNotEmpty) {
+    CloudinaryResult result =
+        await CloudinaryService.fetchFolderFromCloudinary();
+    if (result.images != null) {
+      // Process the list of images
       setState(() {
-        imgUrls = response;
+        imgUrls = result.images!;
+        imgLoading = false;
       });
+    } else {
+      // Handle the error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Text('${result.error}')),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      print("Error: ${result.error}");
     }
   }
 }
