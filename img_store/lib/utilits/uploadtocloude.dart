@@ -79,7 +79,7 @@ class CloudinaryService {
         if (kDebugMode) {
           print('Response body: ${response.body}');
         }
-        return CloudinaryResult(error: 'Failed to fetch images');
+        return CloudinaryResult(error: response.body);
       }
     } catch (e) {
       if (kDebugMode) {
