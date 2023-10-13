@@ -3,7 +3,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
-Future<bool> downloadImage(String imageUrl) async {
+import '../models/cloudinaryresponse .dart';
+
+Future<Object> downloadImage(String imageUrl) async {
   final response = await http.get(Uri.parse(imageUrl));
   if (response.statusCode == 200) {
     final Directory appDirectory = await getApplicationDocumentsDirectory();
@@ -13,9 +15,12 @@ Future<bool> downloadImage(String imageUrl) async {
 
     final result = await ImageGallerySaver.saveFile(
         filePath); // Pass the file path as a String
-    print(result);
-    return true;
+    return CloudinaryImgDownload(
+        filePath: result['filePath'],
+        errorMessage: result['errorMessage'],
+        isSuccess: true);
   } else {
-    return false;
+    return CloudinaryImgDownload(
+        filePath: null, errorMessage: response.body, isSuccess: false);
   }
 }

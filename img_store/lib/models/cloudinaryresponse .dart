@@ -14,3 +14,11 @@ class CloudinaryResult {
 
   CloudinaryResult({this.images, this.error});
 }
+
+class CloudinaryImgDownload {
+  final String? filePath;
+  final String? errorMessage;
+  final bool isSuccess;
+
+  CloudinaryImgDownload({this.filePath,  this.errorMessage, required this.isSuccess});
+}

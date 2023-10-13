@@ -7,7 +7,7 @@ import '../models/cloudinaryimage.dart';
 import '../models/cloudinaryresponse .dart';
 import '../utilits/downloadImg.dart';
 import '../utilits/uploadtocloude.dart';
-import '../widgets/fullpageimg.dart'; 
+import '../widgets/fullpageimg.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -45,7 +45,6 @@ class _HomepageState extends State<Homepage> {
           await cloudinaryService.uploadImageToCloudinary(selectedImage!);
 
       if (response.errorMessage != null) {
- 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Padding(
@@ -99,9 +98,37 @@ class _HomepageState extends State<Homepage> {
                           var img = imgUrls[index];
                           return ListTile(
                             title: InkWell(
-                              onDoubleTap: () {
+                              onDoubleTap: () async {
                                 final imageUrl = img.secureUrl;
-                                downloadImage(imageUrl);
+                                CloudinaryImgDownload? isImsDownloaded =
+                                    (await downloadImage(imageUrl))
+                                        as CloudinaryImgDownload?;
+                                if (kDebugMode) {
+                                  print(
+                                      'isImsDownloaded----->${isImsDownloaded?.isSuccess}');
+                                }
+
+                                if (isImsDownloaded!.isSuccess) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(
+                                              'Image Downloaded succesfully')),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Text(
+                                              'Image Downloading Fali ${isImsDownloaded.errorMessage}')),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
                               },
                               onTap: () {
                                 Navigator.of(context).push(
