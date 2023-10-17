@@ -93,9 +93,18 @@ class _HomepageState extends State<Homepage> {
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
-                        print('${crpo[0].fatherName}');
                       },
                       child: Text('Button Text'),
+                    ),
+                  if (crpo.isNotEmpty)
+                    Column(
+                      children: [
+                        Text('total number selected :- ${crpo.length}'),
+                        Text(
+                            'start with:- ${crpo[0].srNo} - ${crpo[0].candidateName}'),
+                        Text(
+                            'end with:- ${crpo[crpo.length - 1].srNo} - ${crpo[crpo.length - 1].candidateName}'),
+                      ],
                     )
                 ],
               ),
