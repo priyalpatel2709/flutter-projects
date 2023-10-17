@@ -19,26 +19,113 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   List<StudentData> studentinfo = [];
+  List crpo = [];
+  final TextEditingController _startController = TextEditingController();
+  final TextEditingController _endController = TextEditingController();
+  bool isFileuploaded = false;
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
+    print('crop ${crpo.length}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Homepage'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Add your button press logic here
-            pickAndUploadExcelFile();
-          },
-          child: Text('Pick and Upload Excel File'),
-        ),
-      ),
+      body: loading
+          ? CircularProgressIndicator()
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add your button press logic here
+                      pickAndUploadExcelFile();
+                    },
+                    child: Text('Pick and Upload Excel File'),
+                  ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  if (isFileuploaded)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          child: TextField(
+                            controller: _startController,
+                            decoration: InputDecoration(
+                              labelText: 'Start',
+                              hintText: '12',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5.0,
+                        ),
+                        Container(
+                          width: 100,
+                          child: TextField(
+                            controller: _endController,
+                            decoration: InputDecoration(
+                              labelText: 'End',
+                              hintText: '14',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
+                  if (studentinfo.isNotEmpty)
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add your button press logic
+                        setState(() {
+                          crpo = cropList(
+                              studentinfo,
+                              int.parse(_startController.text),
+                              int.parse(_endController.text));
+                        });
+                        print('${crpo[0].fatherName}');
+                      },
+                      child: Text('Button Text'),
+                    )
+                ],
+              ),
+            ),
     );
   }
 
+  List<T> cropList<T>(List<T> originalList, int startIndex, int endIndex) {
+    print(startIndex);
+    print(endIndex);
+
+    if (startIndex < 0) {
+      startIndex = 0;
+    }
+    if (endIndex >= originalList.length) {
+      endIndex = originalList.length - 1;
+    }
+
+    if (startIndex > endIndex) {
+      // Handle the case where the start index is greater than the end index.
+      return [];
+    }
+
+    return originalList.sublist(startIndex, endIndex + 1);
+  }
+
   Future<void> pickAndUploadExcelFile() async {
+    setState(() {
+      loading = true;
+    });
     // print('object');
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -61,6 +148,10 @@ class _HomepageState extends State<Homepage> {
       var response = await request.send();
 
       if (response.statusCode == 200) {
+        setState(() {
+          isFileuploaded = true;
+          loading = false;
+        });
         var jsonResponse = await response.stream.bytesToString();
         List<dynamic> dataList = json.decode(jsonResponse);
 
@@ -70,6 +161,9 @@ class _HomepageState extends State<Homepage> {
         }
         print('data length = ${studentinfo.length}');
       } else {
+        setState(() {
+          loading = false;
+        });
         print('Failed to upload file. Status code: ${response.statusCode}');
       }
     }
