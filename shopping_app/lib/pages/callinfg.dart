@@ -45,7 +45,7 @@ class _CallScreenState extends State<CallScreen> {
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
         title: Text(
-          'Call Example',
+          'Call',
           style: TextStyle(
             color: colorScheme.onPrimary, // Use onPrimary color
           ),
