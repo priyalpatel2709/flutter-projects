@@ -1,16 +1,12 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../models/student_model.dart';
 import 'dart:convert';
-// import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-
 import 'callinfg.dart';
-// import 'package:excel/excel.dart';
-// import 'package:path/path.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -26,10 +22,11 @@ class _HomepageState extends State<Homepage> {
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
   bool loading = false;
-
+  Future<void>? _launched;
+  final Uri toLaunch =
+      Uri(scheme: 'https', host: 'www.ilovepdf.com', path: '/pdf_to_excel');
   @override
   Widget build(BuildContext context) {
-    print('crop ${crpo.length}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -45,7 +42,6 @@ class _HomepageState extends State<Homepage> {
                       ? Text("Select Start and End Number")
                       : ElevatedButton(
                           onPressed: () {
-                            // Add your button press logic here
                             pickAndUploadExcelFile();
                           },
                           child: Text('Pick and Upload Excel File'),
@@ -117,7 +113,14 @@ class _HomepageState extends State<Homepage> {
                         Text(
                             'end with:- ${crpo[crpo.length - 1].srNo} - ${crpo[crpo.length - 1].candidateName}'),
                       ],
-                    )
+                    ),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _launched = _launchInBrowser(toLaunch);
+                        });
+                      },
+                      child: Text('Convert PDF to EXCEL'))
                 ],
               ),
             ),
@@ -125,9 +128,6 @@ class _HomepageState extends State<Homepage> {
   }
 
   List<T> cropList<T>(List<T> originalList, int startIndex, int endIndex) {
-    print(startIndex);
-    print(endIndex);
-
     if (startIndex < 0) {
       startIndex = 0;
     }
@@ -143,16 +143,24 @@ class _HomepageState extends State<Homepage> {
     return originalList.sublist(startIndex, endIndex + 1);
   }
 
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   Future<void> pickAndUploadExcelFile() async {
     setState(() {
       loading = true;
     });
-    // print('object');
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['xlsx', 'xls', 'pdf'],
+      allowedExtensions: ['xlsx', 'xls'],
     );
-    // print('result $result');
 
     if (result != null && result.files.isNotEmpty) {
       PlatformFile file = result.files.first;
@@ -180,12 +188,14 @@ class _HomepageState extends State<Homepage> {
         for (var item in dataList) {
           studentinfo.add(StudentData.fromJson(item));
         }
-        print('data length = ${studentinfo.length}');
       } else {
         setState(() {
           loading = false;
         });
-        print('Failed to upload file. Status code: ${response.statusCode}');
+        // ignore: use_build_context_synchronously
+        showAboutDialog(context: context, applicationName: 'Error', children: [
+          Text('Failed to upload file. Status code: ${response.statusCode}'),
+        ]);
       }
     }
   }
