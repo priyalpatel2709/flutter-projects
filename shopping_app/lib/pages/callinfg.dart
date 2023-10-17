@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/student_model.dart';
+
 class CallScreen extends StatefulWidget {
+  final List<StudentData> sData;
+
+  const CallScreen({super.key, required this.sData});
+
   @override
   State<CallScreen> createState() => _CallScreenState();
 }
@@ -25,7 +31,7 @@ class _CallScreenState extends State<CallScreen> {
       count++;
     });
 
-    if (count == phoneNumbers.length) {
+    if (count == widget.sData.length) {
       setState(() {
         isLastCall = true;
       });
@@ -42,43 +48,70 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('widget.sData.length -------->${widget.sData.length}');
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Center(child: Text('Call Example')),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Total number of call:- ${phoneNumbers.length}',
+              'Total number of call:- ${widget.sData.length}',
               style: const TextStyle(fontSize: 25),
             ),
             const SizedBox(
               height: 8.0,
             ),
             Text(
-              'Number of Call Remains:- ${phoneNumbers.length - count}',
+              'Till:- $count',
               style: const TextStyle(fontSize: 25),
             ),
             const SizedBox(
-              height: 8.0,
+              height: 4.0,
+            ),
+            Text(
+              'Remais:- ${widget.sData.length - count}',
+              style: const TextStyle(fontSize: 25),
+            ),
+            const SizedBox(
+              height: 4.0,
+            ),
+            Text(
+              'start with:- ${widget.sData[0].srNo} - ${widget.sData[0].candidateName.toString().toLowerCase()}',
+              style: const TextStyle(fontSize: 15),
             ),
             const SizedBox(
               height: 8.0,
             ),
             Text(
-              'Total call of today $count',
-              style: const TextStyle(fontSize: 25),
+              'end with:- ${widget.sData[widget.sData.length - 1].srNo} - ${widget.sData[widget.sData.length - 1].candidateName.toString().toLowerCase()}',
+              style: const TextStyle(fontSize: 15),
             ),
+            const Divider(),
+            Column(
+              children: [
+                Text(
+                    'Son :-   ${widget.sData[count].candidateName.toString().toLowerCase()}'),
+                Text(
+                    'Father:- ${widget.sData[count].fatherName.toString().toLowerCase()}'),
+                Text(
+                    'From:-   ${widget.sData[count].address.toString().toLowerCase()}')
+              ],
+            ),
+            const Divider(),
             isLastCall
                 ? const Text('all call compated !',
-                    style: TextStyle(fontSize: 25))
+                    style: TextStyle(fontSize: 15))
                 : ElevatedButton(
                     onPressed: () {
-                      makePhoneCall(phoneNumbers[count]);
+                      makePhoneCall(
+                          widget.sData[count].contactNumber.toString());
                     },
-                    child: Text('Call ${phoneNumbers[count]}'),
+                    child: Text('Call ${widget.sData[count].fatherName}'),
                   ),
           ],
         ),

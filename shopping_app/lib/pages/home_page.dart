@@ -21,7 +21,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   List<StudentData> studentinfo = [];
-  List crpo = [];
+  List<StudentData> crpo = [];
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
@@ -98,7 +98,9 @@ class _HomepageState extends State<Homepage> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CallScreen()));
+                                builder: (context) => CallScreen(
+                                      sData: crpo,
+                                    )));
                       },
                       child: Text('Button Text'),
                     ),
