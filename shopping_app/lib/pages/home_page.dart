@@ -7,6 +7,8 @@ import 'dart:convert';
 // import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+
+import 'callinfg.dart';
 // import 'package:excel/excel.dart';
 // import 'package:path/path.dart';
 
@@ -93,6 +95,10 @@ class _HomepageState extends State<Homepage> {
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CallScreen()));
                       },
                       child: Text('Button Text'),
                     ),
