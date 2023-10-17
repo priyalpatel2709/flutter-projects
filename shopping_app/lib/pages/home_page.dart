@@ -36,7 +36,7 @@ class _HomepageState extends State<Homepage> {
         title: Text('Homepage'),
       ),
       body: loading
-          ? CircularProgressIndicator()
+          ? Center(child: CircularProgressIndicator())
           : Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

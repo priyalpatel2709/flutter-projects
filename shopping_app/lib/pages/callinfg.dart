@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Themes/styles.dart';
 import '../models/student_model.dart';
 
 class CallScreen extends StatefulWidget {
@@ -13,31 +14,20 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  final List phoneNumbers = ['+1234567890', '+918141513344'];
-  // SelectedStudent db = SelectedStudent();
-  List<dynamic> selectedStudend = [];
-  late dynamic count;
+  int count = 0;
   bool isLastCall = false;
+
   @override
   void initState() {
     super.initState();
-    // selectedStudend = db.loadData();
-    count = 0;
   }
 
   Future<void> makePhoneCall(String phoneNumber) async {
-    print(selectedStudend.length);
     setState(() {
       count++;
+      isLastCall = count == widget.sData.length;
     });
 
-    if (count == widget.sData.length) {
-      setState(() {
-        isLastCall = true;
-      });
-    }
-
-    final url = 'tel:$phoneNumber';
     final Uri launchUri = Uri(
       scheme: 'tel',
       path: phoneNumber,
@@ -48,72 +38,198 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('widget.sData.length -------->${widget.sData.length}');
+    final colorScheme =
+        Theme.of(context).colorScheme; // Use the current color scheme
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Center(child: Text('Call Example')),
+        backgroundColor: colorScheme.primary,
+        title: Text(
+          'Call Example',
+          style: TextStyle(
+            color: colorScheme.onPrimary, // Use onPrimary color
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Total number of call:- ${widget.sData.length}',
-              style: const TextStyle(fontSize: 25),
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Text(
-              'Till:- $count',
-              style: const TextStyle(fontSize: 25),
-            ),
-            const SizedBox(
-              height: 4.0,
-            ),
-            Text(
-              'Remais:- ${widget.sData.length - count}',
-              style: const TextStyle(fontSize: 25),
-            ),
-            const SizedBox(
-              height: 4.0,
-            ),
-            Text(
-              'start with:- ${widget.sData[0].srNo} - ${widget.sData[0].candidateName.toString().toLowerCase()}',
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Text(
-              'end with:- ${widget.sData[widget.sData.length - 1].srNo} - ${widget.sData[widget.sData.length - 1].candidateName.toString().toLowerCase()}',
-              style: const TextStyle(fontSize: 15),
-            ),
-            const Divider(),
-            Column(
-              children: [
-                Text(
-                    'Son :-   ${widget.sData[count].candidateName.toString().toLowerCase()}'),
-                Text(
-                    'Father:- ${widget.sData[count].fatherName.toString().toLowerCase()}'),
-                Text(
-                    'From:-   ${widget.sData[count].address.toString().toLowerCase()}')
-              ],
-            ),
-            const Divider(),
-            isLastCall
-                ? const Text('all call compated !',
-                    style: TextStyle(fontSize: 15))
-                : ElevatedButton(
-                    onPressed: () {
-                      makePhoneCall(
-                          widget.sData[count].contactNumber.toString());
-                    },
-                    child: Text('Call ${widget.sData[count].fatherName}'),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Total number of calls: ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary, // Use a theme color
+                      ),
+                    ),
+                    TextSpan(
+                      text: '${widget.sData.length}',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface, // Use primary color
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Till: ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary, // Use a theme color
+                      ),
+                    ),
+                    TextSpan(
+                      text: '$count',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface, // Use secondary color
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Remaining: ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary, // Use a theme color
+                      ),
+                    ),
+                    TextSpan(
+                      text: '${widget.sData.length - count}',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                'Start with: ${widget.sData[0].srNo} - ${widget.sData[0].candidateName.toLowerCase()}',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'End with: ${widget.sData.last.srNo} - ${widget.sData.last.candidateName.toLowerCase()}',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colorScheme.onSurface, // Use onSurface color
+                ),
+              ),
+              const Divider(
+                // color: colorScheme.surface, // Use surface color
+                thickness: 1.0,
+              ),
+              Card(
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Son',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary, // Use primary color
+                        ),
+                      ),
+                      Text(
+                        widget.sData[count].candidateName.toLowerCase(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: colorScheme.onSurface, // Use onSurface color
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Father',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary, // Use primary color
+                        ),
+                      ),
+                      Text(
+                        widget.sData[count].fatherName.toString().toLowerCase(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: colorScheme.onSurface, // Use onSurface color
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'From',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary, // Use primary color
+                        ),
+                      ),
+                      Text(
+                        widget.sData[count].address.toString().toLowerCase(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: colorScheme.onSurface, // Use onSurface color
+                        ),
+                      ),
+                    ],
                   ),
-          ],
+                ),
+              ),
+              const Divider(
+                // color: colorScheme.surface, // Use surface color
+                thickness: 1.0,
+              ),
+              isLastCall
+                  ? const Text(
+                      'All calls completed!',
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {
+                        makePhoneCall(
+                            widget.sData[count].contactNumber.toString());
+                      },
+                      child: Text(
+                        'Call ${widget.sData[count].fatherName}',
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );
