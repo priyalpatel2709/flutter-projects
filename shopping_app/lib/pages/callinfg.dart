@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Themes/styles.dart';
@@ -17,10 +20,30 @@ class CallScreen extends StatefulWidget {
 class _CallScreenState extends State<CallScreen> {
   int count = 0;
   bool isLastCall = false;
+  List<StudentData> finalInfo = [];
 
   @override
   void initState() {
     super.initState();
+    loadUsersList();
+  }
+
+  Future<void> loadUsersList() async {
+    final loadedUsers = await getUsersList();
+    setState(() {
+      finalInfo = loadedUsers;
+    });
+  }
+
+  Future<List<StudentData>> getUsersList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userListJson = prefs.getString('userList');
+
+    if (userListJson == null) {
+      return [];
+    }
+    final userList = jsonDecode(userListJson) as List<dynamic>;
+    return userList.map((userMap) => StudentData.fromJson(userMap)).toList();
   }
 
   Future<void> makePhoneCall(String phoneNumber) async {
@@ -39,6 +62,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('finalInfo--->${finalInfo.length}');
     final colorScheme =
         Theme.of(context).colorScheme; // Use the current color scheme
 

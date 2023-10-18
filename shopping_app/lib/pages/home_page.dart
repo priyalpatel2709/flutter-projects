@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'callinfg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -16,8 +17,16 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+
+  @override
+  void initState() {
+    super.initState();
+    loadUsersList();
+  }
+
   List<StudentData> studentinfo = [];
   List<StudentData> crpo = [];
+  List<StudentData> finalInfo = [];
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
@@ -25,8 +34,12 @@ class _HomepageState extends State<Homepage> {
   Future<void>? _launched;
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'www.ilovepdf.com', path: '/pdf_to_excel');
+
+  
+
   @override
   Widget build(BuildContext context) {
+    print('finalInfo--------->${finalInfo.length}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -95,6 +108,8 @@ class _HomepageState extends State<Homepage> {
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
+                        print('crpo.length ---> ${crpo.length}');
+                        saveUsersList(crpo);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -152,6 +167,31 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  Future<void> loadUsersList() async {
+    final loadedUsers = await getUsersList();
+    setState(() {
+      finalInfo = loadedUsers;
+    });
+  }
+
+  Future<void> saveUsersList(List<StudentData> users) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userList = users.map((user) => user.toJson()).toList();
+    final userListJson = jsonEncode(userList);
+    await prefs.setString('userList', userListJson);
+  }
+
+  Future<List<StudentData>> getUsersList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userListJson = prefs.getString('userList');
+
+    if (userListJson == null) {
+      return [];
+    }
+    final userList = jsonDecode(userListJson) as List<dynamic>;
+    return userList.map((userMap) => StudentData.fromJson(userMap)).toList();
+  }
+
   Future<void> pickAndUploadExcelFile() async {
     setState(() {
       loading = true;
@@ -167,7 +207,7 @@ class _HomepageState extends State<Homepage> {
       String? filePath = file.path;
 
       var request = http.MultipartRequest(
-          'POST', Uri.parse('https://excel-to-pdf.onrender.com/upload'));
+          'POST', Uri.parse('http://10.0.2.2:3000/upload'));
 
       // Add the file to the request
       request.files
