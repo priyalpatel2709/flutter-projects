@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../Themes/styles.dart';
 import '../models/student_model.dart';
+import 'home_page.dart';
 
 class CallScreen extends StatefulWidget {
   final List<StudentData> sData;
@@ -43,6 +44,13 @@ class _CallScreenState extends State<CallScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const Homepage()));
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         backgroundColor: colorScheme.primary,
         title: Text(
           'Call',
