@@ -54,6 +54,11 @@ class _SplashscreenState extends State<Splashscreen> {
     return prefs.getInt('lastCallCount');
   }
 
+  Future<bool?> getLastCallBool() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isCalled');
+  }
+
   void wharetogo() async {
     Future.delayed(Duration(seconds: 2), () {
       if (finalInfo.isNotEmpty) {

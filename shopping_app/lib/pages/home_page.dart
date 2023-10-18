@@ -30,7 +30,6 @@ class _HomepageState extends State<Homepage> {
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
   bool loading = false;
-  Future<void>? _launched;
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'www.ilovepdf.com', path: '/pdf_to_excel');
 
@@ -128,7 +127,7 @@ class _HomepageState extends State<Homepage> {
                   TextButton(
                       onPressed: () {
                         setState(() {
-                          _launched = _launchInBrowser(toLaunch);
+                          _launchInBrowser(toLaunch);
                         });
                       },
                       child: Text('Convert PDF to EXCEL'))
