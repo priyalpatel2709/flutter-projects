@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="aapni_vato"
+        android:label="aapniVato"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -55,7 +55,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   String status = '';
   bool typing = false;
   bool istyping = false;
-  String baseUrl = dotenv.get('SOKET_API');
+  String baseUrl = dotenv.get('API_ENDPOINT');
   // Stream controller for the chat messages
   // final _messageStreamController = StreamController<ChatMessage>();
 
@@ -131,8 +131,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     });
 
     socket.on('userIn chat', (data) {
-      status = data.toString();
-      setState(() {});
+      setState(() {
+        status = data.toString();
+      });
     });
   }
 
@@ -385,7 +386,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // _messageStreamController.sink.add(ChatMessage.fromJson(data));
       chatMessages.add(ChatMessage.fromJson(data));
       setState(() {});
-      socket.emit("new message", {'chatData': data, 'status':status});
+      socket.emit("new message", {'chatData': data, 'status': status});
       scrollToBottom(scrollController);
       _controller.clear();
     } else {

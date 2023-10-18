@@ -261,7 +261,7 @@ class _SingupState extends State<Singup> {
       loading = false;
       setState(() {});
       var response = await http.post(
-        Uri.parse('$baseUrl/user'),
+        Uri.parse('$baseUrl/api/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

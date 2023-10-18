@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Themes/styles.dart';
 import '../models/student_model.dart';
 import 'home_page.dart';
@@ -23,6 +24,7 @@ class _CallScreenState extends State<CallScreen> {
   late int count;
   bool isLastCall = false;
   List<StudentData> finalInfo = [];
+  bool whatsappmessge = false;
 
   @override
   void initState() {
@@ -30,11 +32,18 @@ class _CallScreenState extends State<CallScreen> {
     count = widget.currentIndex;
   }
 
+  void nextNumber() {
+    setState(() {
+      count++;
+      isLastCall = count == widget.sData.length;
+      whatsappmessge = false;
+    });
+  }
+
   Future<void> makePhoneCall(String phoneNumber) async {
     if (count < widget.sData.length) {
       setState(() {
-        count++;
-        isLastCall = count == widget.sData.length;
+        whatsappmessge = true;
       });
 
       final Uri launchUri = Uri(
@@ -46,6 +55,13 @@ class _CallScreenState extends State<CallScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('lastCallCount', count);
     }
+  }
+
+  void openWhatsApp(String phoneNumber) async {
+    // String url = 'whatsapp://send?phone=+91$phoneNumber';
+    String url = "https://wa.me/+91$phoneNumber/?text=Hello";
+    // String url= "https://wa.me/+918141519898?text=I'm%20interested%20in%20your%20car%20for%20sale";
+    launchUrl(Uri.parse(url));
   }
 
   Future<void> clearStorage() async {
@@ -169,9 +185,11 @@ class _CallScreenState extends State<CallScreen> {
                   color: colorScheme.onSurface, // Use onSurface color
                 ),
               ),
-              const Divider(
-                thickness: 1.0,
-              ),
+              isLastCall
+                  ? const SizedBox()
+                  : const Divider(
+                      thickness: 1.0,
+                    ),
               isLastCall
                   ? const SizedBox()
                   : Card(
@@ -246,22 +264,110 @@ class _CallScreenState extends State<CallScreen> {
                 thickness: 1.0,
               ),
               isLastCall
-                  ? const Text(
-                      'All calls completed!',
-                      style: TextStyle(
-                        fontSize: 15,
+                  ? const Card(
+                      margin: EdgeInsets.all(20),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'All calls completed!',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     )
                   : ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              colorScheme.inversePrimary)),
                       onPressed: () {
                         makePhoneCall(
                             widget.sData[count].contactNumber.toString());
                       },
-                      child: Text(
-                        'Call ${widget.sData[count].fatherName}',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const FaIcon(
+                            FontAwesomeIcons.phone,
+                            color: Colors.black,
+                          ),
+                          const SizedBox(
+                            width: 8.0,
+                          ),
+                          Text(
+                            '${widget.sData[count].fatherName}',
+                          ),
+                        ],
                       ),
                     ),
+              !whatsappmessge
+                  ? const SizedBox()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          // ignore: prefer_const_constructors
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.blueAccent)),
+                          onPressed: () {
+                            nextNumber();
+                          },
+                          child: const Row(
+                            children: [
+                              Text(
+                                'Skip Message',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              SizedBox(
+                                width: 6.0,
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.forwardFast,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Colors.greenAccent)),
+                          onPressed: () {
+                            openWhatsApp(
+                                widget.sData[count].contactNumber.toString());
+                            nextNumber();
+                          },
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.whatsapp,
+                                color: Colors.black,
+                              ),
+                              SizedBox(
+                                width: 6.0,
+                              ),
+                              Text(
+                                'Open whatsapp',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+              const SizedBox(
+                height: 8.0,
+              ),
               ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(colorScheme.inversePrimary)),
                 onPressed: () {
                   clearStorage();
                   Navigator.pushReplacement(
@@ -269,7 +375,19 @@ class _CallScreenState extends State<CallScreen> {
                       MaterialPageRoute(
                           builder: (context) => const Homepage()));
                 },
-                child: const Text('Upload New Data'),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(
+                      FontAwesomeIcons.upload,
+                      color: Colors.black,
+                    ),
+                    SizedBox(
+                      width: 6.0,
+                    ),
+                    Text('Upload New Data'),
+                  ],
+                ),
               )
             ],
           ),

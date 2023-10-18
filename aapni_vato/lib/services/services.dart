@@ -27,7 +27,7 @@ class ChatServices {
       String chatId, String token) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/message/$chatId'),
+        Uri.parse('$baseUrl/api/message/$chatId'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

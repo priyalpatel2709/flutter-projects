@@ -43,7 +43,7 @@ class _ChatpageState extends State<Chatpage> {
     User? storedUser;
 
     Future<List<Chat>> fetchChatData() async {
-      final url = Uri.parse('$baseUrl/chat');
+      final url = Uri.parse('$baseUrl/api/chat');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer ${storedUser!.token}'},

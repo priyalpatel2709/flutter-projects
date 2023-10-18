@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Appni vato',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

@@ -102,7 +102,7 @@ class _GroupchatState extends State<Groupchat> {
                                       try {
                                         final response = await http.get(
                                           Uri.parse(
-                                              '$baseUrl/user?search=${_controller.text.toString()}'),
+                                              '$baseUrl/api/user?search=${_controller.text.toString()}'),
                                           headers: {
                                             'Authorization':
                                                 'Bearer ${storedUser!.token}',
@@ -287,7 +287,7 @@ class _GroupchatState extends State<Groupchat> {
 
                       // Send a POST request to create the group chat
                       final response = await http.post(
-                        Uri.parse('$baseUrl/chat/group'),
+                        Uri.parse('$baseUrl/api/chat/group'),
                         headers: headers,
                         body: jsonEncode(requestBody),
                       );

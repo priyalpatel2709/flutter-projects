@@ -108,7 +108,7 @@ class _LoginState extends State<Login> {
                             if (_emailController.text.toString() != '') {
                               final responce = await http.get(
                                 Uri.parse(
-                                    '$baseUrl/user/forgotPassword/${_emailController.text.toString()}'),
+                                    '$baseUrl/api/user/forgotPassword/${_emailController.text.toString()}'),
                                 headers: {'Content-Type': 'application/json'},
                               );
 
@@ -199,7 +199,7 @@ class _LoginState extends State<Login> {
     setState(() {});
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/user/login'),
+        Uri.parse('$baseUrl/api/user/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(
             {'email': email, 'password': password, 'deviceToken': deviceToken}),
