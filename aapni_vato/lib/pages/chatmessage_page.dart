@@ -77,7 +77,8 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
     final userData = {
       'userId': storedUser!.userId,
       'chatId': widget.data['chatId'],
-      'targetUserId': widget.data['id']
+      'targetUserId': widget.data['id'],
+      'status': status,
     };
 
     socket.onConnect((_) {
@@ -384,7 +385,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
       // _messageStreamController.sink.add(ChatMessage.fromJson(data));
       chatMessages.add(ChatMessage.fromJson(data));
       setState(() {});
-      socket.emit("new message", data);
+      socket.emit("new message", {'chatData': data, 'status':status});
       scrollToBottom(scrollController);
       _controller.clear();
     } else {
