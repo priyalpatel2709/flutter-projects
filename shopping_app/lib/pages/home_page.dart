@@ -17,7 +17,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-
   @override
   void initState() {
     super.initState();
@@ -35,11 +34,8 @@ class _HomepageState extends State<Homepage> {
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'www.ilovepdf.com', path: '/pdf_to_excel');
 
-  
-
   @override
   Widget build(BuildContext context) {
-    print('finalInfo--------->${finalInfo.length}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -108,13 +104,13 @@ class _HomepageState extends State<Homepage> {
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
-                        print('crpo.length ---> ${crpo.length}');
                         saveUsersList(crpo);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => CallScreen(
                                       sData: crpo,
+                                      currentIndex: 0,
                                     )));
                       },
                       child: Text('Go To Calling'),
@@ -237,6 +233,10 @@ class _HomepageState extends State<Homepage> {
           Text('Failed to upload file. Status code: ${response.statusCode}'),
         ]);
       }
+    } else {
+      setState(() {
+        loading = false;
+      });
     }
   }
 }

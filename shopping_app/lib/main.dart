@@ -1,3 +1,4 @@
+import 'package:calling_app/pages/splashscreen.dart';
 import 'package:flutter/material.dart';
 
 import 'Themes/styles.dart';
@@ -12,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Calling - App',
       theme: ThemeData(
         useMaterial3: true,
@@ -36,6 +38,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Homepage();
+    return const Splashscreen();
   }
 }
