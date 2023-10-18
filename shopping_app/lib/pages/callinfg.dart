@@ -12,9 +12,13 @@ import 'home_page.dart';
 class CallScreen extends StatefulWidget {
   final List<StudentData> sData;
   final int currentIndex;
+  final bool callDone;
 
   const CallScreen(
-      {super.key, required this.sData, required this.currentIndex});
+      {super.key,
+      required this.sData,
+      required this.currentIndex,
+      required this.callDone});
 
   @override
   State<CallScreen> createState() => _CallScreenState();
@@ -25,13 +29,14 @@ class _CallScreenState extends State<CallScreen> {
   late int count;
   bool isLastCall = false;
   List<StudentData> finalInfo = [];
-  bool whatsappmessge = false;
+  late bool whatsappmessge;
   String whatsAppmess = 'hello';
 
   @override
   void initState() {
     super.initState();
     count = widget.currentIndex;
+    whatsappmessge = widget.callDone;
   }
 
   Future<void> nextNumber() async {
@@ -42,6 +47,7 @@ class _CallScreenState extends State<CallScreen> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('lastCallCount', count);
+    await prefs.setBool('isCalled', whatsappmessge);
   }
 
   void openMessageChangerDialog(BuildContext context, String oldMsg) {
@@ -90,7 +96,7 @@ class _CallScreenState extends State<CallScreen> {
 
       await launchUrl(launchUri);
       final prefs = await SharedPreferences.getInstance();
-    
+      await prefs.setBool('isCalled', whatsappmessge);
     }
   }
 

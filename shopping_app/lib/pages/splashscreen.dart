@@ -19,6 +19,7 @@ class Splashscreen extends StatefulWidget {
 class _SplashscreenState extends State<Splashscreen> {
   List<StudentData> finalInfo = [];
   int count = 0;
+  bool whatsappmessge = false;
 
   @override
   void initState() {
@@ -30,11 +31,14 @@ class _SplashscreenState extends State<Splashscreen> {
   Future<void> loadUsersList() async {
     final loadedUsers = await getUsersList();
     var getCount = await getLastCallCount();
+    var getiscalled = await getLastCallBool();
 
     getCount ??= 0;
+    getiscalled ??= false;
     setState(() {
       finalInfo = loadedUsers;
       count = getCount!;
+      whatsappmessge = getiscalled!;
     });
   }
 
@@ -67,7 +71,7 @@ class _SplashscreenState extends State<Splashscreen> {
             MaterialPageRoute(
                 builder: (context) => CallScreen(
                       sData: finalInfo,
-                      currentIndex: count,
+                      currentIndex: count, callDone: whatsappmessge,
                     )));
       } else {
         Navigator.pushReplacement(
