@@ -3,9 +3,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../models/cloudinaryimage.dart';
 import '../models/cloudinaryresponse .dart';
 import '../utilits/downloadImg.dart';
+import '../utilits/imagelistprovider.dart';
 import '../utilits/uploadtocloude.dart';
 import '../widgets/fullpageimg.dart';
 
@@ -149,6 +151,7 @@ class _HomepageState extends State<Homepage> {
                                         imageName:
                                             '${img.publicId}.${img.format}',
                                         imageTag: img.publicId,
+                                        currentIndex: index,
                                       );
                                     },
                                   ),
@@ -222,6 +225,8 @@ class _HomepageState extends State<Homepage> {
       setState(() {
         imgUrls = result.images!;
         imgLoading = false;
+        Provider.of<ImageListProvider>(context, listen: false)
+            .setImages(imgUrls);
       });
     } else {
       // Handle the error

@@ -1,20 +1,28 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import 'package:provider/provider.dart';
+
+import '../utilits/imagelistprovider.dart';
 
 class FullScreenImage extends StatelessWidget {
   final String imageUrl;
   final String imageName;
   final String imageTag;
+  final int currentIndex;
 
   const FullScreenImage(
       {super.key,
       required this.imageUrl,
       required this.imageName,
-      required this.imageTag});
+      required this.imageTag,
+      required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final images = Provider.of<ImageListProvider>(context).images;
     return Scaffold(
       backgroundColor: colorScheme.scrim,
       appBar: AppBar(
@@ -24,16 +32,22 @@ class FullScreenImage extends StatelessWidget {
           style: TextStyle(color: colorScheme.onPrimary),
         ),
       ),
-      body: Center(
-        child: Hero(
-            tag: imageTag,
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.contain,
-              fadeInDuration: const Duration(milliseconds: 500),
-              placeholder: (context, url) => const CircularProgressIndicator(),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            )),
+      body: PhotoViewGallery.builder(
+        itemCount: images.length,
+        builder: (context, index) {
+          var img = images[index];
+          return PhotoViewGalleryPageOptions(
+            imageProvider: CachedNetworkImageProvider(img.secureUrl),
+            heroAttributes: PhotoViewHeroAttributes(tag: img.publicId),
+          );
+        },
+        backgroundDecoration: const BoxDecoration(
+          color: Colors.black,
+        ),
+        pageController: PageController(initialPage: currentIndex),
+        onPageChanged: (int index) {
+          // Handle page changes if needed
+        },
       ),
     );
   }

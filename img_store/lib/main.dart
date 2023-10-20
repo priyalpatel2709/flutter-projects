@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:img_store/utilits/imagelistprovider.dart';
+import 'package:provider/provider.dart';
 
 import 'Themes/styles.dart';
 import 'pages/homepage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ImageListProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -27,4 +34,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
