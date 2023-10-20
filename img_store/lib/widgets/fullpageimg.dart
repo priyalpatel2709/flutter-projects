@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/homepage.dart';
 import '../utilits/imagelistprovider.dart';
 
 class FullScreenImage extends StatelessWidget {
@@ -32,22 +33,40 @@ class FullScreenImage extends StatelessWidget {
           style: TextStyle(color: colorScheme.onPrimary),
         ),
       ),
-      body: PhotoViewGallery.builder(
-        itemCount: images.length,
-        builder: (context, index) {
-          var img = images[index];
-          return PhotoViewGalleryPageOptions(
-            imageProvider: CachedNetworkImageProvider(img.secureUrl),
-            heroAttributes: PhotoViewHeroAttributes(tag: img.publicId),
-          );
+      body: GestureDetector(
+        onVerticalDragEnd: (DragEndDetails details) {
+          if (details.primaryVelocity! > 150) {
+            Navigator.pop(
+              context,
+            );
+          }
         },
-        backgroundDecoration: const BoxDecoration(
-          color: Colors.black,
+        child: PhotoViewGallery.builder(
+          itemCount: images.length,
+          builder: (context, index) {
+            var img = images[index];
+            return PhotoViewGalleryPageOptions(
+              imageProvider: CachedNetworkImageProvider(img.secureUrl),
+              heroAttributes: PhotoViewHeroAttributes(tag: img.publicId),
+            );
+          },
+          loadingBuilder: (context, event) {
+            return Transform.scale(
+                scale: 0.1,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 25,
+                ));
+          },
+          backgroundDecoration: const BoxDecoration(
+            color: Colors.black,
+          ),
+          pageController: PageController(initialPage: currentIndex),
+          onPageChanged: (int index) {
+            // Handle page changes if needed
+            print('i am $index');
+            // currentIndex = index;
+          },
         ),
-        pageController: PageController(initialPage: currentIndex),
-        onPageChanged: (int index) {
-          // Handle page changes if needed
-        },
       ),
     );
   }
