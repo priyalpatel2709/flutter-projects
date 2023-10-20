@@ -75,10 +75,18 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text('Gallery'),
+        backgroundColor: colorScheme.primary,
+        // Use a specific color for the app bar.
+        title: Text(
+          'Gallery',
+          style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onPrimary),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -96,17 +104,19 @@ class _HomepageState extends State<Homepage> {
                         itemCount: imgUrls.length,
                         itemBuilder: (context, index) {
                           var img = imgUrls[index];
-                          return ListTile(
-                            title: InkWell(
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            borderOnForeground: true,
+                            elevation: 5,
+                            margin: const EdgeInsets.all(8),
+                            child: InkWell(
                               onDoubleTap: () async {
                                 final imageUrl = img.secureUrl;
                                 CloudinaryImgDownload? isImsDownloaded =
                                     (await downloadImage(imageUrl))
                                         as CloudinaryImgDownload?;
-                                if (kDebugMode) {
-                                  print(
-                                      'isImsDownloaded----->${isImsDownloaded?.isSuccess}');
-                                }
 
                                 if (isImsDownloaded!.isSuccess) {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +124,7 @@ class _HomepageState extends State<Homepage> {
                                       content: Padding(
                                           padding: EdgeInsets.all(10),
                                           child: Text(
-                                              'Image Downloaded succesfully')),
+                                              'Image Downloaded successfully')),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
@@ -124,7 +134,7 @@ class _HomepageState extends State<Homepage> {
                                       content: Padding(
                                           padding: const EdgeInsets.all(10),
                                           child: Text(
-                                              'Image Downloading Fali ${isImsDownloaded.errorMessage}')),
+                                              'Image Downloading Failed ${isImsDownloaded.errorMessage}')),
                                       duration: const Duration(seconds: 2),
                                     ),
                                   );
@@ -144,33 +154,33 @@ class _HomepageState extends State<Homepage> {
                                   ),
                                 );
                               },
-                              child: Container(
-                                  width: 200,
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 2.0,
+                              child: Hero(
+                                tag: img.publicId,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: img.secureUrl,
+                                    imageBuilder: (context, imageProvider) =>
+                                        Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
+                                    placeholder: (context, url) =>
+                                        Transform.scale(
+                                            scale: 0.2,
+                                            child:
+                                                const CircularProgressIndicator(
+                                              strokeWidth: 5,
+                                            )),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
                                   ),
-                                  child: Hero(
-                                    tag: img.publicId,
-                                    child: CachedNetworkImage(
-                                      fadeInDuration:
-                                          const Duration(milliseconds: 500),
-                                      fit: BoxFit.cover,
-                                      imageUrl: img.secureUrl,
-                                      placeholder: (context, url) =>
-                                          Transform.scale(
-                                              scale: 0.2,
-                                              child:
-                                                  const CircularProgressIndicator(
-                                                strokeWidth: 5,
-                                              )),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
-                                    ),
-                                  )),
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -181,14 +191,21 @@ class _HomepageState extends State<Homepage> {
                         ),
                       ),
                     )
-                  : const CircularProgressIndicator(),
+                  : const Center(
+                      child: CircularProgressIndicator(
+                        // Customize the loading indicator.
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    ),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: pickAndUploadImage,
-        child: const Icon(Icons.cloud_upload),
+        backgroundColor: Colors.blue,
+        child:
+            const Icon(Icons.cloud_upload), // Use a specific color for the FAB.
       ),
     );
   }

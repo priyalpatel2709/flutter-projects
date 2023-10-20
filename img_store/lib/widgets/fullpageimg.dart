@@ -14,11 +14,15 @@ class FullScreenImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor:Theme.of(context).colorScheme.scrim,
+      backgroundColor: colorScheme.scrim,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: Text(imageName),
+        backgroundColor: colorScheme.primary,
+        title: Text(
+          imageName,
+          style: TextStyle(color: colorScheme.onPrimary),
+        ),
       ),
       body: Center(
         child: Hero(
