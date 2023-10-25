@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, avoid_print
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/student_model.dart';
@@ -48,8 +49,18 @@ class _HomepageState extends State<Homepage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   isFileuploaded
-                      ? Text("Select Start and End Number")
-                      : SizedBox(),
+                      ? Text("Select Start and End Number",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ))
+                      : Text('Uplpad File To Start..',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.error,
+                          )),
                   SizedBox(
                     height: 8.0,
                   ),
@@ -63,22 +74,25 @@ class _HomepageState extends State<Homepage> {
                   if (isFileuploaded)
                     ElevatedButton(
                       onPressed: () {
-                        // Add your button press logic
                         setState(() {
-                          crpo = cropList(
+                          crpo = cropList_V2(
                               storeedUser,
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
                         saveCropUsersList(crpo);
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CallScreen(
-                                      sData: crpo,
-                                      currentIndex: 0,
-                                      callDone: false,
-                                    )));
+                        if (crpo.isNotEmpty) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CallScreen(
+                                        sData: crpo,
+                                        currentIndex: 0,
+                                        callDone: false,
+                                      )));
+                        } else {
+                          print(crpo.length);
+                        }
                       },
                       child: Text('Go To Calling'),
                     ),
@@ -115,6 +129,28 @@ class _HomepageState extends State<Homepage> {
     }
 
     return originalList.sublist(startIndex, endIndex + 1);
+  }
+
+  List<StudentData> cropList_V2(
+      List<StudentData> originalList, int startSrNo, int endSrNo) {
+    if (startSrNo < 0) {
+      startSrNo = 0;
+    }
+
+    List<StudentData> croppedList = [];
+
+    for (int i = 1; i < originalList.length; i++) {
+      var student = originalList[i];
+      dynamic srNo = student.sinorKarjan2024;
+      print('srNo---->$srNo');
+      // int IntSrno = int.parse(srNo);
+
+      if (srNo >= startSrNo && srNo <= endSrNo) {
+        croppedList.add(student);
+      }
+    }
+
+    return croppedList;
   }
 
   Future<void> _launchInBrowser(Uri url) async {
@@ -206,7 +242,6 @@ class _HomepageState extends State<Homepage> {
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        print('responce');
         setState(() {
           isFileuploaded = true;
           loading = false;
