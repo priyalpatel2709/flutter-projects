@@ -6,6 +6,7 @@ import '../models/student_model.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import '../wiggets/select_number.dart';
 import 'callinfg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +26,7 @@ class _HomepageState extends State<Homepage> {
 
   List<StudentData> studentinfo = [];
   List<StudentData> crpo = [];
-  List<StudentData> finalInfo = [];
+  List<StudentData> storeedUser = [];
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
@@ -48,48 +49,14 @@ class _HomepageState extends State<Homepage> {
                 children: [
                   isFileuploaded
                       ? Text("Select Start and End Number")
-                      : ElevatedButton(
-                          onPressed: () {
-                            pickAndUploadExcelFile();
-                          },
-                          child: Text('Pick and Upload Excel File'),
-                        ),
+                      : SizedBox(),
                   SizedBox(
                     height: 8.0,
                   ),
                   if (isFileuploaded)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          child: TextField(
-                            controller: _startController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'Start',
-                              hintText: '12',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 5.0,
-                        ),
-                        Container(
-                          width: 100,
-                          child: TextField(
-                            controller: _endController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'End',
-                              hintText: '14',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    selectNumber(
+                        startController: _startController,
+                        endController: _endController),
                   SizedBox(
                     height: 8.0,
                   ),
@@ -99,11 +66,11 @@ class _HomepageState extends State<Homepage> {
                         // Add your button press logic
                         setState(() {
                           crpo = cropList(
-                              studentinfo,
+                              storeedUser,
                               int.parse(_startController.text),
                               int.parse(_endController.text));
                         });
-                        saveUsersList(crpo);
+                        saveCropUsersList(crpo);
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -115,16 +82,6 @@ class _HomepageState extends State<Homepage> {
                       },
                       child: Text('Go To Calling'),
                     ),
-                  if (crpo.isNotEmpty)
-                    Column(
-                      children: [
-                        Text('total number selected :- ${crpo.length}'),
-                        Text(
-                            'start with:- ${crpo[0].srNo} - ${crpo[0].candidateName}'),
-                        Text(
-                            'end with:- ${crpo[crpo.length - 1].srNo} - ${crpo[crpo.length - 1].candidateName}'),
-                      ],
-                    ),
                   TextButton(
                       onPressed: () {
                         setState(() {
@@ -135,6 +92,12 @@ class _HomepageState extends State<Homepage> {
                 ],
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          pickAndUploadExcelFile();
+        },
+        child: Icon(Icons.upload_file),
+      ),
     );
   }
 
@@ -166,8 +129,17 @@ class _HomepageState extends State<Homepage> {
   Future<void> loadUsersList() async {
     final loadedUsers = await getUsersList();
     setState(() {
-      finalInfo = loadedUsers;
+      storeedUser = loadedUsers;
     });
+    if (storeedUser.isNotEmpty) {
+      setState(() {
+        isFileuploaded = true;
+      });
+    } else {
+      setState(() {
+        isFileuploaded = false;
+      });
+    }
   }
 
   Future<void> saveUsersList(List<StudentData> users) async {
@@ -188,7 +160,28 @@ class _HomepageState extends State<Homepage> {
     return userList.map((userMap) => StudentData.fromJson(userMap)).toList();
   }
 
+  Future<void> saveCropUsersList(List<StudentData> users) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userList = users.map((user) => user.toJson()).toList();
+    final userListJson = jsonEncode(userList);
+    await prefs.setString('allUserList', userListJson);
+  }
+
+  Future<List<StudentData>> getCropUsersList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userListJson = prefs.getString('allUserList');
+
+    if (userListJson == null) {
+      return [];
+    }
+    final userList = jsonDecode(userListJson) as List<dynamic>;
+    return userList.map((userMap) => StudentData.fromJson(userMap)).toList();
+  }
+
   Future<void> pickAndUploadExcelFile() async {
+    final prefs = await SharedPreferences.getInstance();
+    // await prefs.remove('userList');
+    await prefs.clear();
     setState(() {
       loading = true;
     });
@@ -213,6 +206,7 @@ class _HomepageState extends State<Homepage> {
       var response = await request.send();
 
       if (response.statusCode == 200) {
+        print('responce');
         setState(() {
           isFileuploaded = true;
           loading = false;
@@ -224,6 +218,10 @@ class _HomepageState extends State<Homepage> {
         for (var item in dataList) {
           studentinfo.add(StudentData.fromJson(item));
         }
+        setState(() {
+          saveUsersList(studentinfo);
+          loadUsersList();
+        });
       } else {
         setState(() {
           loading = false;

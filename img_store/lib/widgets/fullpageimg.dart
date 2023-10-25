@@ -46,9 +46,17 @@ class FullScreenImage extends StatelessWidget {
           builder: (context, index) {
             var img = images[index];
             return PhotoViewGalleryPageOptions(
-              imageProvider: CachedNetworkImageProvider(img.secureUrl),
-              heroAttributes: PhotoViewHeroAttributes(tag: img.publicId),
-            );
+                imageProvider: CachedNetworkImageProvider(img.secureUrl),
+                heroAttributes: PhotoViewHeroAttributes(tag: img.publicId),
+                onScaleEnd: (context, details, controllerValue) {
+                  print(details);
+                  print(controllerValue);
+                },
+                // minScale: 0.5,
+                // maxScale: 2.0,
+                // initialScale:0.0,
+                // enableRotation: true,
+                filterQuality: FilterQuality.low);
           },
           loadingBuilder: (context, event) {
             return Transform.scale(

@@ -44,7 +44,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
   Future<List<StudentData>> getUsersList() async {
     final prefs = await SharedPreferences.getInstance();
-    final userListJson = prefs.getString('userList');
+    final userListJson = prefs.getString('allUserList');
 
     if (userListJson == null) {
       return [];

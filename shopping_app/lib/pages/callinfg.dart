@@ -109,7 +109,8 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> clearStorage() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('lastCallCount');
+    await prefs.remove('isCalled');
   }
 
   @override
