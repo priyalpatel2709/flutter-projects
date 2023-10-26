@@ -111,6 +111,7 @@ class _CallScreenState extends State<CallScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('lastCallCount');
     await prefs.remove('isCalled');
+    await prefs.remove('cropUsers');
   }
 
   @override
@@ -219,7 +220,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
               const SizedBox(height: 16.0),
               Text(
-                'Start with: ${widget.sData[0].sinorKarjan2024} - ${widget.sData[0].empty1.toLowerCase()}',
+                'Start with: ${widget.sData[0].srNo} - ${widget.sData[0].candidateName.toString().toLowerCase()}',
                 style: TextStyle(
                   fontSize: 15,
                   color: colorScheme.onSurface,
@@ -227,7 +228,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'End with: ${widget.sData.last.sinorKarjan2024} - ${widget.sData.last.empty1.toLowerCase()}',
+                'End with: ${widget.sData.last.srNo} - ${widget.sData.last.candidateName.toString().toLowerCase()}',
                 style: TextStyle(
                   fontSize: 15,
                   color: colorScheme.onSurface, // Use onSurface color
@@ -258,7 +259,7 @@ class _CallScreenState extends State<CallScreen> {
                               ),
                             ),
                             Text(
-                              widget.sData[count].empty1.toLowerCase(),
+                              widget.sData[count].candidateName.toString().toLowerCase(),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: colorScheme
@@ -275,7 +276,7 @@ class _CallScreenState extends State<CallScreen> {
                               ),
                             ),
                             Text(
-                              widget.sData[count].empty3
+                              widget.sData[count].fatherName
                                   .toString()
                                   .toLowerCase(),
                               style: TextStyle(
@@ -294,7 +295,7 @@ class _CallScreenState extends State<CallScreen> {
                               ),
                             ),
                             Text(
-                              widget.sData[count].empty9
+                              widget.sData[count].presentPostalAddress
                                   .toString()
                                   .toLowerCase(),
                               style: TextStyle(
@@ -331,7 +332,7 @@ class _CallScreenState extends State<CallScreen> {
                                   colorScheme.inversePrimary)),
                           onPressed: () {
                             makePhoneCall(
-                                widget.sData[count].empty7.toString());
+                                widget.sData[count].mobileNumber.toString());
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -344,7 +345,7 @@ class _CallScreenState extends State<CallScreen> {
                                 width: 8.0,
                               ),
                               Text(
-                                widget.sData[count].empty3,
+                                widget.sData[count].fatherName.toString(),
                               ),
                             ],
                           ),
@@ -384,7 +385,7 @@ class _CallScreenState extends State<CallScreen> {
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.greenAccent)),
                               onPressed: () {
-                                openWhatsApp(widget.sData[count].empty7
+                                openWhatsApp(widget.sData[count].mobileNumber
                                     .toString());
                                 nextNumber();
                               },

@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/student_model.dart';
 import 'dart:convert';
@@ -31,6 +32,7 @@ class _HomepageState extends State<Homepage> {
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
   bool isFileuploaded = false;
+  String message = '';
   bool loading = false;
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'www.ilovepdf.com', path: '/pdf_to_excel');
@@ -74,6 +76,10 @@ class _HomepageState extends State<Homepage> {
                   if (isFileuploaded)
                     ElevatedButton(
                       onPressed: () {
+                        FocusScopeNode currentFocus = FocusScope.of(context);
+                        if (!currentFocus.hasPrimaryFocus) {
+                          currentFocus.unfocus();
+                        }
                         setState(() {
                           crpo = cropList_V2(
                               storeedUser,
@@ -96,6 +102,9 @@ class _HomepageState extends State<Homepage> {
                       },
                       child: Text('Go To Calling'),
                     ),
+                  SizedBox(
+                    height: 8.0,
+                  ),
                   TextButton(
                       onPressed: () {
                         setState(() {
@@ -110,7 +119,7 @@ class _HomepageState extends State<Homepage> {
         onPressed: () {
           pickAndUploadExcelFile();
         },
-        child: Icon(Icons.upload_file),
+        child: FaIcon(FontAwesomeIcons.fileExcel),
       ),
     );
   }
@@ -124,7 +133,6 @@ class _HomepageState extends State<Homepage> {
     }
 
     if (startIndex > endIndex) {
-      // Handle the case where the start index is greater than the end index.
       return [];
     }
 
@@ -138,15 +146,28 @@ class _HomepageState extends State<Homepage> {
     }
 
     List<StudentData> croppedList = [];
+    bool result = checkConditions(startSrNo, endSrNo, originalList);
 
-    for (int i = 1; i < originalList.length; i++) {
-      var student = originalList[i];
-      dynamic srNo = student.sinorKarjan2024;
-      print('srNo---->$srNo');
-      // int IntSrno = int.parse(srNo);
+    print('result------>$result');
 
-      if (srNo >= startSrNo && srNo <= endSrNo) {
-        croppedList.add(student);
+    if (!result) {
+      setState(() {
+        message =
+            'select b/w ${originalList[0].srNo} and ${originalList[originalList.length - 1].srNo}';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(message),
+          elevation: 10,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(5),
+          shape: StadiumBorder()));
+    } else {
+      for (var student in originalList) {
+        dynamic srNo = student.srNo;
+        if (srNo >= startSrNo && srNo <= endSrNo) {
+          croppedList.add(student);
+        }
       }
     }
 
@@ -200,12 +221,12 @@ class _HomepageState extends State<Homepage> {
     final prefs = await SharedPreferences.getInstance();
     final userList = users.map((user) => user.toJson()).toList();
     final userListJson = jsonEncode(userList);
-    await prefs.setString('allUserList', userListJson);
+    await prefs.setString('cropUsers', userListJson);
   }
 
   Future<List<StudentData>> getCropUsersList() async {
     final prefs = await SharedPreferences.getInstance();
-    final userListJson = prefs.getString('allUserList');
+    final userListJson = prefs.getString('cropUsers');
 
     if (userListJson == null) {
       return [];
@@ -216,7 +237,6 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> pickAndUploadExcelFile() async {
     final prefs = await SharedPreferences.getInstance();
-    // await prefs.remove('userList');
     await prefs.clear();
     setState(() {
       loading = true;
@@ -232,13 +252,11 @@ class _HomepageState extends State<Homepage> {
       String? filePath = file.path;
 
       var request = http.MultipartRequest(
-          'POST', Uri.parse('https://excel-to-pdf.onrender.com/upload'));
+          'POST', Uri.parse('http://10.0.2.2:3000/upload'));
 
-      // Add the file to the request
       request.files
           .add(await http.MultipartFile.fromPath('excelFile', filePath!));
 
-      // Send the request
       var response = await request.send();
 
       if (response.statusCode == 200) {
@@ -249,7 +267,8 @@ class _HomepageState extends State<Homepage> {
         var jsonResponse = await response.stream.bytesToString();
         List<dynamic> dataList = json.decode(jsonResponse);
 
-        // Iterate through the List
+        print(jsonResponse);
+
         for (var item in dataList) {
           studentinfo.add(StudentData.fromJson(item));
         }
@@ -270,6 +289,17 @@ class _HomepageState extends State<Homepage> {
       setState(() {
         loading = false;
       });
+    }
+  }
+
+  bool checkConditions(
+      int startSrNo, int endSrNo, List<StudentData> originalList) {
+    if (startSrNo >= originalList[0].srNo &&
+        endSrNo >= originalList[0].srNo &&
+        endSrNo <= originalList[originalList.length - 1].srNo) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

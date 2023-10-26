@@ -18,6 +18,7 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
   List<StudentData> finalInfo = [];
+  List<StudentData> CropInfo = [];
   int count = 0;
   bool whatsappmessge = false;
 
@@ -29,7 +30,7 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   Future<void> loadUsersList() async {
-    final loadedUsers = await getUsersList();
+    final loadedUsers = await getCropUsersList();
     var getCount = await getLastCallCount();
     var getiscalled = await getLastCallBool();
 
@@ -44,7 +45,18 @@ class _SplashscreenState extends State<Splashscreen> {
 
   Future<List<StudentData>> getUsersList() async {
     final prefs = await SharedPreferences.getInstance();
-    final userListJson = prefs.getString('allUserList');
+    final userListJson = prefs.getString('userList');
+
+    if (userListJson == null) {
+      return [];
+    }
+    final userList = jsonDecode(userListJson) as List<dynamic>;
+    return userList.map((userMap) => StudentData.fromJson(userMap)).toList();
+  }
+
+  Future<List<StudentData>> getCropUsersList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userListJson = prefs.getString('cropUsers');
 
     if (userListJson == null) {
       return [];
