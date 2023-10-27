@@ -1,4 +1,5 @@
 import 'package:calling_app/pages/splashscreen.dart';
+import 'package:calling_app/utiles/state.dart';
 import 'package:flutter/material.dart';
 
 import 'Themes/styles.dart';
@@ -12,18 +13,20 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Calling - App',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: MyThems.ightColorScheme,
+    return LifeCycleManager(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Calling - App',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: MyThems.ightColorScheme,
+        ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: MyThems.darkColorScheme,
+        ),
+        home: const MyHomePage(),
       ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: MyThems.darkColorScheme,
-      ),
-      home: const MyHomePage(),
     );
   }
 }

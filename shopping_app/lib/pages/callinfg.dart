@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,16 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Themes/styles.dart';
 import '../models/student_model.dart';
+import '../widgets/comlatedtask.dart';
+import '../widgets/info_cart.dart';
+import '../widgets/remaining.dart';
+import '../widgets/skip_btn.dart';
+import '../widgets/tillnow.dart';
+import '../widgets/title_cart.dart';
+import '../widgets/totalcalls.dart';
+import '../widgets/updatefile_btn.dart';
+import '../utiles/state.dart';
+import '../widgets/whatsapp_btn.dart';
 import 'home_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -24,19 +35,76 @@ class CallScreen extends StatefulWidget {
   State<CallScreen> createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
+class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
   TextEditingController messageController = TextEditingController();
   late int count;
   bool isLastCall = false;
   List<StudentData> finalInfo = [];
   late bool whatsappmessge;
   String whatsAppmess = 'hello';
+  Timer? _countdownTimer;
+  int _countdownValue = 5;
+  int _countdownValue2 = 10;
+  AppLifecycleState get appLifecycleState => _appLifecycleState;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     count = widget.currentIndex;
     whatsappmessge = widget.callDone;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _appLifecycleState = state;
+      if (state == AppLifecycleState.resumed) {
+        // App is resumed, start a 5-second countdown
+        _startCountdown();
+      } else {
+        // App is not resumed, cancel the countdown timer
+        _countdownTimer?.cancel();
+      }
+    });
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownValue = 5;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdownValue > 0) {
+        setState(() {
+          _countdownValue--;
+        });
+      } else {
+        timer.cancel();
+        nextNumber();
+        _startAnotherTimer();
+      }
+    });
+  }
+
+  void _startAnotherTimer() {
+    _countdownTimer?.cancel();
+    _countdownValue2 = 10;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdownValue2 > 0) {
+        setState(() {
+          _countdownValue2--;
+        });
+      } else {
+        timer.cancel();
+        makePhoneCall(widget.sData[count].mobileNumber.toString());
+      }
+    });
   }
 
   Future<void> nextNumber() async {
@@ -147,77 +215,11 @@ class _CallScreenState extends State<CallScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Total number of calls: ',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary, // Use a theme color
-                      ),
-                    ),
-                    TextSpan(
-                      text: '${widget.sData.length}',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface, // Use primary color
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              totalcalls(colorScheme: colorScheme, widget: widget),
               const SizedBox(height: 16.0),
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Till: ',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary, // Use a theme color
-                      ),
-                    ),
-                    TextSpan(
-                      text: '$count',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface, // Use secondary color
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              tillnow(colorScheme: colorScheme, count: count),
               const SizedBox(height: 16.0),
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Remaining: ',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary, // Use a theme color
-                      ),
-                    ),
-                    TextSpan(
-                      text: '${widget.sData.length - count}',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              remaining(colorScheme: colorScheme, widget: widget, count: count),
               const SizedBox(height: 16.0),
               Text(
                 'Start with: ${widget.sData[0].srNo} - ${widget.sData[0].candidateName.toString().toLowerCase()}',
@@ -231,7 +233,7 @@ class _CallScreenState extends State<CallScreen> {
                 'End with: ${widget.sData.last.srNo} - ${widget.sData.last.candidateName.toString().toLowerCase()}',
                 style: TextStyle(
                   fontSize: 15,
-                  color: colorScheme.onSurface, // Use onSurface color
+                  color: colorScheme.onSurface,
                 ),
               ),
               isLastCall
@@ -250,59 +252,37 @@ class _CallScreenState extends State<CallScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Son',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary, // Use primary color
-                              ),
+                            title_cart(
+                              colorScheme: colorScheme,
+                              text: 'Son',
                             ),
-                            Text(
-                              widget.sData[count].candidateName.toString().toLowerCase(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colorScheme
-                                    .onSurface, // Use onSurface color
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Father',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary, // Use primary color
-                              ),
-                            ),
-                            Text(
-                              widget.sData[count].fatherName
+                            info_cart(
+                              colorScheme: colorScheme,
+                              text: widget.sData[count].candidateName
                                   .toString()
                                   .toLowerCase(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colorScheme
-                                    .onSurface, // Use onSurface color
-                              ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              'From',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary, // Use primary color
-                              ),
+                            title_cart(
+                              colorScheme: colorScheme,
+                              text: 'Father',
                             ),
-                            Text(
-                              widget.sData[count].presentPostalAddress
+                            info_cart(
+                              colorScheme: colorScheme,
+                              text: widget.sData[count].fatherName
                                   .toString()
                                   .toLowerCase(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colorScheme
-                                    .onSurface, // Use onSurface color
-                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            title_cart(
+                              colorScheme: colorScheme,
+                              text: 'From',
+                            ),
+                            info_cart(
+                              colorScheme: colorScheme,
+                              text: widget.sData[count].presentPostalAddress
+                                  .toString()
+                                  .toLowerCase(),
                             ),
                           ],
                         ),
@@ -312,19 +292,7 @@ class _CallScreenState extends State<CallScreen> {
                 thickness: 1.0,
               ),
               isLastCall
-                  ? const Card(
-                      margin: EdgeInsets.all(20),
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'All calls completed!',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
+                  ? const comlatedtask()
                   : !whatsappmessge
                       ? ElevatedButton(
                           style: ButtonStyle(
@@ -337,10 +305,7 @@ class _CallScreenState extends State<CallScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const FaIcon(
-                                FontAwesomeIcons.phone,
-                                color: Colors.black,
-                              ),
+                              Text(_countdownValue2.toString()),
                               const SizedBox(
                                 width: 8.0,
                               ),
@@ -361,21 +326,7 @@ class _CallScreenState extends State<CallScreen> {
                               onPressed: () {
                                 nextNumber();
                               },
-                              child: const Row(
-                                children: [
-                                  Text(
-                                    'Skip Message',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  FaIcon(
-                                    FontAwesomeIcons.forwardFast,
-                                    color: Colors.black,
-                                  ),
-                                ],
-                              ),
+                              child: skip_btn(countdownValue: _countdownValue),
                             ),
                             const SizedBox(
                               width: 8.0,
@@ -389,22 +340,7 @@ class _CallScreenState extends State<CallScreen> {
                                     .toString());
                                 nextNumber();
                               },
-                              child: const Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  FaIcon(
-                                    FontAwesomeIcons.whatsapp,
-                                    color: Colors.black,
-                                  ),
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Text(
-                                    'Open whatsapp',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
-                              ),
+                              child: const whatsapp_btn(),
                             )
                           ],
                         ),
@@ -422,19 +358,7 @@ class _CallScreenState extends State<CallScreen> {
                       MaterialPageRoute(
                           builder: (context) => const Homepage()));
                 },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      FontAwesomeIcons.upload,
-                      color: Colors.black,
-                    ),
-                    SizedBox(
-                      width: 6.0,
-                    ),
-                    Text('Upload New Data'),
-                  ],
-                ),
+                child: const updatefile_btn(),
               )
             ],
           ),

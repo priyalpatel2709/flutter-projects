@@ -8,7 +8,7 @@ import '../models/student_model.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-import '../wiggets/select_number.dart';
+import '../widgets/select_number.dart';
 import 'callinfg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
