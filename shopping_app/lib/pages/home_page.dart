@@ -1,4 +1,6 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, avoid_print
+// library_private_types_in_public_api, avoid_print
+
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,10 +44,10 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Center(child: Text('Calling App')),
+        title: const Center(child: Text('Calling App')),
       ),
       body: loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -63,14 +65,14 @@ class _HomepageState extends State<Homepage> {
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.error,
                           )),
-                  SizedBox(
+                  const SizedBox(
                     height: 8.0,
                   ),
                   if (isFileuploaded)
                     selectNumber(
                         startController: _startController,
                         endController: _endController),
-                  SizedBox(
+                  const SizedBox(
                     height: 8.0,
                   ),
                   if (isFileuploaded)
@@ -97,12 +99,14 @@ class _HomepageState extends State<Homepage> {
                                         callDone: false,
                                       )));
                         } else {
-                          print(crpo.length);
+                          if (kDebugMode) {
+                            print(crpo.length);
+                          }
                         }
                       },
-                      child: Text('Go To Calling'),
+                      child: const Text('Go To Calling'),
                     ),
-                  SizedBox(
+                  const SizedBox(
                     height: 8.0,
                   ),
                   TextButton(
@@ -111,7 +115,7 @@ class _HomepageState extends State<Homepage> {
                           _launchInBrowser(toLaunch);
                         });
                       },
-                      child: Text('Convert PDF to EXCEL'))
+                      child: const Text('Convert PDF to EXCEL'))
                 ],
               ),
             ),
@@ -119,7 +123,7 @@ class _HomepageState extends State<Homepage> {
         onPressed: () {
           pickAndUploadExcelFile();
         },
-        child: FaIcon(FontAwesomeIcons.fileExcel),
+        child: const FaIcon(FontAwesomeIcons.fileExcel),
       ),
     );
   }
@@ -147,9 +151,6 @@ class _HomepageState extends State<Homepage> {
 
     List<StudentData> croppedList = [];
     bool result = checkConditions(startSrNo, endSrNo, originalList);
-
-    print('result------>$result');
-
     if (!result) {
       setState(() {
         message =
@@ -159,9 +160,9 @@ class _HomepageState extends State<Homepage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(message),
           elevation: 10,
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(5),
-          shape: StadiumBorder()));
+          // behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(5),
+          shape: const StadiumBorder()));
     } else {
       for (var student in originalList) {
         dynamic srNo = student.srNo;
@@ -265,30 +266,51 @@ class _HomepageState extends State<Homepage> {
         });
         var jsonResponse = await response.stream.bytesToString();
         List<dynamic> dataList = json.decode(jsonResponse);
-
-        print(jsonResponse);
-
+        print("After:-${studentinfo.length}");
         for (var item in dataList) {
           studentinfo.add(StudentData.fromJson(item));
         }
-        setState(() {
-          saveUsersList(studentinfo);
-          loadUsersList();
-          isFileuploaded = true;
-        });
+
+        print("Befor:-${studentinfo.length}");
+        if (studentinfo.isNotEmpty) {
+          setState(() {
+            saveUsersList(studentinfo);
+            loadUsersList();
+            isFileuploaded = true;
+          });
+        } else {
+          if (context.mounted) {
+            showAboutDialog(
+                context: context,
+                applicationName: 'Error',
+                children: [
+                  const Text('Some Error in Data Formate'),
+                ]);
+          }
+          setState(() {
+            isFileuploaded = false;
+          });
+        }
       } else {
         setState(() {
           loading = false;
         });
-        // ignore: use_build_context_synchronously
-        showAboutDialog(context: context, applicationName: 'Error', children: [
-          Text('Failed to upload file. Status code: ${response.statusCode}'),
-        ]);
+        if (context.mounted) {
+          showAboutDialog(
+              context: context,
+              applicationName: 'Error',
+              children: [
+                Text(
+                    'Failed to upload file. Status code: ${response.statusCode}'),
+              ]);
+        }
       }
     } else {
-      showAboutDialog(context: context, applicationName: 'Error', children: [
-        Text('Failed to upload file. Status code'),
-      ]);
+      if (context.mounted) {
+        showAboutDialog(context: context, applicationName: 'Error', children: [
+          const Text('Failed to upload file'),
+        ]);
+      }
       setState(() {
         loading = false;
         isFileuploaded = true;

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api
 
 import 'dart:convert';
 
@@ -76,29 +76,30 @@ class _SplashscreenState extends State<Splashscreen> {
   }
 
   void wharetogo() async {
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (finalInfo.isNotEmpty) {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) => CallScreen(
                       sData: finalInfo,
-                      currentIndex: count, callDone: whatsappmessge,
+                      currentIndex: count,
+                      callDone: whatsappmessge,
                     )));
       } else {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Homepage()));
+            context, MaterialPageRoute(builder: (context) => const Homepage()));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Text('chalo kro call...',
                 style: TextStyle(
                   fontSize: 25,

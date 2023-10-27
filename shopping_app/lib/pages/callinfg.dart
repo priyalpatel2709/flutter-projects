@@ -1,12 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../Themes/styles.dart';
 import '../models/student_model.dart';
 import '../widgets/comlatedtask.dart';
 import '../widgets/info_cart.dart';
@@ -16,7 +11,6 @@ import '../widgets/tillnow.dart';
 import '../widgets/title_cart.dart';
 import '../widgets/totalcalls.dart';
 import '../widgets/updatefile_btn.dart';
-import '../utiles/state.dart';
 import '../widgets/whatsapp_btn.dart';
 import 'home_page.dart';
 
@@ -299,7 +293,6 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                               backgroundColor: MaterialStateProperty.all(
                                   colorScheme.inversePrimary)),
                           onPressed: () {
-                            print(widget.sData[count].mobileNumber.toString());
                             makePhoneCall(
                                 widget.sData[count].mobileNumber.toString());
                           },
@@ -320,7 +313,6 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
-                              // ignore: prefer_const_constructors
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.blueAccent)),
