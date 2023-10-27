@@ -10,6 +10,7 @@ import '../models/student_model.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import '../widgets/alert_dialog.dart';
 import '../widgets/select_number.dart';
 import 'callinfg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -261,55 +262,67 @@ class _HomepageState extends State<Homepage> {
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        setState(() {
-          loading = false;
-        });
-        var jsonResponse = await response.stream.bytesToString();
-        List<dynamic> dataList = json.decode(jsonResponse);
-        print("After:-${studentinfo.length}");
-        for (var item in dataList) {
-          studentinfo.add(StudentData.fromJson(item));
-        }
-
-        print("Befor:-${studentinfo.length}");
-        if (studentinfo.isNotEmpty) {
+        try {
           setState(() {
-            saveUsersList(studentinfo);
-            loadUsersList();
-            isFileuploaded = true;
+            loading = false;
           });
-        } else {
-          if (context.mounted) {
-            showAboutDialog(
-                context: context,
-                applicationName: 'Error',
-                children: [
-                  const Text('Some Error in Data Formate'),
-                ]);
+          var jsonResponse = await response.stream.bytesToString();
+          List<dynamic> dataList = json.decode(jsonResponse);
+
+          for (var item in dataList) {
+            studentinfo.add(StudentData.fromJson(item));
           }
+
+          if (studentinfo.isNotEmpty) {
+            setState(() {
+              saveUsersList(studentinfo);
+              loadUsersList();
+              isFileuploaded = true;
+            });
+          } else {
+            if (context.mounted) {
+              showDialog(
+                context: context,
+                builder: (ctx) =>
+                    const alert_dialog(response: 'Some Error in Data Formate', title: 'Error',),
+              );
+            }
+            setState(() {
+              isFileuploaded = false;
+            });
+          }
+        } catch (e) {
           setState(() {
             isFileuploaded = false;
+            // studentinfo = List.empty();
           });
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (ctx) => alert_dialog(response: 'Some Error in $e', title: 'Error',),
+            );
+          }
         }
       } else {
         setState(() {
           loading = false;
         });
         if (context.mounted) {
-          showAboutDialog(
-              context: context,
-              applicationName: 'Error',
-              children: [
-                Text(
-                    'Failed to upload file. Status code: ${response.statusCode}'),
-              ]);
+          showDialog(
+            context: context,
+            builder: (ctx) => alert_dialog(
+                response:
+                    'Failed to upload file. Status code: ${response.statusCode}', title: 'Fail',),
+          );
         }
       }
     } else {
       if (context.mounted) {
-        showAboutDialog(context: context, applicationName: 'Error', children: [
-          const Text('Failed to upload file'),
-        ]);
+        showDialog(
+          context: context,
+          builder: (ctx) =>
+              const alert_dialog(response: 'Failed to upload file', title: 'Fail',),
+        );
       }
       setState(() {
         loading = false;
