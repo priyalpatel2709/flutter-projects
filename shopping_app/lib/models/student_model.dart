@@ -64,22 +64,22 @@ class StudentData {
   String toRawJson() => json.encode(toJson());
 
   factory StudentData.fromJson(Map<String, dynamic> json) => StudentData(
-        srNo: json["Sr.\nNo."],
-        blockName: blockNameValues.map[json["Block Name"]]!,
-        candidateName: json["Candidate Name"],
-        motherName: json["Mother Name"],
+        srNo: json["undefined"]!,
+        blockName: blockNameValues.map[json["Block Name"]],
+        candidateName: json["Candidate Name"]!,
+        motherName: json["Mother Name"]!,
         fatherName: json["Father Name"],
         area: areaValues.map[json["Area"]]!,
-        gender: genderValues.map[json["Gender"]]!,
-        category: categoryValues.map[json["Category"]]!,
-        mobileNumber: json["Mobile Number"],
+        gender: genderValues.map[json["Gender"]],
+        category: categoryValues.map[json["Category"]],
+        mobileNumber: json["Mobile Number"]!,
         nameOfSchool: json["Name Of School"],
         presentPostalAddress: json["Present Postal Address"],
-        mediumOfExam: mediumOfExamValues.map[json["Medium of Exam"]]!,
+        mediumOfExam: mediumOfExamValues.map[json["Medium of Exam"]],
       );
 
   Map<String, dynamic> toJson() => {
-        "Sr.\nNo.": srNo,
+        "undefined": srNo,
         "Block Name": blockNameValues.reverse[blockName],
         "Candidate Name": candidateName,
         "Mother Name": motherName,

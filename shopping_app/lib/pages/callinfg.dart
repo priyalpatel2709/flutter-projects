@@ -299,6 +299,7 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                               backgroundColor: MaterialStateProperty.all(
                                   colorScheme.inversePrimary)),
                           onPressed: () {
+                            print(widget.sData[count].mobileNumber.toString());
                             makePhoneCall(
                                 widget.sData[count].mobileNumber.toString());
                           },

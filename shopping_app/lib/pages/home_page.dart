@@ -252,7 +252,7 @@ class _HomepageState extends State<Homepage> {
       String? filePath = file.path;
 
       var request = http.MultipartRequest(
-          'POST', Uri.parse('http://10.0.2.2:3000/upload'));
+          'POST', Uri.parse('https://excel-to-pdf.onrender.com/upload'));
 
       request.files
           .add(await http.MultipartFile.fromPath('excelFile', filePath!));
@@ -261,7 +261,6 @@ class _HomepageState extends State<Homepage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          isFileuploaded = true;
           loading = false;
         });
         var jsonResponse = await response.stream.bytesToString();
@@ -275,6 +274,7 @@ class _HomepageState extends State<Homepage> {
         setState(() {
           saveUsersList(studentinfo);
           loadUsersList();
+          isFileuploaded = true;
         });
       } else {
         setState(() {
@@ -286,8 +286,12 @@ class _HomepageState extends State<Homepage> {
         ]);
       }
     } else {
+      showAboutDialog(context: context, applicationName: 'Error', children: [
+        Text('Failed to upload file. Status code'),
+      ]);
       setState(() {
         loading = false;
+        isFileuploaded = true;
       });
     }
   }
