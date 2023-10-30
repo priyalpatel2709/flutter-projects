@@ -67,6 +67,8 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       if (state == AppLifecycleState.resumed) {
         if (autoCallimg) {
           _startCountdown();
+        } else {
+          _countdownTimer?.cancel();
         }
       } else {
         // App is not resumed, cancel the countdown timer
@@ -79,14 +81,18 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     _countdownTimer?.cancel();
     _countdownValue = 5;
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_countdownValue > 0) {
-        setState(() {
-          _countdownValue--;
-        });
+      if (autoCallimg) {
+        if (_countdownValue > 0) {
+          setState(() {
+            _countdownValue--;
+          });
+        } else {
+          timer.cancel();
+          nextNumber();
+          _startAnotherTimer();
+        }
       } else {
         timer.cancel();
-        nextNumber();
-        _startAnotherTimer();
       }
     });
   }
@@ -95,13 +101,17 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     _countdownTimer?.cancel();
     _countdownValue2 = 10;
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_countdownValue2 > 0) {
-        setState(() {
-          _countdownValue2--;
-        });
+      if (autoCallimg) {
+        if (_countdownValue2 > 0) {
+          setState(() {
+            _countdownValue2--;
+          });
+        } else {
+          timer.cancel();
+          makePhoneCall(widget.sData[count].mobileNumber.toString());
+        }
       } else {
         timer.cancel();
-        makePhoneCall(widget.sData[count].mobileNumber.toString());
       }
     });
   }
