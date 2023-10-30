@@ -18,12 +18,14 @@ class CallScreen extends StatefulWidget {
   final List<StudentData> sData;
   final int currentIndex;
   final bool callDone;
+  final bool autoToggle;
 
   const CallScreen(
       {super.key,
       required this.sData,
       required this.currentIndex,
-      required this.callDone});
+      required this.callDone,
+      required this.autoToggle});
 
   @override
   State<CallScreen> createState() => _CallScreenState();
@@ -34,6 +36,7 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   TextEditingController messageController = TextEditingController();
   late int count;
   bool isLastCall = false;
+  bool autoCallimg = false;
   List<StudentData> finalInfo = [];
   late bool whatsappmessge;
   String whatsAppmess = 'hello';
@@ -48,6 +51,7 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     count = widget.currentIndex;
     whatsappmessge = widget.callDone;
+    autoCallimg = widget.autoToggle;
   }
 
   @override
@@ -61,8 +65,9 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     setState(() {
       _appLifecycleState = state;
       if (state == AppLifecycleState.resumed) {
-        // App is resumed, start a 5-second countdown
-        _startCountdown();
+        if (autoCallimg) {
+          _startCountdown();
+        }
       } else {
         // App is not resumed, cancel the countdown timer
         _countdownTimer?.cancel();
@@ -174,6 +179,7 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     await prefs.remove('lastCallCount');
     await prefs.remove('isCalled');
     await prefs.remove('cropUsers');
+    await prefs.remove('autoCallimg');
   }
 
   @override
@@ -183,6 +189,40 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          Switch(
+            value: autoCallimg,
+            thumbColor: const MaterialStatePropertyAll<Color>(Colors.black),
+            onChanged: (bool value) async {
+              final prefs = await SharedPreferences.getInstance();
+
+              setState(() {
+                autoCallimg = value;
+              });
+              if (autoCallimg) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Auto calling is ON'),
+                      elevation: 10,
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(milliseconds: 500),
+                      margin: EdgeInsets.all(5),
+                      shape: StadiumBorder()));
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Auto calling is OFF'),
+                      elevation: 10,
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(milliseconds: 500),
+                      margin: EdgeInsets.all(5),
+                      shape: StadiumBorder()));
+                }
+              }
+              await prefs.setBool('autoCallimg', autoCallimg);
+            },
+          ),
           IconButton(
               onPressed: () {
                 openMessageChangerDialog(context, whatsAppmess);
@@ -299,7 +339,9 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(_countdownValue2.toString()),
+                              autoCallimg
+                                  ? Text(_countdownValue2.toString())
+                                  : const SizedBox(),
                               const SizedBox(
                                 width: 8.0,
                               ),
@@ -319,7 +361,10 @@ class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                               onPressed: () {
                                 nextNumber();
                               },
-                              child: skip_btn(countdownValue: _countdownValue),
+                              child: skip_btn(
+                                countdownValue: _countdownValue,
+                                auto: autoCallimg,
+                              ),
                             ),
                             const SizedBox(
                               width: 8.0,

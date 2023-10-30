@@ -4,9 +4,11 @@ class skip_btn extends StatelessWidget {
   const skip_btn({
     super.key,
     required int countdownValue,
+    required this.auto,
   }) : _countdownValue = countdownValue;
 
   final int _countdownValue;
+  final bool auto;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class skip_btn extends StatelessWidget {
         const SizedBox(
           width: 6.0,
         ),
-        Text(_countdownValue.toString())
+        auto ? Text(_countdownValue.toString()) : const SizedBox()
       ],
     );
   }

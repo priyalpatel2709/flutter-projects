@@ -21,6 +21,7 @@ class _SplashscreenState extends State<Splashscreen> {
   List<StudentData> CropInfo = [];
   int count = 0;
   bool whatsappmessge = false;
+  bool autoCallimg = false;
 
   @override
   void initState() {
@@ -33,13 +34,16 @@ class _SplashscreenState extends State<Splashscreen> {
     final loadedUsers = await getCropUsersList();
     var getCount = await getLastCallCount();
     var getiscalled = await getLastCallBool();
+    var getAutocall = await getautoCallimg();
 
     getCount ??= 0;
     getiscalled ??= false;
+    getAutocall ??= false;
     setState(() {
       finalInfo = loadedUsers;
       count = getCount!;
       whatsappmessge = getiscalled!;
+      autoCallimg = getAutocall!;
     });
   }
 
@@ -75,6 +79,11 @@ class _SplashscreenState extends State<Splashscreen> {
     return prefs.getBool('isCalled');
   }
 
+  Future<bool?> getautoCallimg() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('autoCallimg');
+  }
+
   void wharetogo() async {
     Future.delayed(const Duration(seconds: 2), () {
       if (finalInfo.isNotEmpty) {
@@ -85,6 +94,7 @@ class _SplashscreenState extends State<Splashscreen> {
                       sData: finalInfo,
                       currentIndex: count,
                       callDone: whatsappmessge,
+                      autoToggle: autoCallimg,
                     )));
       } else {
         Navigator.pushReplacement(

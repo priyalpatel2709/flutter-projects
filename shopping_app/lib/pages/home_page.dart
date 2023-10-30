@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/alert_dialog.dart';
 import '../widgets/select_number.dart';
+import '../widgets/snackbar.dart';
 import 'callinfg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,6 +99,7 @@ class _HomepageState extends State<Homepage> {
                                         sData: crpo,
                                         currentIndex: 0,
                                         callDone: false,
+                                        autoToggle: false,
                                       )));
                         } else {
                           if (kDebugMode) {
@@ -157,11 +159,12 @@ class _HomepageState extends State<Homepage> {
         message =
             'select b/w ${originalList[0].srNo} and ${originalList[originalList.length - 1].srNo}';
       });
-
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(message),
           elevation: 10,
-          // behavior: SnackBarBehavior.floating,
+          duration: const Duration(milliseconds: 500),
+          behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(5),
           shape: const StadiumBorder()));
     } else {
@@ -254,7 +257,7 @@ class _HomepageState extends State<Homepage> {
       String? filePath = file.path;
 
       var request = http.MultipartRequest(
-          'POST', Uri.parse('https://excel-to-pdf.onrender.com/upload'));
+          'POST', Uri.parse('http://10.0.2.2:3000/upload'));
 
       request.files
           .add(await http.MultipartFile.fromPath('excelFile', filePath!));
@@ -283,8 +286,10 @@ class _HomepageState extends State<Homepage> {
             if (context.mounted) {
               showDialog(
                 context: context,
-                builder: (ctx) =>
-                    const alert_dialog(response: 'Some Error in Data Formate', title: 'Error',),
+                builder: (ctx) => const alert_dialog(
+                  response: 'Some Error in Data Formate',
+                  title: 'Error',
+                ),
               );
             }
             setState(() {
@@ -299,7 +304,10 @@ class _HomepageState extends State<Homepage> {
           if (context.mounted) {
             showDialog(
               context: context,
-              builder: (ctx) => alert_dialog(response: 'Some Error in $e', title: 'Error',),
+              builder: (ctx) => alert_dialog(
+                response: 'Some Error in $e',
+                title: 'Error',
+              ),
             );
           }
         }
@@ -311,8 +319,10 @@ class _HomepageState extends State<Homepage> {
           showDialog(
             context: context,
             builder: (ctx) => alert_dialog(
-                response:
-                    'Failed to upload file. Status code: ${response.statusCode}', title: 'Fail',),
+              response:
+                  'Failed to upload file. Status code: ${response.statusCode}',
+              title: 'Fail',
+            ),
           );
         }
       }
@@ -320,8 +330,10 @@ class _HomepageState extends State<Homepage> {
       if (context.mounted) {
         showDialog(
           context: context,
-          builder: (ctx) =>
-              const alert_dialog(response: 'Failed to upload file', title: 'Fail',),
+          builder: (ctx) => const alert_dialog(
+            response: 'Failed to upload file',
+            title: 'Fail',
+          ),
         );
       }
       setState(() {
@@ -340,5 +352,25 @@ class _HomepageState extends State<Homepage> {
     } else {
       return false;
     }
+  }
+}
+
+class snackbar_widgte extends StatelessWidget {
+  const snackbar_widgte({
+    super.key,
+    required this.message,
+  });
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return SnackBar(
+        content: Text(message),
+        elevation: 10,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(5),
+        duration: const Duration(milliseconds: 500),
+        shape: const StadiumBorder());
   }
 }
