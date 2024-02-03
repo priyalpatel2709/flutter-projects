@@ -1,11 +1,6 @@
-// views/result_screen.dart
-
 import 'package:flutter/material.dart';
-
 import '../viewmodels/app_viewmodel.dart';
 import 'home_screen.dart';
-// import 'package:your_project_name/views/home_screen.dart';
-// import 'package:your_project_name/viewmodels/app_viewmodel.dart';
 
 class ResultScreen extends StatelessWidget {
   final int totalScore;

@@ -1,5 +1,3 @@
-// viewmodels/app_viewmodel.dart
-
 import 'package:flutter/material.dart';
 
 class AppViewModel {

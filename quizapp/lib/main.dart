@@ -1,5 +1,3 @@
-// main.dart
-
 import 'package:flutter/material.dart';
 import 'database/database_helper.dart';
 import 'my_app.dart';

@@ -1,5 +1,3 @@
-// views/quiz_screen.dart
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,8 +6,6 @@ import '../models/question.dart';
 import '../viewmodels/app_viewmodel.dart';
 import '../viewmodels/quiz_viewmodel.dart';
 import 'result_screen.dart';
-// import 'package:your_project_name/models/question.dart';
-// import 'package:your_project_name/viewmodels/quiz_viewmodel.dart';
 
 class QuizScreen extends StatefulWidget {
   @override
@@ -116,13 +112,6 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: const Text('Quiz Game'),
         backgroundColor: AppViewModel.primaryColor,
-        actions: [
-          Text(
-            'Timer: $_secondsLeft s',
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -144,10 +133,19 @@ class _QuizScreenState extends State<QuizScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Question ${currentQuestionIndex + 1}/${_viewModel.questions.length}',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Question ${currentQuestionIndex + 1}/${_viewModel.questions.length}',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Timer: $_secondsLeft s',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Text(
@@ -172,23 +170,25 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ElevatedButton(
-        onPressed: () {
-          _handleAnswer(option);
-        },
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return isCorrectOption
-                    ? AppViewModel.accentColor
-                    : AppViewModel.errorColor;
-              }
-              return AppViewModel.backgroundColor;
-            },
+      child: Expanded(
+        child: ElevatedButton(
+          onPressed: () {
+            _handleAnswer(option);
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.pressed)) {
+                  return isCorrectOption
+                      ? AppViewModel.accentColor
+                      : AppViewModel.errorColor;
+                }
+                return AppViewModel.backgroundColor;
+              },
+            ),
           ),
+          child: Text(option, style: const TextStyle(fontSize: 16)),
         ),
-        child: Text(option, style: const TextStyle(fontSize: 16)),
       ),
     );
   }
