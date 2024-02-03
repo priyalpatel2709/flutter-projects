@@ -14,16 +14,43 @@ class QuizViewModel {
     List<Map<String, dynamic>>? questionMaps =
         await databaseHelper.getQuestions();
 
-    questions = List.generate(questionMaps!.length, (index) {
+    // Convert the read-only list to a mutable list
+    List<Map<String, dynamic>> mutableQuestionMaps =
+        List<Map<String, dynamic>>.from(questionMaps ?? []);
+
+    // Shuffle the mutable list of questions
+    mutableQuestionMaps.shuffle();
+
+    // Select the first 10 questions
+    List<Map<String, dynamic>> selectedQuestionMaps =
+        mutableQuestionMaps.take(10).toList();
+
+    // Convert the selected questions to Question objects
+    questions = List.generate(selectedQuestionMaps.length, (index) {
+      // Extract correct answer and incorrect options
+      String correctAnswer = selectedQuestionMaps[index]['correctAnswer'];
+      List<String> incorrectOptions = [
+        selectedQuestionMaps[index]['option1'],
+        selectedQuestionMaps[index]['option2'],
+        selectedQuestionMaps[index]['option3'],
+        selectedQuestionMaps[index]['option4'],
+      ]..remove(correctAnswer);
+
+      // Shuffle the incorrect options
+      incorrectOptions.shuffle();
+
+      // Take only 2 random incorrect options
+      List<String> displayOptions = [
+        correctAnswer,
+        incorrectOptions[0],
+        incorrectOptions[1],
+      ]..shuffle();
+
       return Question(
-        id: questionMaps[index]['id'],
-        question: questionMaps[index]['question'],
-        option1: questionMaps[index]['option1'],
-        option2: questionMaps[index]['option2'],
-        option3: questionMaps[index]['option3'],
-        option4: questionMaps[index]['option4'],
-        correctAnswer: questionMaps[index]['correctAnswer'],
-        // isCorrect: false,
+        id: selectedQuestionMaps[index]['id'],
+        question: selectedQuestionMaps[index]['question'],
+        correctAnswer: correctAnswer,
+        displayOptions: displayOptions,
       );
     });
   }

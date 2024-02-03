@@ -11,7 +11,10 @@ class ResultScreen extends StatelessWidget {
   final int totalScore;
   final int correctAnswers;
 
-  ResultScreen({required this.totalScore, required this.correctAnswers});
+  ResultScreen(
+      {super.key, required this.totalScore, required this.correctAnswers});
+
+  Color messageTextColor = AppViewModel.accentColor;
 
   String _getResultMessage() {
     if (correctAnswers == 10) {
@@ -25,6 +28,7 @@ class ResultScreen extends StatelessWidget {
     } else if (correctAnswers >= 3) {
       return 'Well played but you failed. All The Best for Next Game.';
     } else {
+      messageTextColor = AppViewModel.errorColor;
       return 'Sorry, You failed.';
     }
   }
@@ -34,36 +38,37 @@ class ResultScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Result'),
+        backgroundColor: AppViewModel.primaryColor,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Total Score: $totalScore',
-            style: TextStyle(fontSize: 20, color: AppViewModel.primaryColor),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            _getResultMessage(),
-            style: TextStyle(fontSize: 18, color: AppViewModel.primaryColor),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: AppViewModel.accentColor,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Total Score: $totalScore',
+              style: TextStyle(fontSize: 20, color: AppViewModel.primaryColor),
             ),
-            child: const Text('Play Again'),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Text(
+              _getResultMessage(),
+              style: TextStyle(fontSize: 18, color: messageTextColor),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              },
+              child: const Text('Play Again'),
+            ),
+          ],
+        ),
       ),
     );
   }
