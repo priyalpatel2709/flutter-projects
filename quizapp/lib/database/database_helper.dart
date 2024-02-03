@@ -70,7 +70,6 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>?> getQuestions() async {
     Database? db = await database;
-    log('db----->$db');
     return await db?.query('questions');
   }
 }

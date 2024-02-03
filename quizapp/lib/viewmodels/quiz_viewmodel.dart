@@ -14,8 +14,6 @@ class QuizViewModel {
     List<Map<String, dynamic>>? questionMaps =
         await databaseHelper.getQuestions();
 
-        print('questionMaps=====>$questionMaps');
-
     questions = List.generate(questionMaps!.length, (index) {
       return Question(
         id: questionMaps[index]['id'],
