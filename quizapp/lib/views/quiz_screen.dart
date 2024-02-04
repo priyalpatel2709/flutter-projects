@@ -117,10 +117,11 @@ class _QuizScreenState extends State<QuizScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Container(
           padding: const EdgeInsets.all(16.0),
-          width: 500,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.5,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey, width: 1.0),
-            borderRadius: BorderRadius.circular(10.0),
+            // borderRadius: BorderRadius.circular(10.0),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.3),
@@ -170,24 +171,35 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Expanded(
-        child: ElevatedButton(
-          onPressed: () {
-            _handleAnswer(option);
-          },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-                if (states.contains(MaterialState.pressed)) {
-                  return isCorrectOption
-                      ? AppViewModel.accentColor
-                      : AppViewModel.errorColor;
-                }
-                return AppViewModel.backgroundColor;
-              },
+      child: ElevatedButton(
+        onPressed: () {
+          _handleAnswer(option);
+        },
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+            RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(0), // Set to 0 for a square button
             ),
           ),
-          child: Text(option, style: const TextStyle(fontSize: 16)),
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) {
+                return isCorrectOption
+                    ? AppViewModel.accentColor
+                    : AppViewModel.errorColor;
+              }
+              return AppViewModel.backgroundColor;
+            },
+          ),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: Text(option,
+                style: const TextStyle(fontSize: 16, color: Colors.black54)),
+          ),
         ),
       ),
     );
