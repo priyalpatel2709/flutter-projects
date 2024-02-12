@@ -6,6 +6,7 @@ import '../pages/login_page.dart';
 import '../pages/offlinescreen.dart';
 import '../pages/singup_page.dart';
 import '../pages/splash_screen.dart';
+import '../pages/updateapppage.dart';
 import 'routes_name.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +40,9 @@ class Routes {
 
       case RoutesName.OfflineScreen:
         return MaterialPageRoute(builder: (context) => Offlinescreen());
+
+      case RoutesName.updatetheapp:
+        return MaterialPageRoute(builder: (context) => Updateapppage());
 
       default:
         return MaterialPageRoute(

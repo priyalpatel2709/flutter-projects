@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../model/alluserData.dart';
+import '../model/appInfo_model.dart';
 import '../model/chatmessage.dart';
 import '../route/routes_name.dart';
-
 
 String baseUrl = dotenv.get('API_ENDPOINT');
 
@@ -55,7 +56,7 @@ class ChatServices {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/message'),
+        Uri.parse('$baseUrl/api/message'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -82,7 +83,7 @@ class ChatServices {
       String senderId, String messageId, String token) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/message/$messageId/$senderId'),
+        Uri.parse('$baseUrl/api/message/$messageId/$senderId'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -102,11 +103,15 @@ class ChatServices {
   static Future<List<FetchUser>> fetchUser(String name, String token) async {
     try {
       if (name != '') {
-        final url = Uri.parse('$baseUrl/user?search=$name');
+        final url = Uri.parse('$baseUrl/api/user?search=$name');
+        // print('url-------->$url');
+        // print('token-------->$token');
         final response = await http.get(
           url,
           headers: {'Authorization': 'Bearer $token'},
         );
+
+        // print('response------->${response.body}');
 
         if (response.statusCode == 200) {
           final jsonData = jsonDecode(response.body);
@@ -131,7 +136,7 @@ class ChatServices {
   static Future<bool> accessChat(String? sId, String token) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/chat'),
+        Uri.parse('$baseUrl/api/chat'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -145,6 +150,26 @@ class ChatServices {
         return true;
       } else {
         throw Exception('Failed to access chat');
+      }
+    } catch (e) {
+      throw Exception('Failed to access chat');
+    }
+  }
+
+  static Future<AppInfo> getAppinfo(String appName) async {
+    final url = Uri.parse('$baseUrl/api/appinfo/getAppInfo?appname=$appName');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> parsedJson = json.decode(response.body);
+        AppInfo appInfo = AppInfo.fromJson(parsedJson);
+        // final jsonData = jsonDecode(response.body) as List;
+        // List<AppInfo> appInfoList =
+        //     jsonData.map((json) => AppInfo.fromJson(json)).toList();
+        return appInfo;
+      } else {
+        throw Exception('Failed to fetch app info: ${response.body}');
       }
     } catch (e) {
       throw Exception('Failed to access chat');

@@ -1,15 +1,20 @@
 // ignore_for_file: prefer_const_constructors, library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../data/database.dart';
+import '../model/appInfo_model.dart';
 import '../notifications/nodificationservices.dart';
 import '../route/routes_name.dart';
+import '../services/services.dart';
+import '../utilits/miscellaneous.dart';
 
 class Splash_Screen extends StatefulWidget {
   const Splash_Screen({Key? key}) : super(key: key);
@@ -26,6 +31,42 @@ class _Splash_ScreenState extends State<Splash_Screen>
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+  final Uri toLaunch =
+      Uri(scheme: 'https', host: 'download-apk.onrender.com', path: '/');
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('App Update'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('New Version is avelable please update the app'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                launchInBrowser(toLaunch);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -45,6 +86,7 @@ class _Splash_ScreenState extends State<Splash_Screen>
 
   void wharetogo() async {
     await initConnectivity();
+    appupdatedialog();
 
     if (_connectionStatus == ConnectivityResult.none) {
       _switchToScreen(RoutesName.OfflineScreen);
@@ -60,6 +102,23 @@ class _Splash_ScreenState extends State<Splash_Screen>
 
   void _switchToScreen(rouename) {
     Navigator.pushReplacementNamed(context, rouename);
+  }
+
+  void appupdatedialog() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+    String appName = packageInfo.appName;
+    AppInfo appinfo = await ChatServices.getAppinfo(appName);
+
+    if (version != appinfo.appVresion) {
+      if (int.tryParse(appinfo.appUpdateVersion) == 1) {
+        print('show pop-up for update');
+        _showMyDialog();
+      } else if (int.tryParse(appinfo.appforceUpdateVersion) == 1) {
+        print('update force-fully');
+        _switchToScreen(RoutesName.updatetheapp);
+      }
+    }
   }
 
   Future<void> initConnectivity() async {

@@ -7,4 +7,5 @@ class RoutesName {
   static const String Chatmessage_page = 'Chatmessage_page';
   static const String Groupchat = 'Groupchat';
   static const String OfflineScreen = 'Offlinescreen';
+  static const String updatetheapp = 'appupdate';
 }
