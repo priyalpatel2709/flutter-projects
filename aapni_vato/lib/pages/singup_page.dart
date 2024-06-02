@@ -39,7 +39,7 @@ class _SingupState extends State<Singup> {
   bool imgLoading = false;
   bool isImg = false;
   var picUrl = '';
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
   bool passwordVisible = false;
 
   Widget _buildTextField(TextEditingController controller, String label,

@@ -88,121 +88,206 @@ class Message_lisiview extends StatelessWidget {
             children: [
               Container(
                 constraints: const BoxConstraints(
-                  maxWidth: 300,
+                  maxHeight: double.infinity, // Adjust this as needed
                 ),
-                padding: const EdgeInsets.all(8),
-                decoration: containsUrl
-                    ? BoxDecoration(
-                        color: colors,
-                        borderRadius: BorderRadius.only(
-                            topRight: right
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(20.0),
-                            bottomRight: const Radius.circular(20.0),
-                            topLeft: left
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(20.0),
-                            bottomLeft: const Radius.circular(20.0)),
-                      )
-                    : BoxDecoration(
-                        color: colors,
-                        borderRadius: BorderRadius.only(
-                            topRight: right
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(40.0),
-                            bottomRight: const Radius.circular(40.0),
-                            topLeft: left
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(40.0),
-                            bottomLeft: const Radius.circular(40.0)),
-                      ),
-                child: containsUrl
-                    ? InkWell(
-                        onDoubleTap: onDeleteMes,
-                        child: Image.network(content),
-                      )
-                    : InkWell(
-                        onDoubleTap: onDeleteMes,
-                        child: !isGroupChat
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: content,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
+                child: Flexible(
+                  child: Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: 300,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    decoration: containsUrl
+                        ? BoxDecoration(
+                            color: colors,
+                            borderRadius: BorderRadius.only(
+                              topRight: right
+                                  ? const Radius.circular(0.0)
+                                  : const Radius.circular(20.0),
+                              bottomRight: const Radius.circular(20.0),
+                              topLeft: left
+                                  ? const Radius.circular(0.0)
+                                  : const Radius.circular(20.0),
+                              bottomLeft: const Radius.circular(20.0),
+                            ),
+                          )
+                        : BoxDecoration(
+                            color: colors,
+                            borderRadius: BorderRadius.only(
+                              topRight: right
+                                  ? const Radius.circular(0.0)
+                                  : const Radius.circular(40.0),
+                              bottomRight: const Radius.circular(40.0),
+                              topLeft: left
+                                  ? const Radius.circular(0.0)
+                                  : const Radius.circular(40.0),
+                              bottomLeft: const Radius.circular(40.0),
+                            ),
+                          ),
+                    child: containsUrl
+                        ? InkWell(
+                            onDoubleTap: onDeleteMes,
+                            child: Image.network(content),
+                          )
+                        : InkWell(
+                            onDoubleTap: onDeleteMes,
+                            child: !isGroupChat
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            content,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                            softWrap: true,
+                                            maxLines:
+                                                10, // Max lines to display initially
+                                            overflow: TextOverflow
+                                                .ellipsis, // Show ellipsis when exceeding max lines
                                           ),
-                                        ),
-                                        TextSpan(
-                                          text: ' ${messageTime(createdAt)}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
+                                          const SizedBox(height: 4),
+                                          if (content.length >
+                                              200) // Adjust the length as needed
+                                            GestureDetector(
+                                              onTap: () {
+                                                // Handle "show more" action
+                                              },
+                                              child: const Text(
+                                                'Show more',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                messageTime(createdAt),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              if (isSameSender)
+                                                if (status == 'Offline')
+                                                  const Icon(
+                                                    Icons.check,
+                                                    size: 18,
+                                                  )
+                                                else if (status == 'Inchat')
+                                                  Image.asset(
+                                                    'assets/img/double-tick-indicator.png',
+                                                    height: 20,
+                                                    color: Colors.blue,
+                                                  )
+                                                else
+                                                  Image.asset(
+                                                    'assets/img/double-tick-indicator.png',
+                                                    height: 20,
+                                                  ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (isSameSender)
-                                    if (status == 'Offline')
-                                      const Icon(
-                                        Icons.check,
-                                        size: 18,
-                                      )
-                                    else if (status == 'Inchat')
-                                      SizedBox(
-                                          height: 20,
-                                          child: Image.asset(
-                                            'assets/img/double-tick-indicator.png',
-                                            color: Colors.blue,
-                                          ))
-                                    else
-                                      SizedBox(
-                                          height: 20,
-                                          child: Image.asset(
-                                              'assets/img/double-tick-indicator.png'))
-                                ],
-                              )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (!right)
-                                    RichText(
-                                      text: TextSpan(
-                                        text: '~ $senderName',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black,
-                                        ),
+                                        ],
                                       ),
-                                    ),
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: content,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: ' ${messageTime(createdAt)}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    ],
                                   )
-                                ],
-                              ),
-                      ),
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (!right)
+                                        RichText(
+                                          text: TextSpan(
+                                            text: '~ $senderName',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            content,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                            softWrap: true,
+                                            maxLines:
+                                                10, // Max lines to display initially
+                                            overflow: TextOverflow
+                                                .ellipsis, // Show ellipsis when exceeding max lines
+                                          ),
+                                          const SizedBox(height: 4),
+                                          if (content.length >
+                                              200) // Adjust the length as needed
+                                            GestureDetector(
+                                              onTap: () {
+                                                // Handle "show more" action
+                                              },
+                                              child: const Text(
+                                                'Show more',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                messageTime(createdAt),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              if (isSameSender)
+                                                if (status == 'Offline')
+                                                  const Icon(
+                                                    Icons.check,
+                                                    size: 18,
+                                                  )
+                                                else if (status == 'Inchat')
+                                                  Image.asset(
+                                                    'assets/img/double-tick-indicator.png',
+                                                    height: 20,
+                                                    color: Colors.blue,
+                                                  )
+                                                else
+                                                  Image.asset(
+                                                    'assets/img/double-tick-indicator.png',
+                                                    height: 20,
+                                                  ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                  ),
+                ),
               ),
             ],
           ),

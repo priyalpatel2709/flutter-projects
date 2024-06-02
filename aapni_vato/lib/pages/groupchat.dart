@@ -26,7 +26,7 @@ class _GroupchatState extends State<Groupchat> {
   UserInfo userInfo = UserInfo();
   bool isTyping = false;
   bool isData = false;
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
 
   @override
   void initState() {

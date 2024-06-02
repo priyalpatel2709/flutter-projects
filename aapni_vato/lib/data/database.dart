@@ -1,6 +1,6 @@
 import 'package:hive_flutter/adapters.dart';
 
-import '../model/alluserData.dart';
+// import '../model/alluserData.dart';
 
 @HiveType(typeId: 0)
 class User {

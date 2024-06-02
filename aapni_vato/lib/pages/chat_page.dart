@@ -22,7 +22,7 @@ class Chatpage extends StatefulWidget {
 class _ChatpageState extends State<Chatpage> {
   NotificationServices notificationServices = NotificationServices();
 
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
