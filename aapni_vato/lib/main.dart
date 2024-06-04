@@ -12,7 +12,7 @@ import 'route/route.dart';
 import 'route/routes_name.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  // await dotenv.load(fileName: ".env");
   Hive.registerAdapter(UserAdapter());
   await Hive.initFlutter();
   await Hive.openBox('user_info');

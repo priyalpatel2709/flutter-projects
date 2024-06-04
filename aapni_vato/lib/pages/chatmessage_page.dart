@@ -55,7 +55,7 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
   String status = '';
   bool typing = false;
   bool istyping = false;
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
   // Stream controller for the chat messages
   // final _messageStreamController = StreamController<ChatMessage>();
 
@@ -267,6 +267,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   temp: temp,
                   index: index,
                   status: chatMessage.status,
+                  onTap: () {
+                    print('test');
+                  },
                 );
               },
             ),

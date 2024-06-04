@@ -7,7 +7,7 @@ import '../model/appInfo_model.dart';
 import '../model/chatmessage.dart';
 import '../route/routes_name.dart';
 
-String baseUrl = dotenv.get('API_ENDPOINT');
+String baseUrl = 'http://93.127.198.210:3000';
 
 class ApiResult<T> {
   final bool success;

@@ -1,9 +1,13 @@
 import 'package:aapni_vato/widgets/todaydate.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class Message_lisiview extends StatelessWidget {
+import '../utilits/miscellaneous.dart';
+
+class Message_lisiview extends StatefulWidget {
   final VoidCallback onDeleteMes;
+  final VoidCallback onTap;
   final String content;
   final bool isGroupChat;
   final String senderName;
@@ -27,8 +31,14 @@ class Message_lisiview extends StatelessWidget {
     required this.index,
     this.temp,
     required this.status,
+    required this.onTap,
   }) : super(key: key);
 
+  @override
+  State<Message_lisiview> createState() => _Message_lisiviewState();
+}
+
+class _Message_lisiviewState extends State<Message_lisiview> {
   // Method to format time
   String formatTime(DateTime dateTime) {
     final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
@@ -48,16 +58,43 @@ class Message_lisiview extends StatelessWidget {
     return formatTime(dateTime); // Output: 10:47 AM
   }
 
+  bool showFullText = false;
+
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool containsUrl = content
+    bool containsImageUrl = widget.content
         .toString()
         .contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/");
+
+    bool containsUrl = widget.content.toString().contains("http");
     CrossAxisAlignment alignment;
     bool right;
     bool left;
     Color colors;
-    bool isSameSender = chatSenderId == storedUserId;
+    bool isSameSender = widget.chatSenderId == widget.storedUserId;
     if (isSameSender) {
       alignment = CrossAxisAlignment.end;
       right = true;
@@ -71,17 +108,17 @@ class Message_lisiview extends StatelessWidget {
     }
 
     // Get the date from createdAt
-    String dateOnly = getDateOnly(createdAt);
+    String dateOnly = getDateOnly(widget.createdAt);
 
     return Column(
       children: [
         Today(
-          i: index,
+          i: widget.index,
           mCreatedAtDate: dateOnly,
-          temp: temp,
+          temp: widget.temp,
         ),
         ListTile(
-          key: key,
+          // key: key,
           title: Column(
             crossAxisAlignment: alignment,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -91,81 +128,110 @@ class Message_lisiview extends StatelessWidget {
                   maxWidth: 300,
                 ),
                 padding: const EdgeInsets.all(8),
-                decoration: containsUrl
+                decoration: containsImageUrl
                     ? BoxDecoration(
                         color: colors,
                         borderRadius: BorderRadius.only(
-                            topRight: right
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(20.0),
-                            bottomRight: const Radius.circular(20.0),
-                            topLeft: left
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(20.0),
-                            bottomLeft: const Radius.circular(20.0)),
+                          topRight: right
+                              ? const Radius.circular(0.0)
+                              : const Radius.circular(20.0),
+                          bottomRight: const Radius.circular(20.0),
+                          topLeft: left
+                              ? const Radius.circular(0.0)
+                              : const Radius.circular(20.0),
+                          bottomLeft: const Radius.circular(20.0),
+                        ),
                       )
                     : BoxDecoration(
                         color: colors,
                         borderRadius: BorderRadius.only(
-                            topRight: right
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(40.0),
-                            bottomRight: const Radius.circular(40.0),
-                            topLeft: left
-                                ? const Radius.circular(0.0)
-                                : const Radius.circular(40.0),
-                            bottomLeft: const Radius.circular(40.0)),
+                          topRight: right
+                              ? const Radius.circular(0.0)
+                              : const Radius.circular(20.0),
+                          bottomRight: const Radius.circular(20.0),
+                          topLeft: left
+                              ? const Radius.circular(0.0)
+                              : const Radius.circular(20.0),
+                          bottomLeft: const Radius.circular(20.0),
+                        ),
                       ),
-                child: containsUrl
+                child: containsImageUrl
                     ? InkWell(
-                        onDoubleTap: onDeleteMes,
-                        child: Image.network(content),
+                        onDoubleTap: widget.onDeleteMes,
+                        child: Image.network(widget.content),
                       )
                     : InkWell(
-                        onDoubleTap: onDeleteMes,
-                        child: !isGroupChat
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: content,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
+                        onDoubleTap: widget.onDeleteMes,
+                        child: !widget.isGroupChat
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SelectableText.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: widget.content,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: containsUrl
+                                                  ? Colors.blue
+                                                  : Colors.black,
+                                              decoration: containsUrl
+                                                  ? TextDecoration.underline
+                                                  : null,
+                                            ),
                                           ),
-                                        ),
-                                        TextSpan(
-                                          text: ' ${messageTime(createdAt)}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
+                                          TextSpan(
+                                            text:
+                                                '   ${messageTime(widget.createdAt)}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
+                                      maxLines: showFullText ||
+                                              widget.content.length <= 200
+                                          ? null
+                                          : 10,
+                                      onTap: containsUrl
+                                          ? () {
+                                              launchInBrowser(
+                                                  Uri.parse(widget.content));
+                                            }
+                                          : null,
+                                      // showCursor: true, // to show the cursor
+                                      // contextMenuBuilder: (context, editableTextState) {
+
+                                      // }, // to show copy option in the toolbar
+                                      // overflow: showFullText
+                                      //     ? TextOverflow.visible
+                                      //     : TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                  if (isSameSender)
-                                    if (status == 'Offline')
-                                      const Icon(
-                                        Icons.check,
-                                        size: 18,
-                                      )
-                                    else if (status == 'Inchat')
-                                      SizedBox(
-                                          height: 20,
-                                          child: Image.asset(
-                                            'assets/img/double-tick-indicator.png',
+                                    const SizedBox(height: 4),
+                                    if (widget.content.length > 200)
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            showFullText = !showFullText;
+                                          });
+                                        },
+                                        child: Text(
+                                          showFullText
+                                              ? 'Show less'
+                                              : 'Show more',
+                                          style: const TextStyle(
+                                            fontSize: 14,
                                             color: Colors.blue,
-                                          ))
-                                    else
-                                      SizedBox(
-                                          height: 20,
-                                          child: Image.asset(
-                                              'assets/img/double-tick-indicator.png'))
-                                ],
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               )
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,33 +239,85 @@ class Message_lisiview extends StatelessWidget {
                                   if (!right)
                                     RichText(
                                       text: TextSpan(
-                                        text: '~ $senderName',
+                                        text: '~ ${widget.senderName}',
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.black,
                                         ),
                                       ),
                                     ),
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: content,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.black,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.content,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                        ),
+                                        softWrap: true,
+                                        maxLines: showFullText
+                                            ? null
+                                            : 10, // Max lines to display initially
+                                        overflow: showFullText
+                                            ? TextOverflow.visible
+                                            : TextOverflow
+                                                .ellipsis, // Show ellipsis when exceeding max lines
+                                      ),
+                                      const SizedBox(height: 4),
+                                      if (widget.content.length >
+                                          200) // Adjust the length as needed
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              showFullText = !showFullText;
+                                            });
+                                          },
+                                          child: Text(
+                                            showFullText
+                                                ? 'Show less'
+                                                : 'Show more',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blue,
+                                            ),
                                           ),
                                         ),
-                                        TextSpan(
-                                          text: ' ${messageTime(createdAt)}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black,
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            messageTime(widget.createdAt),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
+                                          const SizedBox(width: 4),
+                                          if (isSameSender)
+                                            if (widget.status == 'Offline')
+                                              const Icon(
+                                                Icons.check,
+                                                size: 18,
+                                              )
+                                            else if (widget.status == 'Inchat')
+                                              Image.asset(
+                                                'assets/img/double-tick-indicator.png',
+                                                height: 20,
+                                                color: Colors.blue,
+                                              )
+                                            else
+                                              Image.asset(
+                                                'assets/img/double-tick-indicator.png',
+                                                height: 20,
+                                              ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                       ),

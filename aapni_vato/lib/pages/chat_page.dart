@@ -22,7 +22,7 @@ class Chatpage extends StatefulWidget {
 class _ChatpageState extends State<Chatpage> {
   NotificationServices notificationServices = NotificationServices();
 
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
   @override
   void initState() {
     notificationServices.requestNotificationPermission();
@@ -215,16 +215,20 @@ class _ChatpageState extends State<Chatpage> {
                           : chat.isGroupChat
                               ? Text(
                                   '${chat.latestMessage?.sender.name}:- ${lastMessage ?? ''}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       color: Colors.white30,
                                       fontWeight: FontWeight.w400),
                                 )
                               : subtitleText
                                   ? Text('You: ${lastMessage ?? ''}',
+                                      maxLines: 1,
                                       style: TextStyle(
                                           color: Colors.white30,
                                           fontWeight: FontWeight.w400))
                                   : Text(lastMessage ?? '',
+                                      maxLines: 1,
                                       style: TextStyle(
                                           color: Colors.white30,
                                           fontWeight: FontWeight.w400)),

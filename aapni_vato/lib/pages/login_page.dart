@@ -31,7 +31,7 @@ class _LoginState extends State<Login> {
   var loading = false;
   String deviceToken = '';
   NotificationServices notificationServices = NotificationServices();
-  String baseUrl = dotenv.get('API_ENDPOINT');
+  String baseUrl = 'http://93.127.198.210:3000';
   bool passwordVisible = false;
 
   @override

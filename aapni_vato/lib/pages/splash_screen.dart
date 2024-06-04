@@ -28,9 +28,9 @@ class _Splash_ScreenState extends State<Splash_Screen>
   final _mybox = Hive.box('user_info');
   late AnimationController _controller;
   late Animation _animation;
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  // ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  // final Connectivity _connectivity = Connectivity();
+  // late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   final Uri toLaunch =
       Uri(scheme: 'https', host: 'download-apk.onrender.com', path: '/');
@@ -71,8 +71,10 @@ class _Splash_ScreenState extends State<Splash_Screen>
   @override
   void initState() {
     super.initState();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    // _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+    //         _updateConnectionStatus as void Function(
+    //             List<ConnectivityResult> event)?)
+    // as StreamSubscription<ConnectivityResult>;
     _controller =
         AnimationController(duration: const Duration(seconds: 4), vsync: this);
 
@@ -85,19 +87,19 @@ class _Splash_ScreenState extends State<Splash_Screen>
   }
 
   void wharetogo() async {
-    await initConnectivity();
+    // await initConnectivity();
     appupdatedialog();
 
-    if (_connectionStatus == ConnectivityResult.none) {
-      _switchToScreen(RoutesName.OfflineScreen);
+    // if (_connectionStatus == ConnectivityResult.none) {
+    //   _switchToScreen(RoutesName.OfflineScreen);
+    // } else {
+    final user = _mybox.get("user");
+    if (user == null) {
+      _switchToScreen(RoutesName.Login);
     } else {
-      final user = _mybox.get("user");
-      if (user == null) {
-        _switchToScreen(RoutesName.Login);
-      } else {
-        _switchToScreen(RoutesName.Chatpage);
-      }
+      _switchToScreen(RoutesName.Chatpage);
     }
+    // }
   }
 
   void _switchToScreen(rouename) {
@@ -121,35 +123,35 @@ class _Splash_ScreenState extends State<Splash_Screen>
     }
   }
 
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print('error:- $e');
-      }
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
+  // Future<void> initConnectivity() async {
+  //   late ConnectivityResult result;
+  //   try {
+  //     result = (await _connectivity.checkConnectivity()) as ConnectivityResult;
+  //   } on PlatformException catch (e) {
+  //     if (kDebugMode) {
+  //       print('error:- $e');
+  //     }
+  //     return;
+  //   }
+  //   if (!mounted) {
+  //     return Future.value(null);
+  //   }
 
-    return _updateConnectionStatus(result);
-  }
+  //   return _updateConnectionStatus(result);
+  // }
 
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
+  // Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+  //   setState(() {
+  //     _connectionStatus = result;
+  //   });
+  // }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _controller.dispose();
+  //   _connectivitySubscription.cancel();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
