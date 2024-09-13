@@ -14,13 +14,19 @@ class ExpoScreen extends StatefulWidget {
 }
 
 class _ExpoScreenState extends State<ExpoScreen> {
-  final KDSItemsProvider _kdsProvider = KDSItemsProvider();
-  String _activeFilter = 'isInprogress'; // Default filter
+  late KDSItemsProvider _kdsProvider;
+  FilterType _activeFilter = FilterType.isInProgress;
 
   @override
   void initState() {
     super.initState();
+    _kdsProvider = KDSItemsProvider();
     _kdsProvider.startFetching(timerInterval: 10, storeId: 1);
+
+    // Apply default filter
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _kdsProvider.updateFilters(isInProgress: true);
+    });
   }
 
   @override
@@ -38,42 +44,43 @@ class _ExpoScreenState extends State<ExpoScreen> {
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.amber,
-                title: Text(
-                    _activeFilter == 'isInprogress' ? 'In Progress' : 'Expo'),
+                title: Text(_getActiveFilterTitle()),
                 centerTitle: true,
                 actions: [
-                  PopupMenuButton<String>(
-                    onSelected: (String filter) {
-                      setState(() {
-                        _activeFilter = ((_activeFilter == filter)
-                            ? null
-                            : filter)!; // Deselect if clicked again
-                      });
+                  PopupMenuButton<FilterType>(
+                    onSelected: (FilterType filter) {
+                      _applyFilter(kdsProvider, filter);
                     },
-                    icon: const Icon(Icons
-                        .filter_list), // Display a filter icon in the AppBar
+                    icon: const Icon(Icons.filter_list),
                     itemBuilder: (BuildContext context) {
                       return [
                         const PopupMenuItem(
-                          value: 'isQueue',
+                          value: FilterType.isQueue,
                           child: Text('Queue'),
                         ),
                         const PopupMenuItem(
-                          value: 'isInprogress',
+                          value: FilterType.isInProgress,
                           child: Text('In Progress'),
                         ),
                         const PopupMenuItem(
-                          value: 'isDone',
+                          value: FilterType.isDone,
                           child: Text('Done'),
                         ),
                         const PopupMenuItem(
-                          value: 'isCancel',
+                          value: FilterType.isCancel,
                           child: Text('Cancel'),
                         ),
                       ];
                     },
                   ),
                 ],
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  kdsProvider.clearFilters();
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: Colors.red,
               ),
               body: _buildLayoutBasedOnSize(
                   constraints, kdsProvider, orderItemStateProvider),
@@ -84,18 +91,46 @@ class _ExpoScreenState extends State<ExpoScreen> {
     );
   }
 
-  Widget _buildFilterButton(String label, String filterType) {
-    return ElevatedButton(
-      onPressed: () => setState(() {
-        _activeFilter = ((_activeFilter == filterType)
-            ? null
-            : filterType)!; // Deselect if clicked again
-      }),
-      style: ElevatedButton.styleFrom(
-          backgroundColor:
-              _activeFilter == filterType ? Colors.blue : Colors.grey),
-      child: Text(label, style: const TextStyle(color: Colors.black)),
-    );
+  String _getActiveFilterTitle() {
+    switch (_activeFilter) {
+      case FilterType.isInProgress:
+        return 'In Progress';
+      case FilterType.isQueue:
+        return 'Queue';
+      case FilterType.isDone:
+        return 'Done';
+      case FilterType.isCancel:
+        return 'Cancel';
+      default:
+        return 'Expo';
+    }
+  }
+
+  void _applyFilter(KDSItemsProvider kdsProvider, FilterType filter) {
+    setState(() {
+      _activeFilter = filter;
+    });
+    kdsProvider.clearFilters();
+    switch (filter) {
+      case FilterType.isQueue:
+        kdsProvider.updateFilters(isQueue: true);
+        break;
+      case FilterType.isInProgress:
+        kdsProvider.updateFilters(isInProgress: true);
+        break;
+      case FilterType.isDone:
+        kdsProvider.updateFilters(isDone: true);
+        break;
+      case FilterType.isCancel:
+        kdsProvider.updateFilters(isCancel: true);
+        break;
+      case FilterType.orderType:
+      // TODO: Handle this case.
+      case FilterType.createdOn:
+      // TODO: Handle this case.
+      case FilterType.kdsId:
+      // TODO: Handle this case.
+    }
   }
 
   Widget _buildLayoutBasedOnSize(
@@ -149,18 +184,11 @@ class _ExpoScreenState extends State<ExpoScreen> {
 
   Widget _buildItemCartWithErrorHandling(KDSItemsProvider kdsProvider,
       OrderItemStateProvider orderItemStateProvider) {
-    List<ItemsDetails> filteredItems = _kdsProvider.filterItems(
-      isQueue: _activeFilter == 'isQueue' ? true : null,
-      isInprogress: _activeFilter == 'isInprogress' ? true : null,
-      isDone: _activeFilter == 'isDone' ? true : null,
-      isCancel: _activeFilter == 'isCancel' ? true : null,
-    );
-
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         try {
           return ItemCart(
-            items: filteredItems,
+            items: kdsProvider.filteredItems,
             orderItemStateProvider: orderItemStateProvider,
           );
         } catch (e, stackTrace) {

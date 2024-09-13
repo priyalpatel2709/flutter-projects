@@ -30,12 +30,6 @@ class _StationScreenState extends State<StationScreen> {
   Widget build(BuildContext context) {
     return Consumer<KDSItemsProvider>(
       builder: (context, kdsProvider, child) {
-        // Set default station when data is available
-        if (kdsProvider.stations.isNotEmpty && selectedKdsId == null) {
-          selectedKdsId = kdsProvider.stations.first.kdsId;
-          kdsProvider.setSelectedStation(selectedKdsId!);
-        }
-
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.amber,
@@ -134,7 +128,12 @@ class _StationScreenState extends State<StationScreen> {
         onChanged: (int? value) {
           setState(() {
             selectedKdsId = value;
-            kdsProvider.setSelectedStation(value!);
+            if (value != null) {
+              kdsProvider.updateFilters(
+                isInProgress: true,
+                kdsId: value, // Apply kdsId filter
+              );
+            }
           });
         },
         items: kdsProvider.stations.map<DropdownMenuItem<int>>((station) {
@@ -153,30 +152,10 @@ class _StationScreenState extends State<StationScreen> {
           child: Text('Please select a station to filter items'));
     }
 
-    final filteredItems =
-        kdsProvider.filterItemsByKdsId(selectedKdsId!).where((item) {
-      final bool? isQueue = _activeFilter == 'In Queue' ? true : null;
-      final bool? isInprogress = _activeFilter == 'In Progress' ? true : null;
-      final bool? isDone = _activeFilter == 'Done' ? true : null;
-      final bool? isCancel = _activeFilter == 'Cancel' ? true : null;
-
-      return kdsProvider
-          .filterItems(
-            isQueue: isQueue,
-            isInprogress: isInprogress,
-            isDone: isDone,
-            isCancel: isCancel,
-            ordertype: null,
-            createdOn: null,
-            displayOrdertype: null,
-          )
-          .contains(item);
-    }).toList();
-
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.75,
       child: ItemCart(
-        items: filteredItems,
+        items: kdsProvider.filteredItems,
         orderItemStateProvider: Provider.of<OrderItemStateProvider>(context),
       ),
     );
@@ -185,6 +164,46 @@ class _StationScreenState extends State<StationScreen> {
   void _setFilter(String filter) {
     setState(() {
       _activeFilter = filter;
+      // Apply corresponding filter based on selected option
+      switch (filter) {
+        case 'In Queue':
+          Provider.of<KDSItemsProvider>(context, listen: false).updateFilters(
+            isQueue: true,
+            // isInprogress: false,
+            isInProgress: false,
+            isDone: false,
+            isCancel: false,
+            kdsId: selectedKdsId,
+          );
+          break;
+        case 'In Progress':
+          Provider.of<KDSItemsProvider>(context, listen: false).updateFilters(
+            isQueue: false,
+            isInProgress: true,
+            isDone: false,
+            isCancel: false,
+            kdsId: selectedKdsId,
+          );
+          break;
+        case 'Done':
+          Provider.of<KDSItemsProvider>(context, listen: false).updateFilters(
+            isQueue: false,
+            isInProgress: false,
+            isDone: true,
+            isCancel: false,
+            kdsId: selectedKdsId,
+          );
+          break;
+        case 'Cancel':
+          Provider.of<KDSItemsProvider>(context, listen: false).updateFilters(
+            isQueue: false,
+            isInProgress: false,
+            isDone: false,
+            isCancel: true,
+            kdsId: selectedKdsId,
+          );
+          break;
+      }
     });
   }
 }
