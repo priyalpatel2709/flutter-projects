@@ -26,6 +26,9 @@ class KDSItemsProvider with ChangeNotifier {
   String _stationsError = '';
   Timer? _timer;
   int _selectedStation = 0;
+  String _stationFilter = 'All';
+  String _expoFilter = 'All';
+
   List<ItemsDetails> _filteredItems = [];
 
   // Define an enum for filter types
@@ -39,6 +42,8 @@ class KDSItemsProvider with ChangeNotifier {
   List<StationsDetails> get stations => _stations;
   String get itemsError => _itemsError;
   String get stationsError => _stationsError;
+  String get stationFilter => _stationFilter;
+  String get expoFilter => _expoFilter;
   List<ItemsDetails> get filteredItems => _filteredItems;
 
   // Fetch ItemsDetails data
@@ -94,6 +99,8 @@ class KDSItemsProvider with ChangeNotifier {
             isAllInProgress: allInProgress,
             isAllDone: allDone,
             isAllCancel: allCancel,
+            isAnyInProgress: items.any((item) => item.isInprogress),
+            isAnyDone: items.any((item) => item.isDone),
           );
         }).toList();
 
@@ -106,6 +113,7 @@ class KDSItemsProvider with ChangeNotifier {
         _itemsError = 'Failed to load items data: ${response.statusCode}';
       }
     } catch (e) {
+      log('Error fetching items: $e');
       _itemsError = 'Error fetching items: $e';
     }
 
@@ -266,5 +274,16 @@ class KDSItemsProvider with ChangeNotifier {
   void removeFilter(FilterType filterType) {
     _filters.remove(filterType);
     _applyFilters();
+  }
+
+  // Method to add a new filter
+  void changeStationFilter(String value) {
+    _stationFilter = value;
+    notifyListeners();
+  }
+
+  void changeExpoFilter(String value) {
+    _expoFilter = value;
+    notifyListeners();
   }
 }

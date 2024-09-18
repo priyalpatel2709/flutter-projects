@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/groupedorder_model.dart';
@@ -28,14 +30,20 @@ class _ExpoScreenContent extends StatefulWidget {
 }
 
 class _ExpoScreenContentState extends State<_ExpoScreenContent> {
-  String _activeFilter = 'inprogress';
+  String _activeFilter = 'New';
+
+  @override
+  void initState() {
+    super.initState();
+    _activeFilter = widget.kdsProvider.expoFilter;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Expo: $_activeFilter',
+          'Expo: $_activeFilter (${_getFilteredOrders().length})',
           style: TextStyle(
             fontSize: _getTitleFontSize(context),
           ),
@@ -43,7 +51,10 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
         backgroundColor: Colors.amber,
         actions: [
           PopupMenuButton<String>(
-            onSelected: _setFilter,
+            onSelected: (value) {
+              _setFilter(value);
+              widget.kdsProvider.changeExpoFilter(value);
+            },
             itemBuilder: _buildFilterMenu,
           ),
         ],
@@ -53,21 +64,24 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
           // Determine if the screen is wide enough for a tablet or laptop
           bool isWideScreen = constraints.maxWidth > 800;
 
-          return Padding(
-            padding: EdgeInsets.all(_getPadding(context)),
-            child: ListView.builder(
-              itemCount: _getFilteredOrders().length,
-              itemBuilder: (context, index) => Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical:
-                      isWideScreen ? 12.0 : 8.0, // Responsive item spacing
-                ),
-                child: ItemCartV2(
-                  items: _getFilteredOrders()[index],
-                ),
-              ),
-            ),
-          );
+          return widget.kdsProvider.itemsError != ''
+              ? Center(child: Text(widget.kdsProvider.itemsError))
+              : Padding(
+                  padding: EdgeInsets.all(_getPadding(context)),
+                  child: ListView.builder(
+                    itemCount: _getFilteredOrders().length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: isWideScreen
+                            ? 12.0
+                            : 8.0, // Responsive item spacing
+                      ),
+                      child: ItemCartV2(
+                        items: _getFilteredOrders()[index],
+                      ),
+                    ),
+                  ),
+                );
         },
       ),
     );
@@ -79,10 +93,12 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
 
   List<PopupMenuItem<String>> _buildFilterMenu(BuildContext context) {
     final filterOptions = [
+      ('New', 'New'),
       ('all', 'All'),
-      ('inprogress', 'In Progress'),
-      ('done', 'Done'),
-      ('cancel', 'Cancelled'),
+      ('In Progress', 'In Progress'),
+      ('Done', 'Done'),
+      ('Cancelled', 'Cancelled'),
+      // Add the new filter option
     ];
 
     return filterOptions
@@ -93,16 +109,20 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
         .toList();
   }
 
+  // Expo Screen
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.where((order) {
       switch (_activeFilter) {
-        case 'inprogress':
-          return order.items.any((item) => item.isInprogress) &&
-              !order.items.every((item) => item.isDone);
-        case 'done':
+        case 'In Progress':
+          return order.items.any((item) => item.isInprogress) ||
+              order.items.any((item) => item.isDone);
+        case 'Done':
           return order.items.every((item) => item.isDone);
-        case 'cancel':
-          return order.items.any((item) => item.isCancel);
+        case 'Cancelled':
+          return order.items.every((item) => item.isCancel);
+        case 'New':
+          // Show orders where all items are not done
+          return order.items.every((item) => !item.isDone);
         default:
           return true;
       }

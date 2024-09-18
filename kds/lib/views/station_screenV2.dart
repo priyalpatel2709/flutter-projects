@@ -28,18 +28,25 @@ class _StationScreenContent extends StatefulWidget {
 
 class _StationScreenContentState extends State<_StationScreenContent> {
   int? selectedKdsId;
-  String _activeFilter = 'In Progress';
+  String _activeFilter = 'New';
 
   @override
   void initState() {
     super.initState();
+
+    // Start fetching items
     widget.kdsProvider.startFetching(timerInterval: 10, storeId: 1);
 
-    // Set the default selected station to the first station if available
-    if (widget.kdsProvider.stations.isNotEmpty) {
-      selectedKdsId = widget.kdsProvider.stations.first.kdsId;
-      widget.kdsProvider.updateFilters(kdsId: selectedKdsId);
-    }
+    // Schedule the update of the selected station after the build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.kdsProvider.stations.isNotEmpty) {
+        setState(() {
+          selectedKdsId = widget.kdsProvider.stations.first.kdsId;
+          widget.kdsProvider.updateFilters(kdsId: selectedKdsId);
+          _activeFilter = widget.kdsProvider.stationFilter;
+        });
+      }
+    });
   }
 
   @override
@@ -48,7 +55,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
       appBar: AppBar(
         backgroundColor: Colors.amber,
         title: Text(
-          'Station $_activeFilter',
+          'Station ($selectedKdsId) : $_activeFilter (${_getFilteredOrders().length})',
           style: TextStyle(
             fontSize: MediaQuery.of(context).size.width > 600
                 ? 24
@@ -57,7 +64,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
         ),
         actions: [
           PopupMenuButton<String>(
-            onSelected: _setFilter,
+            onSelected: (value) {
+              _setFilter(value);
+              widget.kdsProvider.changeStationFilter(value);
+            },
             itemBuilder: _buildFilterMenu,
           ),
         ],
@@ -67,46 +77,109 @@ class _StationScreenContentState extends State<_StationScreenContent> {
           // Determine if the screen is wide enough for a tablet or laptop
           bool isWideScreen = constraints.maxWidth > 600;
 
-          return Padding(
-            padding:
-                EdgeInsets.all(isWideScreen ? 16.0 : 8.0), // Responsive padding
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStationSelector(),
-                SizedBox(height: 10), // Space between dropdown and list
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _getFilteredOrders().length,
-                    itemBuilder: (_, index) => Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical:
-                            isWideScreen ? 8.0 : 4.0, // Responsive item spacing
+          return widget.kdsProvider.stationsError != '' ||
+                  widget.kdsProvider.itemsError != ''
+              ? Center(
+                  child: Text(
+                      '${widget.kdsProvider.stationsError} \n ${widget.kdsProvider.itemsError}'))
+              : Padding(
+                  padding: EdgeInsets.all(
+                      isWideScreen ? 16.0 : 8.0), // Responsive padding
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildStationSelector(),
+                      // Text('selectedKdsId--->${selectedKdsId}'),
+                      const SizedBox(
+                          height: 10), // Space between dropdown and list
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: _getFilteredOrders().length,
+                          itemBuilder: (_, index) => Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: isWideScreen
+                                  ? 8.0
+                                  : 4.0, // Responsive item spacing
+                            ),
+                            child: ItemCartV2(
+                              items: _getFilteredOrders()[index],
+                              selectedKdsId: selectedKdsId,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: ItemCartV2(items: _getFilteredOrders()[index]),
-                    ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          );
+                );
         },
       ),
     );
   }
 
-  List<GroupedOrder> _getFilteredOrders() {
-    return widget.kdsProvider.groupedItems.where((order) {
-      if (selectedKdsId != null && order.kdsId != selectedKdsId) return false;
+  // Step 1: Filter by selectedKdsId
+  List<GroupedOrder> _filterByKdsId() {
+    if (selectedKdsId == null) {
+      return [];
+    }
 
-      return switch (_activeFilter) {
-        'In Progress' => order.items.any((item) => item.isInprogress) &&
-            !order.items.every((item) => item.isDone),
-        'Done' => order.items.every((item) => item.isDone),
-        'Cancel' => order.items.any((item) => item.isCancel),
-        'In Queue' => order.items.any((item) => item.isQueue),
-        _ => true,
-      };
+    // Filter the groupedItems based on selectedKdsId
+    return widget.kdsProvider.groupedItems
+        .map((order) {
+          // Filter the items that match the selectedKdsId
+          final filteredItems =
+              order.items.where((item) => item.kdsId == selectedKdsId).toList();
+
+          // Return a new GroupedOrder only if there are items matching the selectedKdsId
+          if (filteredItems.isNotEmpty) {
+            return GroupedOrder(
+              orderId: order.orderId,
+              items: filteredItems, // Use only the filtered items
+              kdsId: order.kdsId,
+              id: order.id,
+              orderTitle: order.orderTitle,
+              orderType: order.orderType,
+              orderNote: order.orderNote,
+              createdOn: order.createdOn,
+              storeId: order.storeId,
+              tableName: order.tableName,
+              displayOrderType: order.displayOrderType,
+              isAllInProgress: order.isAllInProgress,
+              isAllDone: order.isAllDone,
+              isAllCancel: order.isAllCancel,
+              isAnyInProgress: order.isAnyInProgress,
+              isAnyDone: order.isAnyDone,
+              // Add other fields if necessary
+            );
+          }
+          return null; // Return null if no items match
+        })
+        .where((order) => order != null) // Filter out nulls
+        .cast<GroupedOrder>() // Cast to the correct type
+        .toList(); // Convert to list
+  }
+
+  // Step 2: Apply the active filter to the filtered list
+  List<GroupedOrder> _getFilteredOrders() {
+    List<GroupedOrder> filteredByKdsId = _filterByKdsId();
+
+    return filteredByKdsId.where((order) {
+      switch (_activeFilter) {
+        case 'In Progress':
+          // Show if any item is in progress or done within the filtered list
+          return order.items.any((item) => item.isInprogress || item.isDone);
+        case 'Done':
+          // Show if all items are done within the filtered list
+          return order.items.any((item) => item.isDone);
+        case 'Cancel':
+          // Show if any item is canceled within the filtered list
+          return order.items.any((item) => item.isCancel);
+        case 'New':
+          // Show if no item is done within the filtered list
+          return order.items.every((item) => !item.isDone);
+        default:
+          // Show all orders in the filtered list
+          return true;
+      }
     }).toList();
   }
 
@@ -161,7 +234,12 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   }
 
   List<PopupMenuEntry<String>> _buildFilterMenu(BuildContext context) {
-    return ['In Progress', 'Done', 'Cancel', 'In Queue']
+    return [
+      'New',
+      'In Progress',
+      'Done',
+      'Cancel',
+    ]
         .map((filter) =>
             PopupMenuItem<String>(value: filter, child: Text(filter)))
         .toList();

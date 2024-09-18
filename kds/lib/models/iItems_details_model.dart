@@ -13,34 +13,43 @@ class ItemsDetails {
   int? storeId;
   bool? isQueue;
   bool? isInprogress;
+  String? inprogressOn;
   bool? isDone;
+  String? doneOn;
   bool? isCancel;
-  Null? createdBy;
+  bool? isCompleted;
+  String? completedOn;
+  String? createdBy;
   String? tableName;
   String? dPartner;
   String? displayOrdertype;
 
-  ItemsDetails(
-      {this.id,
-      this.kdsId,
-      this.orderId,
-      this.itemId,
-      this.itemName,
-      this.ordertitle,
-      this.ordertype,
-      this.qty,
-      this.modifiers,
-      this.orderNote,
-      this.createdOn,
-      this.storeId,
-      this.isQueue,
-      this.isInprogress,
-      this.isDone,
-      this.isCancel,
-      this.createdBy,
-      this.tableName,
-      this.dPartner,
-      this.displayOrdertype});
+  ItemsDetails({
+    this.id,
+    this.kdsId,
+    this.orderId,
+    this.itemId,
+    this.itemName,
+    this.ordertitle,
+    this.ordertype,
+    this.qty,
+    this.modifiers,
+    this.orderNote,
+    this.createdOn,
+    this.storeId,
+    this.isQueue,
+    this.isInprogress,
+    this.inprogressOn,
+    this.isDone,
+    this.doneOn,
+    this.isCancel,
+    this.isCompleted,
+    this.completedOn,
+    this.createdBy,
+    this.tableName,
+    this.dPartner,
+    this.displayOrdertype,
+  });
 
   ItemsDetails.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -50,43 +59,51 @@ class ItemsDetails {
     itemName = json['itemName'];
     ordertitle = json['ordertitle'];
     ordertype = json['ordertype'];
-    qty = json['qty'];
+    qty = json['quantity'];
     modifiers = json['modifiers'];
     orderNote = json['orderNote'];
     createdOn = json['createdOn'];
     storeId = json['storeId'];
     isQueue = json['isQueue'];
     isInprogress = json['isInprogress'];
+    inprogressOn = json['inprogressOn'];
     isDone = json['isDone'];
-    isCancel = json['isCancel'];
+    doneOn = json['doneOn'];
+    isCancel = json['isCancelled'];
+    isCompleted = json['isCompleted'];
+    completedOn = json['completedOn'];
     createdBy = json['createdBy'];
     tableName = json['tableName'];
-    dPartner = json['dPartner'];
+    dPartner = json['deliveryPartner'];
     displayOrdertype = json['displayOrdertype'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['kdsId'] = this.kdsId;
-    data['orderId'] = this.orderId;
-    data['itemId'] = this.itemId;
-    data['itemName'] = this.itemName;
-    data['ordertitle'] = this.ordertitle;
-    data['ordertype'] = this.ordertype;
-    data['qty'] = this.qty;
-    data['modifiers'] = this.modifiers;
-    data['orderNote'] = this.orderNote;
-    data['createdOn'] = this.createdOn;
-    data['storeId'] = this.storeId;
-    data['isQueue'] = this.isQueue;
-    data['isInprogress'] = this.isInprogress;
-    data['isDone'] = this.isDone;
-    data['isCancel'] = this.isCancel;
-    data['createdBy'] = this.createdBy;
-    data['tableName'] = this.tableName;
-    data['dPartner'] = this.dPartner;
-    data['displayOrdertype'] = this.displayOrdertype;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['kdsId'] = kdsId;
+    data['orderId'] = orderId;
+    data['itemId'] = itemId;
+    data['itemName'] = itemName;
+    data['ordertitle'] = ordertitle;
+    data['ordertype'] = ordertype;
+    data['quantity'] = qty;
+    data['modifiers'] = modifiers;
+    data['orderNote'] = orderNote;
+    data['createdOn'] = createdOn;
+    data['storeId'] = storeId;
+    data['isQueue'] = isQueue;
+    data['isInprogress'] = isInprogress;
+    data['inprogressOn'] = inprogressOn;
+    data['isDone'] = isDone;
+    data['doneOn'] = doneOn;
+    data['isCancelled'] = isCancel;
+    data['isCompleted'] = isCompleted;
+    data['completedOn'] = completedOn;
+    data['createdBy'] = createdBy;
+    data['tableName'] = tableName;
+    data['deliveryPartner'] = dPartner;
+    data['displayOrdertype'] = displayOrdertype;
     return data;
   }
 }

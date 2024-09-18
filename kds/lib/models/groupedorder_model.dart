@@ -8,14 +8,16 @@ class GroupedOrder {
   final String createdOn;
   final int storeId;
   final String tableName;
-  final String dPartner;
+  String? dPartner;
   final String displayOrderType;
   final List<OrderItem> items;
 
   // New fields
   final bool isAllInProgress;
   final bool isAllDone;
+  final bool isAnyDone;
   final bool isAllCancel;
+  final bool isAnyInProgress;
 
   GroupedOrder({
     required this.id,
@@ -27,13 +29,61 @@ class GroupedOrder {
     required this.createdOn,
     required this.storeId,
     required this.tableName,
-    required this.dPartner,
+    this.dPartner,
     required this.displayOrderType,
     required this.items,
     required this.isAllInProgress,
     required this.isAllDone,
     required this.isAllCancel,
+    required this.isAnyInProgress,
+    required this.isAnyDone,
   });
+
+  factory GroupedOrder.fromJson(Map<String, dynamic> json) {
+    return GroupedOrder(
+      id: json['id'],
+      kdsId: json['kdsId'],
+      orderId: json['orderId'],
+      orderTitle: json['ordertitle'],
+      orderType: json['ordertype'],
+      orderNote: json['orderNote'],
+      createdOn: json['createdOn'],
+      storeId: json['storeId'],
+      tableName: json['tableName'],
+      dPartner: json['deliveryPartner'],
+      displayOrderType: json['displayOrdertype'],
+      items: (json['items'] as List)
+          .map((item) => OrderItem.fromJson(item))
+          .toList(),
+      isAllInProgress: json['isAllInProgress'],
+      isAllDone: json['isAllDone'],
+      isAllCancel: json['isAllCancel'],
+      isAnyInProgress: json['isAnyInProgress'],
+      isAnyDone: json['isAnyDone'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'kdsId': kdsId,
+      'orderId': orderId,
+      'ordertitle': orderTitle,
+      'ordertype': orderType,
+      'orderNote': orderNote,
+      'createdOn': createdOn,
+      'storeId': storeId,
+      'tableName': tableName,
+      'deliveryPartner': dPartner,
+      'displayOrdertype': displayOrderType,
+      'items': items.map((item) => item.toJson()).toList(),
+      'isAllInProgress': isAllInProgress,
+      'isAllDone': isAllDone,
+      'isAllCancel': isAllCancel,
+      'isAnyInProgress': isAnyInProgress,
+      'isAnyDone': isAnyDone,
+    };
+  }
 }
 
 class OrderItem {
@@ -41,32 +91,45 @@ class OrderItem {
   final String itemName;
   final int qty;
   final String modifiers;
-  final bool isQueue;
   final bool isInprogress;
   final bool isDone;
   final bool isCancel;
+  final int kdsId;
 
   OrderItem({
     required this.itemId,
     required this.itemName,
     required this.qty,
     required this.modifiers,
-    required this.isQueue,
     required this.isInprogress,
     required this.isDone,
     required this.isCancel,
+    required this.kdsId,
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
       itemId: json['itemId'],
       itemName: json['itemName'],
-      qty: json['qty'],
+      qty: json['quantity'],
       modifiers: json['modifiers'],
-      isQueue: json['isQueue'],
       isInprogress: json['isInprogress'],
       isDone: json['isDone'],
-      isCancel: json['isCancel'],
+      isCancel: json['isCancelled'],
+      kdsId: json['kdsId'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'itemId': itemId,
+      'itemName': itemName,
+      'quantity': qty,
+      'modifiers': modifiers,
+      'isInprogress': isInprogress,
+      'isDone': isDone,
+      'isCancelled': isCancel,
+      'kdsId': kdsId,
+    };
   }
 }

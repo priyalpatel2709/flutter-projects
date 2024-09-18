@@ -11,10 +11,12 @@ import '../../providers/order_item_state_provider.dart';
 
 class ItemCartV2 extends StatelessWidget {
   final GroupedOrder items;
+  final int? selectedKdsId;
 
   const ItemCartV2({
     Key? key,
     required this.items,
+    this.selectedKdsId,
     // required OrderItemStateProvider orderItemStateProvider,
   }) : super(key: key);
 
@@ -89,15 +91,16 @@ class ItemCartV2 extends StatelessWidget {
             // Order items
             ...items.items
                 .map((item) => OrderItem(
-                      quantity: item.qty,
-                      name: item.itemName ?? '',
-                      subInfo: item.modifiers ?? '',
-                      uniqueId: '${item.itemId}-${items.orderId}',
-                      orderId: items.orderId ?? '',
-                      isDone: item.isDone,
-                      isInProcess: item.isInprogress,
-                      itemId: item.itemId,
-                    ))
+                    quantity: item.qty,
+                    name: item.itemName ?? '',
+                    subInfo: item.modifiers ?? '',
+                    uniqueId: '${item.itemId}-${items.orderId}',
+                    orderId: items.orderId ?? '',
+                    isDone: item.isDone,
+                    isInProcess: item.isInprogress,
+                    itemId: item.itemId,
+                    kdsId: item.kdsId,
+                    selectedKdsId: selectedKdsId ?? 0))
                 .toList(),
           ],
         ),
@@ -108,6 +111,8 @@ class ItemCartV2 extends StatelessWidget {
 
 class OrderItem extends StatelessWidget {
   final int quantity;
+  final int kdsId;
+  final int selectedKdsId;
   final String name;
   final String subInfo;
   final String uniqueId;
@@ -126,6 +131,8 @@ class OrderItem extends StatelessWidget {
     required this.isDone,
     required this.isInProcess,
     required this.itemId,
+    required this.kdsId,
+    required this.selectedKdsId,
     // required this.orderItemStateProvider, // Pass the unique identifier
   });
 
@@ -153,6 +160,10 @@ class OrderItem extends StatelessWidget {
                       name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    Text(
+                      '  (${kdsId.toString()})',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
                 Padding(
