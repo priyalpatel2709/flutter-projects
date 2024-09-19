@@ -10,7 +10,7 @@ class GroupedOrder {
   final String tableName;
   String? dPartner;
   final String displayOrderType;
-  final List<OrderItem> items;
+  late final List<OrderItemV2> items;
 
   // New fields
   final bool isAllInProgress;
@@ -53,7 +53,7 @@ class GroupedOrder {
       dPartner: json['deliveryPartner'],
       displayOrderType: json['displayOrdertype'],
       items: (json['items'] as List)
-          .map((item) => OrderItem.fromJson(item))
+          .map((item) => OrderItemV2.fromJson(item))
           .toList(),
       isAllInProgress: json['isAllInProgress'],
       isAllDone: json['isAllDone'],
@@ -86,7 +86,7 @@ class GroupedOrder {
   }
 }
 
-class OrderItem {
+class OrderItemV2 {
   final String itemId;
   final String itemName;
   final int qty;
@@ -96,7 +96,7 @@ class OrderItem {
   final bool isCancel;
   final int kdsId;
 
-  OrderItem({
+  OrderItemV2({
     required this.itemId,
     required this.itemName,
     required this.qty,
@@ -107,8 +107,8 @@ class OrderItem {
     required this.kdsId,
   });
 
-  factory OrderItem.fromJson(Map<String, dynamic> json) {
-    return OrderItem(
+  factory OrderItemV2.fromJson(Map<String, dynamic> json) {
+    return OrderItemV2(
       itemId: json['itemId'],
       itemName: json['itemName'],
       qty: json['quantity'],

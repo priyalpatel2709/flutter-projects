@@ -71,9 +71,9 @@ class KDSItemsProvider with ChangeNotifier {
         List<GroupedOrder> groupedOrders = grouped.entries.map((entry) {
           var orderItems = entry.value;
 
-          // Create the list of OrderItem
-          List<OrderItem> items = orderItems.map((item) {
-            return OrderItem.fromJson(item);
+          // Create the list of OrderItemV2
+          List<OrderItemV2> items = orderItems.map((item) {
+            return OrderItemV2.fromJson(item);
           }).toList();
 
           // Check if all items have specific statuses

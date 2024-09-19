@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/groupedorder_model.dart';
@@ -111,21 +109,44 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
 
   // Expo Screen
   List<GroupedOrder> _getFilteredOrders() {
-    return widget.kdsProvider.groupedItems.where((order) {
-      switch (_activeFilter) {
-        case 'In Progress':
-          return order.items.any((item) => item.isInprogress) ||
-              order.items.any((item) => item.isDone);
-        case 'Done':
-          return order.items.every((item) => item.isDone);
-        case 'Cancelled':
-          return order.items.every((item) => item.isCancel);
-        case 'New':
-          // Show orders where all items are not done
-          return order.items.every((item) => !item.isDone);
-        default:
-          return true;
+    return widget.kdsProvider.groupedItems.map((order) {
+      // Use a map to store unique items
+      final uniqueItems = <String, OrderItemV2>{};
+
+      // Filter out duplicate items more efficiently
+      for (var item in order.items) {
+        uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
       }
+
+      // Create a new GroupedOrder with unique items
+      return GroupedOrder(
+        id: order.id,
+        items: uniqueItems.values.toList(),
+        kdsId: order.kdsId,
+        orderId: order.orderId,
+        orderTitle: order.orderTitle,
+        orderType: order.orderType,
+        orderNote: order.orderNote,
+        createdOn: order.createdOn,
+        storeId: order.storeId,
+        tableName: order.tableName,
+        displayOrderType: order.displayOrderType,
+        isAllInProgress: order.isAllInProgress,
+        isAllDone: order.isAllDone,
+        isAllCancel: order.isAllCancel,
+        isAnyInProgress: order.isAnyInProgress,
+        isAnyDone: order.isAnyDone,
+      );
+    }).where((order) {
+      // Use a more concise switch expression
+      return switch (_activeFilter) {
+        'In Progress' =>
+          order.items.any((item) => item.isInprogress || item.isDone),
+        'Done' => order.items.every((item) => item.isDone),
+        'Cancelled' => order.items.every((item) => item.isCancel),
+        'New' => order.items.every((item) => !item.isDone),
+        _ => true
+      };
     }).toList();
   }
 

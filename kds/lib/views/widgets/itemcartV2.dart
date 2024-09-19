@@ -160,10 +160,10 @@ class OrderItem extends StatelessWidget {
                       name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text(
-                      '  (${kdsId.toString()})',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    )
+                    // Text(
+                    //   '  (${kdsId.toString()})',
+                    //   style: const TextStyle(fontWeight: FontWeight.bold),
+                    // )
                   ],
                 ),
                 Padding(
