@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
 import '../models/iItems_details_model.dart';
 import '../models/stations_details_model.dart';
@@ -16,6 +17,7 @@ enum FilterType {
   orderType,
   createdOn,
   kdsId,
+  isCompleted
 }
 
 class KDSItemsProvider with ChangeNotifier {
@@ -26,8 +28,8 @@ class KDSItemsProvider with ChangeNotifier {
   String _stationsError = '';
   Timer? _timer;
   int _selectedStation = 0;
-  String _stationFilter = 'All';
-  String _expoFilter = 'All';
+  String _stationFilter = KdsConst.defaultFilter;
+  String _expoFilter = KdsConst.defaultFilter;
 
   List<ItemsDetails> _filteredItems = [];
 
@@ -101,6 +103,8 @@ class KDSItemsProvider with ChangeNotifier {
             isAllCancel: allCancel,
             isAnyInProgress: items.any((item) => item.isInprogress),
             isAnyDone: items.any((item) => item.isDone),
+            isAnyComplete: items.any((item) => item.isComplete),
+            isAllComplete: items.every((item) => item.isComplete),
           );
         }).toList();
 
@@ -149,6 +153,7 @@ class KDSItemsProvider with ChangeNotifier {
     required String itemId,
     required bool isDone,
     required bool isInProgress,
+    required bool isCompleted,
     bool isQueue = false,
   }) async {
     final url = Uri.parse(
@@ -159,9 +164,10 @@ class KDSItemsProvider with ChangeNotifier {
       'storeId': storeId,
       'orderId': orderId,
       'itemId': itemId,
-      'isQueue': isQueue,
+      // 'isQueue': isQueue,
       'isInprogress': isInProgress,
       'isDone': isDone,
+      'IsCompleted': isCompleted
     };
 
     try {
@@ -257,6 +263,8 @@ class KDSItemsProvider with ChangeNotifier {
             return item.createdOn == filter.value.toString();
           case FilterType.kdsId:
             return item.kdsId == filter.value;
+          case FilterType.isCompleted:
+            return item.isComplete == filter.value;
         }
       });
     }).toList();

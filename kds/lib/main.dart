@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:kds/views/expo_screenV2.dart';
 import 'package:kds/views/station_screenV2.dart';
 import 'package:provider/provider.dart';
+import 'constant/constants.dart';
 import 'providers/items_details_provider.dart';
 import 'providers/order_item_state_provider.dart';
+import 'views/complateorder_screen.dart';
 // import 'views/expo_screen.dart';
 // import 'views/station_screen.dart';
 
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'KDS App',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xfff3b33e)),
+          colorScheme: ColorScheme.fromSeed(seedColor: KdsConst.mainColor),
           useMaterial3: true,
         ),
         home: const MainScreen(), // Entry point to main screen
@@ -51,8 +53,10 @@ class _MainScreenState extends State<MainScreen> {
     // StationScreen(), // Station screen
 
     // ? V2
-    StationScreenV2(), // Station screen
     ExpoScreenV2(), // Expo screen
+    StationScreenV2(), // Station screen
+
+    CompleteOrder(),
   ];
 
   void _onItemTapped(int index) {
@@ -67,21 +71,23 @@ class _MainScreenState extends State<MainScreen> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: LayoutBuilder(
         builder: (context, constraints) {
-          bool isWideScreen = constraints.maxWidth > 800;
-
           return BottomNavigationBar(
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
-            selectedItemColor: Colors.amber[800],
-            items: <BottomNavigationBarItem>[
+            selectedItemColor: KdsConst.mainColor,
+            items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(isWideScreen ? Icons.business : Icons.home),
+                icon: Icon(Icons.view_list),
+                label: 'All Orders',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.business),
                 label: 'Stations',
               ),
               BottomNavigationBarItem(
-                icon: Icon(isWideScreen ? Icons.view_list : Icons.home),
-                label: 'Expo',
-              ),
+                icon: Icon(Icons.done_all),
+                label: 'Complete Order',
+              )
             ],
           );
         },

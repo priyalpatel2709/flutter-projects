@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
+import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
 import '../providers/items_details_provider.dart';
+import '../utils/utils.dart';
+import 'widgets/appBar_widget.dart';
+import 'widgets/filteredlist_widget.dart';
 import 'widgets/itemcartV2.dart';
 
 class StationScreenV2 extends StatelessWidget {
@@ -28,16 +34,16 @@ class _StationScreenContent extends StatefulWidget {
 
 class _StationScreenContentState extends State<_StationScreenContent> {
   int? selectedKdsId;
-  String _activeFilter = 'New';
+  String _activeFilter = KdsConst.defaultFilter;
+  bool isHorizontal = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Start fetching items
-    widget.kdsProvider.startFetching(timerInterval: 10, storeId: 1);
+    // widget.kdsProvider.startFetching(
+    //     timerInterval: KdsConst.timerInterval, storeId: KdsConst.storeId);
 
-    // Schedule the update of the selected station after the build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.kdsProvider.stations.isNotEmpty) {
         setState(() {
@@ -52,88 +58,55 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.amber,
-        title: Text(
-          'Station ($selectedKdsId) : $_activeFilter (${_getFilteredOrders().length})',
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width > 600
-                ? 24
-                : 20, // Responsive title font size
-          ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              _setFilter(value);
-              widget.kdsProvider.changeStationFilter(value);
-            },
-            itemBuilder: _buildFilterMenu,
-          ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Determine if the screen is wide enough for a tablet or laptop
-          bool isWideScreen = constraints.maxWidth > 600;
-
-          return widget.kdsProvider.stationsError != '' ||
-                  widget.kdsProvider.itemsError != ''
-              ? Center(
-                  child: Text(
-                      '${widget.kdsProvider.stationsError} \n ${widget.kdsProvider.itemsError}'))
-              : Padding(
-                  padding: EdgeInsets.all(
-                      isWideScreen ? 16.0 : 8.0), // Responsive padding
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStationSelector(),
-                      // Text('selectedKdsId--->${selectedKdsId}'),
-                      const SizedBox(
-                          height: 10), // Space between dropdown and list
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _getFilteredOrders().length,
-                          itemBuilder: (_, index) => Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: isWideScreen
-                                  ? 8.0
-                                  : 4.0, // Responsive item spacing
-                            ),
-                            child: ItemCartV2(
-                              items: _getFilteredOrders()[index],
-                              selectedKdsId: selectedKdsId,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+      appBar: AppBarWidget(
+        title:
+            'Station ($selectedKdsId) : $_activeFilter (${_getFilteredOrders().length})',
+        isHorizontal: isHorizontal,
+        iconOnPress: () {
+          setState(() {
+            isHorizontal = !isHorizontal;
+          });
         },
+        onFilterSelected: (String value) {
+          _setFilter(value);
+          widget.kdsProvider.changeExpoFilter(value);
+        },
+        buildFilterMenu: _buildFilterMenu(context),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(Utils.getPadding(context)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStationSelector(),
+            const SizedBox(height: 5),
+            Expanded(
+              child: FilteredOrdersList(
+                filteredOrders: _getFilteredOrders(),
+                selectedKdsId: selectedKdsId ?? 0,
+                isHorizontal: isHorizontal,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 
-  // Step 1: Filter by selectedKdsId
   List<GroupedOrder> _filterByKdsId() {
     if (selectedKdsId == null) {
       return [];
     }
 
-    // Filter the groupedItems based on selectedKdsId
     return widget.kdsProvider.groupedItems
         .map((order) {
-          // Filter the items that match the selectedKdsId
           final filteredItems =
               order.items.where((item) => item.kdsId == selectedKdsId).toList();
 
-          // Return a new GroupedOrder only if there are items matching the selectedKdsId
           if (filteredItems.isNotEmpty) {
             return GroupedOrder(
               orderId: order.orderId,
-              items: filteredItems, // Use only the filtered items
+              items: filteredItems,
               kdsId: order.kdsId,
               id: order.id,
               orderTitle: order.orderTitle,
@@ -148,36 +121,27 @@ class _StationScreenContentState extends State<_StationScreenContent> {
               isAllCancel: order.isAllCancel,
               isAnyInProgress: order.isAnyInProgress,
               isAnyDone: order.isAnyDone,
-              // Add other fields if necessary
+              isAnyComplete: order.isAnyComplete,
+              isAllComplete: order.isAllComplete,
             );
           }
-          return null; // Return null if no items match
+          return null;
         })
-        .where((order) => order != null) // Filter out nulls
-        .cast<GroupedOrder>() // Cast to the correct type
-        .toList(); // Convert to list
+        .where((order) => order != null)
+        .cast<GroupedOrder>()
+        .toList();
   }
 
-  // Step 2: Apply the active filter to the filtered list
   List<GroupedOrder> _getFilteredOrders() {
     List<GroupedOrder> filteredByKdsId = _filterByKdsId();
 
     return filteredByKdsId.where((order) {
       switch (_activeFilter) {
-        case 'In Progress':
-          // Show if any item is in progress or done within the filtered list
-          return order.items.any((item) => item.isInprogress || item.isDone);
-        case 'Done':
-          // Show if all items are done within the filtered list
-          return order.items.any((item) => item.isDone);
-        case 'Cancel':
-          // Show if any item is canceled within the filtered list
-          return order.items.any((item) => item.isCancel);
-        case 'New':
-          // Show if no item is done within the filtered list
-          return order.items.every((item) => !item.isDone);
+        case KdsConst.defaultFilter:
+          return order.items.any((item) => !item.isDone);
+        case KdsConst.doneFilter:
+          return order.items.every((item) => item.isDone);
         default:
-          // Show all orders in the filtered list
           return true;
       }
     }).toList();
@@ -227,19 +191,12 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     widget.kdsProvider.updateFilters(
       isInProgress: _activeFilter == 'In Progress',
       isDone: _activeFilter == 'Done',
-      isCancel: _activeFilter == 'Cancel',
-      isQueue: _activeFilter == 'In Queue',
       kdsId: selectedKdsId,
     );
   }
 
   List<PopupMenuEntry<String>> _buildFilterMenu(BuildContext context) {
-    return [
-      'New',
-      'In Progress',
-      'Done',
-      'Cancel',
-    ]
+    return ['In Progress', 'Done']
         .map((filter) =>
             PopupMenuItem<String>(value: filter, child: Text(filter)))
         .toList();

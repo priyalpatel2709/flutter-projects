@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
+
 import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
 import '../providers/items_details_provider.dart';
@@ -9,65 +10,35 @@ import 'widgets/appBar_widget.dart';
 import 'widgets/filteredlist_widget.dart';
 import 'widgets/itemcartV2.dart';
 
-class ExpoScreenV2 extends StatelessWidget {
-  const ExpoScreenV2({Key? key}) : super(key: key);
+class CompleteOrder extends StatelessWidget {
+  const CompleteOrder({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<KDSItemsProvider>(
-      builder: (context, kdsProvider, child) => _ExpoScreenContent(
+      builder: (context, kdsProvider, child) => _CompleteOrderContent(
         kdsProvider: kdsProvider,
       ),
     );
   }
 }
 
-class _ExpoScreenContent extends StatefulWidget {
+class _CompleteOrderContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
-
-  const _ExpoScreenContent({Key? key, required this.kdsProvider})
-      : super(key: key);
+  const _CompleteOrderContent({super.key, required this.kdsProvider});
 
   @override
-  _ExpoScreenContentState createState() => _ExpoScreenContentState();
+  _CompleteOrderState createState() => _CompleteOrderState();
 }
 
-class _ExpoScreenContentState extends State<_ExpoScreenContent> {
+class _CompleteOrderState extends State<_CompleteOrderContent> {
   String _activeFilter = KdsConst.defaultFilter;
   bool isHorizontal = false;
-  @override
-  void initState() {
-    widget.kdsProvider.startFetching(
-        timerInterval: KdsConst.timerInterval, storeId: KdsConst.storeId);
-    super.initState();
-    _activeFilter = widget.kdsProvider.expoFilter;
-  }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget(
-        title: 'All Orders: $_activeFilter (${_getFilteredOrders().length})',
-        isHorizontal: isHorizontal,
-        iconOnPress: () {
-          setState(() {
-            isHorizontal = !isHorizontal;
-          });
-        },
-        onFilterSelected: (String value) {
-          _setFilter(value);
-          widget.kdsProvider.changeExpoFilter(value);
-        },
-        buildFilterMenu: _buildFilterMenu(context),
-      ),
-      body: Padding(
-          padding: EdgeInsets.all(Utils.getPadding(context)),
-          child: FilteredOrdersList(
-            filteredOrders: _getFilteredOrders(),
-            selectedKdsId: 0,
-            isHorizontal: isHorizontal,
-          )),
-    );
+  void initState() {
+    super.initState();
+    _activeFilter = widget.kdsProvider.expoFilter;
   }
 
   void _setFilter(String filter) {
@@ -119,11 +90,39 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
       );
     }).where((order) {
       return switch (_activeFilter) {
-        KdsConst.defaultFilter =>
-          order.items.any((item) => !item.isDone && !item.isComplete),
-        KdsConst.doneFilter => order.items.every((item) => item.isDone),
+        KdsConst.defaultFilter => order.items.any((item) => !item.isComplete),
+        KdsConst.doneFilter => order.items.every((item) => item.isComplete),
         _ => true
       };
     }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarWidget(
+        title:
+            'Complete Order: $_activeFilter (${_getFilteredOrders().length})',
+        isHorizontal: isHorizontal,
+        iconOnPress: () {
+          setState(() {
+            isHorizontal = !isHorizontal;
+          });
+        },
+        onFilterSelected: (String value) {
+          _setFilter(value);
+          widget.kdsProvider.changeExpoFilter(value);
+        },
+        buildFilterMenu: _buildFilterMenu(context),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(Utils.getPadding(context)),
+          child: FilteredOrdersList(
+            filteredOrders: _getFilteredOrders(),
+            selectedKdsId: 0,
+            isHorizontal: isHorizontal,
+            isComplete: true,
+          )),
+    );
   }
 }

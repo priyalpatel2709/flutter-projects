@@ -18,6 +18,8 @@ class GroupedOrder {
   final bool isAnyDone;
   final bool isAllCancel;
   final bool isAnyInProgress;
+  final bool isAnyComplete;
+  final bool isAllComplete;
 
   GroupedOrder({
     required this.id,
@@ -37,6 +39,8 @@ class GroupedOrder {
     required this.isAllCancel,
     required this.isAnyInProgress,
     required this.isAnyDone,
+    required this.isAnyComplete,
+    required this.isAllComplete,
   });
 
   factory GroupedOrder.fromJson(Map<String, dynamic> json) {
@@ -60,6 +64,8 @@ class GroupedOrder {
       isAllCancel: json['isAllCancel'],
       isAnyInProgress: json['isAnyInProgress'],
       isAnyDone: json['isAnyDone'],
+      isAnyComplete: json['isAllComplete'],
+      isAllComplete: json['isAnyComplete'],
     );
   }
 
@@ -82,6 +88,8 @@ class GroupedOrder {
       'isAllCancel': isAllCancel,
       'isAnyInProgress': isAnyInProgress,
       'isAnyDone': isAnyDone,
+      'isAllComplete': isAllComplete,
+      'isAnyComplete': isAnyComplete,
     };
   }
 }
@@ -94,6 +102,7 @@ class OrderItemV2 {
   final bool isInprogress;
   final bool isDone;
   final bool isCancel;
+  final bool isComplete;
   final int kdsId;
 
   OrderItemV2({
@@ -105,6 +114,7 @@ class OrderItemV2 {
     required this.isDone,
     required this.isCancel,
     required this.kdsId,
+    required this.isComplete,
   });
 
   factory OrderItemV2.fromJson(Map<String, dynamic> json) {
@@ -117,6 +127,7 @@ class OrderItemV2 {
       isDone: json['isDone'],
       isCancel: json['isCancelled'],
       kdsId: json['kdsId'],
+      isComplete: json['isCompleted'],
     );
   }
 
@@ -130,6 +141,7 @@ class OrderItemV2 {
       'isDone': isDone,
       'isCancelled': isCancel,
       'kdsId': kdsId,
+      'isCompleted': isComplete,
     };
   }
 }

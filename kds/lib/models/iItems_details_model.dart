@@ -15,6 +15,7 @@ class ItemsDetails {
   bool? isInprogress;
   String? inprogressOn;
   bool? isDone;
+  bool? isComplete;
   String? doneOn;
   bool? isCancel;
   bool? isCompleted;
@@ -49,6 +50,7 @@ class ItemsDetails {
     this.tableName,
     this.dPartner,
     this.displayOrdertype,
+    this.isComplete,
   });
 
   ItemsDetails.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class ItemsDetails {
     tableName = json['tableName'];
     dPartner = json['deliveryPartner'];
     displayOrdertype = json['displayOrdertype'];
+    isComplete = json['isCompleted'];
   }
 
   Map<String, dynamic> toJson() {
@@ -104,6 +107,7 @@ class ItemsDetails {
     data['tableName'] = tableName;
     data['deliveryPartner'] = dPartner;
     data['displayOrdertype'] = displayOrdertype;
+    data['isCompleted'] = isComplete;
     return data;
   }
 }

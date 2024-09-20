@@ -26,6 +26,7 @@ class OrderItemStateProvider extends ChangeNotifier {
     required String orderId,
     required bool isDone,
     required bool isInProgress,
+    required bool isCompleted,
   }) async {
     try {
       await kdsItemsProvider.updateItemsInfo(
@@ -34,6 +35,7 @@ class OrderItemStateProvider extends ChangeNotifier {
         itemId: itemId,
         isDone: isDone,
         isInProgress: isInProgress,
+        isCompleted: isCompleted,
       );
       notifyListeners();
     } catch (e) {
@@ -45,6 +47,7 @@ class OrderItemStateProvider extends ChangeNotifier {
 
 class OrderItemState {
   String buttonText = 'Start';
+  String completeButtonText = 'New';
   bool isButtonVisible = true;
   int countdown = 0;
   Timer? _timer;
@@ -58,6 +61,7 @@ class OrderItemState {
   }) async {
     if (buttonText == 'Start') {
       buttonText = 'Done';
+      completeButtonText = 'In Progress';
 
       // Call the async method to update items info and wait for completion
       await _updateItemInfoAndNotify(
@@ -67,10 +71,33 @@ class OrderItemState {
         orderId: orderId,
         isDone: false,
         isInProgress: true,
+        isCompleted: false,
       );
     } else if (buttonText == 'Done') {
       _startCountdown(provider, itemId, storeId, orderId);
     }
+  }
+
+  Future<void> handleCompleteProcess({
+    required OrderItemStateProvider provider,
+    required String itemId,
+    required int storeId,
+    required String orderId,
+  }) async {
+    // if (buttonText == 'Done') {
+    //   buttonText = 'Start';
+    //   _completeCountdown(provider, itemId, storeId, orderId);
+    // }
+    await _updateItemInfoAndNotify(
+      provider: provider,
+      itemId: itemId,
+      storeId: storeId,
+      orderId: orderId,
+      isDone: false,
+      isInProgress: false,
+      isCompleted: true,
+    );
+    completeButtonText = 'Completed';
   }
 
   // Method to update item info and notify listeners
@@ -81,6 +108,7 @@ class OrderItemState {
     required String orderId,
     required bool isDone,
     required bool isInProgress,
+    required bool isCompleted,
   }) async {
     try {
       await provider.handleUpdateItemsInfo(
@@ -89,6 +117,7 @@ class OrderItemState {
         orderId: orderId,
         isDone: isDone,
         isInProgress: isInProgress,
+        isCompleted: isCompleted,
       );
       provider.notifyListeners();
     } catch (e) {
@@ -125,6 +154,7 @@ class OrderItemState {
       orderId: orderId,
       isDone: true,
       isInProgress: false,
+      isCompleted: false,
     );
   }
 }
