@@ -20,6 +20,7 @@ class GroupedOrder {
   final bool isAnyInProgress;
   final bool isAnyComplete;
   final bool isAllComplete;
+  final bool isNewOrder;
 
   GroupedOrder({
     required this.id,
@@ -41,6 +42,7 @@ class GroupedOrder {
     required this.isAnyDone,
     required this.isAnyComplete,
     required this.isAllComplete,
+    required this.isNewOrder,
   });
 
   factory GroupedOrder.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,7 @@ class GroupedOrder {
       isAnyDone: json['isAnyDone'],
       isAnyComplete: json['isAllComplete'],
       isAllComplete: json['isAnyComplete'],
+      isNewOrder: json['isNewOrder'],
     );
   }
 

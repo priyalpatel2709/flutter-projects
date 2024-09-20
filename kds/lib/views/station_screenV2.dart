@@ -116,25 +116,25 @@ class _StationScreenContentState extends State<_StationScreenContent> {
 
           if (filteredItems.isNotEmpty) {
             return GroupedOrder(
-              orderId: order.orderId,
-              items: filteredItems,
-              kdsId: order.kdsId,
-              id: order.id,
-              orderTitle: order.orderTitle,
-              orderType: order.orderType,
-              orderNote: order.orderNote,
-              createdOn: order.createdOn,
-              storeId: order.storeId,
-              tableName: order.tableName,
-              displayOrderType: order.displayOrderType,
-              isAllInProgress: order.isAllInProgress,
-              isAllDone: order.isAllDone,
-              isAllCancel: order.isAllCancel,
-              isAnyInProgress: order.isAnyInProgress,
-              isAnyDone: order.isAnyDone,
-              isAnyComplete: order.isAnyComplete,
-              isAllComplete: order.isAllComplete,
-            );
+                orderId: order.orderId,
+                items: filteredItems,
+                kdsId: order.kdsId,
+                id: order.id,
+                orderTitle: order.orderTitle,
+                orderType: order.orderType,
+                orderNote: order.orderNote,
+                createdOn: order.createdOn,
+                storeId: order.storeId,
+                tableName: order.tableName,
+                displayOrderType: order.displayOrderType,
+                isAllInProgress: order.isAllInProgress,
+                isAllDone: order.isAllDone,
+                isAllCancel: order.isAllCancel,
+                isAnyInProgress: order.isAnyInProgress,
+                isAnyDone: order.isAnyDone,
+                isAnyComplete: order.isAnyComplete,
+                isAllComplete: order.isAllComplete,
+                isNewOrder: order.isNewOrder);
           }
           return null;
         })
@@ -149,9 +149,9 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     return filteredByKdsId.where((order) {
       switch (_activeFilter) {
         case KdsConst.defaultFilter:
-          return order.items.any((item) => !item.isDone && !item.isComplete);
+          return order.isAnyInProgress || order.isNewOrder;
         case KdsConst.doneFilter:
-          return order.items.every((item) => item.isDone || item.isComplete);
+          return order.isAllDone || order.isAnyComplete;
         default:
           return true;
       }

@@ -95,11 +95,14 @@ class _CompleteOrderState extends State<_CompleteOrderContent> {
         isAnyDone: order.isAnyDone,
         isAnyComplete: order.isAnyComplete,
         isAllComplete: order.isAllComplete,
+        isNewOrder: order.isNewOrder,
       );
     }).where((order) {
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => order.items.any((item) => !item.isComplete),
-        KdsConst.doneFilter => order.items.every((item) => item.isComplete),
+        KdsConst.defaultFilter => order.isAnyInProgress ||
+            order.isAnyDone ||
+            order.isNewOrder && !order.isAllComplete,
+        KdsConst.doneFilter => order.isAllComplete,
         _ => true
       };
     }).toList();

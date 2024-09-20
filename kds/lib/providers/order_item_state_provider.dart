@@ -56,7 +56,7 @@ class OrderItemState {
   Timer? _timer;
 
   Color buttonColor = Colors.lightBlueAccent;
-  Color completeButtonColor = Colors.black;
+  Color completeButtonColor = Colors.white;
 
   // Method to handle process start and switch button text
   Future<void> handleStartProcess({

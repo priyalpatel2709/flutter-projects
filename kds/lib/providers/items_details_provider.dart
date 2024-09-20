@@ -105,6 +105,8 @@ class KDSItemsProvider with ChangeNotifier {
             isAnyDone: items.any((item) => item.isDone),
             isAnyComplete: items.any((item) => item.isComplete),
             isAllComplete: items.every((item) => item.isComplete),
+            isNewOrder: items.every((item) =>
+                !item.isInprogress && !item.isDone && !item.isComplete),
           );
         }).toList();
 

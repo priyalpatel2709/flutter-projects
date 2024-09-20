@@ -215,7 +215,7 @@ class OrderItem extends StatelessWidget {
               ],
             ),
           ),
-          _buildActionButton(itemState, stateProvider
+          _buildActionButton(itemState, stateProvider, itemIsComplete
               // stateProvider: stateProvider,
               // itemIsComplete: itemIsComplete,
               // isInprogress: isInProcess,
@@ -229,7 +229,8 @@ class OrderItem extends StatelessWidget {
   }
 
   // Build the action button based on item state (start process, complete, etc.)
-  Widget _buildActionButton(itemState, OrderItemStateProvider stateProvider) {
+  Widget _buildActionButton(
+      itemState, OrderItemStateProvider stateProvider, bool itemIsComplete) {
     if (isDone) {
       return isComplete
           ? ElevatedButton(
@@ -248,25 +249,31 @@ class OrderItem extends StatelessWidget {
           : const Icon(Icons.check_circle, color: Colors.green);
     } else {
       return isComplete
-          ? Text(itemState.completeButtonText,
-              style: TextStyle(color: Colors.black, fontSize: fontSize * .8))
-          : ElevatedButton(
-              style: _smallButtonStyle(itemState.buttonColor),
-              onPressed: () {
-                itemState.handleStartProcess(
-                    provider: stateProvider,
-                    itemId: itemId,
-                    storeId: KdsConst.storeId,
-                    orderId: orderId);
-                stateProvider.updateState(uniqueId, itemState);
-              },
-              child: Text(
-                itemState.countdown > 0
-                    ? 'Done (${itemState.countdown})'
-                    : itemState.buttonText,
-                style: TextStyle(color: Colors.black, fontSize: fontSize * .8),
-              ),
-            );
+          ? itemIsComplete
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : Text(itemState.completeButtonText,
+                  style:
+                      TextStyle(color: Colors.black, fontSize: fontSize * .8))
+          : itemIsComplete
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : ElevatedButton(
+                  style: _smallButtonStyle(itemState.buttonColor),
+                  onPressed: () {
+                    itemState.handleStartProcess(
+                        provider: stateProvider,
+                        itemId: itemId,
+                        storeId: KdsConst.storeId,
+                        orderId: orderId);
+                    stateProvider.updateState(uniqueId, itemState);
+                  },
+                  child: Text(
+                    itemState.countdown > 0
+                        ? 'Done (${itemState.countdown})'
+                        : itemState.buttonText,
+                    style:
+                        TextStyle(color: Colors.black, fontSize: fontSize * .8),
+                  ),
+                );
     }
   }
 

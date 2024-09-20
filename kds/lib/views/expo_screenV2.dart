@@ -108,31 +108,35 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
       }
 
       return GroupedOrder(
-        id: order.id,
-        items: uniqueItems.values.toList(),
-        kdsId: order.kdsId,
-        orderId: order.orderId,
-        orderTitle: order.orderTitle,
-        orderType: order.orderType,
-        orderNote: order.orderNote,
-        createdOn: order.createdOn,
-        storeId: order.storeId,
-        tableName: order.tableName,
-        displayOrderType: order.displayOrderType,
-        isAllInProgress: order.isAllInProgress,
-        isAllDone: order.isAllDone,
-        isAllCancel: order.isAllCancel,
-        isAnyInProgress: order.isAnyInProgress,
-        isAnyDone: order.isAnyDone,
-        isAnyComplete: order.isAnyComplete,
-        isAllComplete: order.isAllComplete,
-      );
+          id: order.id,
+          items: uniqueItems.values.toList(),
+          kdsId: order.kdsId,
+          orderId: order.orderId,
+          orderTitle: order.orderTitle,
+          orderType: order.orderType,
+          orderNote: order.orderNote,
+          createdOn: order.createdOn,
+          storeId: order.storeId,
+          tableName: order.tableName,
+          displayOrderType: order.displayOrderType,
+          isAllInProgress: order.isAllInProgress,
+          isAllDone: order.isAllDone,
+          isAllCancel: order.isAllCancel,
+          isAnyInProgress: order.isAnyInProgress,
+          isAnyDone: order.isAnyDone,
+          isAnyComplete: order.isAnyComplete,
+          isAllComplete: order.isAllComplete,
+          isNewOrder: order.isNewOrder);
     }).where((order) {
+      // print(
+      //     'order--->${order.orderTitle} ${order.isAllDone} ${order.isAnyComplete}');
       return switch (_activeFilter) {
-        KdsConst.defaultFilter =>
-          order.items.any((item) => !item.isDone && !item.isComplete),
-        KdsConst.doneFilter =>
-          order.items.every((item) => item.isDone || item.isComplete),
+        KdsConst.defaultFilter => (order.isAnyInProgress ||
+                order.isNewOrder ||
+                order.isAnyDone ||
+                order.isAllInProgress) ||
+            (order.isAllDone && order.isAllComplete),
+        KdsConst.doneFilter => order.isAllDone || order.isAnyComplete,
         _ => true
       };
     }).toList();
