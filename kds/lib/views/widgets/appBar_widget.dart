@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../constant/constants.dart';
+import '../../providers/appsettings_provider.dart';
 import '../../providers/items_details_provider.dart';
 import '../../utils/utils.dart';
+import '../settings_screen.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool isHorizontal;
   final VoidCallback iconOnPress;
   final Function(String) onFilterSelected;
-  // final KDSItemsProvider kdsProvider;
+  final AppSettingStateProvider appSettingStateProvider;
   final List<PopupMenuEntry<String>> buildFilterMenu;
 
   const AppBarWidget({
@@ -20,7 +22,45 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     required this.onFilterSelected,
     // required this.kdsProvider,
     required this.buildFilterMenu,
+    required this.appSettingStateProvider,
   }) : super(key: key);
+
+  void showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Settings'),
+          content: SingleChildScrollView(
+            child: SettingsScreen(),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSettingsModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows full-height modal
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom, // For keyboard
+          ),
+          child: SettingsScreen(),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +71,24 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: Utils.getTitleFontSize(context),
+          fontSize: appSettingStateProvider.fontSize,
         ),
       ),
       actions: [
         IconButton(
-          onPressed: iconOnPress,
-          icon: isHorizontal
+          onPressed: () {
+            appSettingStateProvider
+                .changesHorizontal(!appSettingStateProvider.isHorizontal);
+          },
+          icon: appSettingStateProvider.isHorizontal
               ? const Icon(Icons.screen_lock_landscape)
               : const Icon(Icons.screen_lock_portrait),
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () {
+            showSettingsDialog(context); // Call the modal popup
+          },
         ),
         PopupMenuButton<String>(
           onSelected: (value) {

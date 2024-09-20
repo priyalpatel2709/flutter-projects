@@ -3,6 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
+import '../providers/appsettings_provider.dart';
 import '../providers/items_details_provider.dart';
 import '../utils/utils.dart';
 import 'widgets/appBar_widget.dart';
@@ -14,9 +15,12 @@ class ExpoScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<KDSItemsProvider>(
-      builder: (context, kdsProvider, child) => _ExpoScreenContent(
+    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
+      builder: (BuildContext context, KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider, _) =>
+          _ExpoScreenContent(
         kdsProvider: kdsProvider,
+        appSettingStateProvider: appSettingStateProvider,
       ),
     );
   }
@@ -24,8 +28,12 @@ class ExpoScreenV2 extends StatelessWidget {
 
 class _ExpoScreenContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
+  final AppSettingStateProvider appSettingStateProvider;
 
-  const _ExpoScreenContent({Key? key, required this.kdsProvider})
+  const _ExpoScreenContent(
+      {Key? key,
+      required this.kdsProvider,
+      required this.appSettingStateProvider})
       : super(key: key);
 
   @override
@@ -59,13 +67,15 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
           widget.kdsProvider.changeExpoFilter(value);
         },
         buildFilterMenu: _buildFilterMenu(context),
+        appSettingStateProvider: widget.appSettingStateProvider,
       ),
       body: Padding(
-          padding: EdgeInsets.all(Utils.getPadding(context)),
+          padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
           child: FilteredOrdersList(
             filteredOrders: _getFilteredOrders(),
             selectedKdsId: 0,
             isHorizontal: isHorizontal,
+            appSettingStateProvider: widget.appSettingStateProvider,
           )),
     );
   }
@@ -121,7 +131,8 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
       return switch (_activeFilter) {
         KdsConst.defaultFilter =>
           order.items.any((item) => !item.isDone && !item.isComplete),
-        KdsConst.doneFilter => order.items.every((item) => item.isDone),
+        KdsConst.doneFilter =>
+          order.items.every((item) => item.isDone || item.isComplete),
         _ => true
       };
     }).toList();

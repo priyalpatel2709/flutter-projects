@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../models/groupedorder_model.dart';
+import '../../providers/appsettings_provider.dart';
 import '../../utils/utils.dart';
 import 'itemcartV2.dart';
 
@@ -13,6 +14,7 @@ class FilteredOrdersList extends StatelessWidget {
   // final double padding;
   final bool isHorizontal;
   final bool isComplete;
+  final AppSettingStateProvider appSettingStateProvider;
 
   const FilteredOrdersList({
     Key? key,
@@ -22,6 +24,7 @@ class FilteredOrdersList extends StatelessWidget {
     // required this.padding,
     required this.isHorizontal,
     this.isComplete = false,
+    required this.appSettingStateProvider,
   }) : super(key: key);
 
   @override
@@ -31,36 +34,30 @@ class FilteredOrdersList extends StatelessWidget {
       children: [
         // Any other widgets you want to add above the Expanded widget can go here.
         Expanded(
-          child: isHorizontal
+          child: appSettingStateProvider.isHorizontal
               ? ListView.builder(
                   itemCount: filteredOrders.length,
                   itemBuilder: (_, index) => ItemCartV2(
                     items: filteredOrders[index],
                     selectedKdsId: selectedKdsId,
-                    fontSize: Utils.getTitleFontSize(context),
-                    padding: Utils.getPadding(context),
+                    fontSize: appSettingStateProvider.fontSize,
+                    padding: appSettingStateProvider.padding,
                     isComplete: isComplete,
                   ),
                 )
               : MasonryGridView.count(
-                  crossAxisCount: Utils.getCrossAxisCount(context),
+                  crossAxisCount: appSettingStateProvider.crossAxisCount,
                   shrinkWrap: true,
                   controller: ScrollController(),
                   itemCount: filteredOrders.length,
-                  mainAxisSpacing: 4,
-                  crossAxisSpacing: 4,
-                  itemBuilder: (_, index) => Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical:
-                          Utils.getCrossAxisCount(context) > 1 ? 16.0 : 8.0,
-                    ),
-                    child: ItemCartV2(
-                      items: filteredOrders[index],
-                      selectedKdsId: selectedKdsId,
-                      fontSize: Utils.getTitleFontSize(context),
-                      padding: Utils.getPadding(context),
-                      isComplete: isComplete,
-                    ),
+                  mainAxisSpacing: appSettingStateProvider.padding,
+                  crossAxisSpacing: appSettingStateProvider.padding,
+                  itemBuilder: (_, index) => ItemCartV2(
+                    items: filteredOrders[index],
+                    selectedKdsId: selectedKdsId,
+                    fontSize: appSettingStateProvider.fontSize,
+                    padding: appSettingStateProvider.padding,
+                    isComplete: isComplete,
                   ),
                 ),
         ),

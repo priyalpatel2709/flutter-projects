@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:kds/providers/items_details_provider.dart';
 
 class OrderItemStateProvider extends ChangeNotifier {
@@ -52,6 +55,9 @@ class OrderItemState {
   int countdown = 0;
   Timer? _timer;
 
+  Color buttonColor = Colors.lightBlueAccent;
+  Color completeButtonColor = Colors.black;
+
   // Method to handle process start and switch button text
   Future<void> handleStartProcess({
     required OrderItemStateProvider provider,
@@ -62,6 +68,8 @@ class OrderItemState {
     if (buttonText == 'Start') {
       buttonText = 'Done';
       completeButtonText = 'In Progress';
+      buttonColor = Colors.green;
+      completeButtonColor = Colors.lightBlueAccent;
 
       // Call the async method to update items info and wait for completion
       await _updateItemInfoAndNotify(
@@ -88,6 +96,7 @@ class OrderItemState {
     //   buttonText = 'Start';
     //   _completeCountdown(provider, itemId, storeId, orderId);
     // }
+    completeButtonText = 'Completed';
     await _updateItemInfoAndNotify(
       provider: provider,
       itemId: itemId,
@@ -97,7 +106,6 @@ class OrderItemState {
       isInProgress: false,
       isCompleted: true,
     );
-    completeButtonText = 'Completed';
   }
 
   // Method to update item info and notify listeners

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:kds/models/iItems_details_model.dart';
 import 'package:provider/provider.dart';
@@ -35,18 +36,18 @@ class ItemCartV2 extends StatelessWidget {
 
     return Card(
       elevation: 3,
-      margin: const EdgeInsets.all(8),
+      margin: EdgeInsets.all(padding),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
         side: const BorderSide(color: Colors.black, width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildOrderHeader(formattedCreatedOn),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             if (items.orderNote != null)
               Text(
                 items.orderNote!,
@@ -55,21 +56,22 @@ class ItemCartV2 extends StatelessWidget {
               ),
             const Divider(),
             Column(
+              mainAxisSize: MainAxisSize.min,
               children: items.items
                   .map((item) => OrderItem(
-                        quantity: item.qty,
-                        name: item.itemName ?? '',
-                        subInfo: item.modifiers ?? '',
-                        uniqueId: '${item.itemId}-${items.orderId}',
-                        orderId: items.orderId ?? '',
-                        isDone: item.isDone,
-                        isInProcess: item.isInprogress,
-                        itemId: item.itemId,
-                        kdsId: item.kdsId,
-                        selectedKdsId: selectedKdsId ?? 0,
-                        fontSize: fontSize,
-                        isComplete: isComplete,
-                      ))
+                      quantity: item.qty,
+                      name: item.itemName ?? '',
+                      subInfo: item.modifiers ?? '',
+                      uniqueId: '${item.itemId}-${items.orderId}',
+                      orderId: items.orderId ?? '',
+                      isDone: item.isDone,
+                      isInProcess: item.isInprogress,
+                      itemId: item.itemId,
+                      kdsId: item.kdsId,
+                      selectedKdsId: selectedKdsId ?? 0,
+                      fontSize: fontSize,
+                      isComplete: isComplete,
+                      itemIsComplete: item.isComplete))
                   .toList(),
             ),
           ],
@@ -96,7 +98,7 @@ class ItemCartV2 extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize),
               ),
-              const SizedBox(height: 4),
+              // const SizedBox(height: 4),
               Text(
                 formattedCreatedOn,
                 style: TextStyle(color: Colors.black, fontSize: fontSize),
@@ -145,6 +147,7 @@ class OrderItem extends StatelessWidget {
   final bool isDone;
   final bool isComplete;
   final bool isInProcess;
+  final bool itemIsComplete;
   final double fontSize;
 
   const OrderItem({
@@ -161,6 +164,7 @@ class OrderItem extends StatelessWidget {
     required this.selectedKdsId,
     required this.fontSize,
     required this.isComplete,
+    required this.itemIsComplete,
   });
 
   @override
@@ -170,36 +174,56 @@ class OrderItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        title: Row(
-          children: [
-            Text(
-              '$quantity ',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-            ),
-            Expanded(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize * 0.8,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align items vertically
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Align text to start
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '$quantity ',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: fontSize),
+                    ),
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSize * 0.8,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis, // Handle long text
+                      ),
+                    ),
+                  ],
                 ),
-                maxLines: 2, // Allow a maximum of 2 lines
-                overflow: TextOverflow
-                    .ellipsis, // Add ellipsis after the second line if text overflows
-              ),
+                Visibility(
+                  visible: subInfo != '',
+                  child: Text(
+                    subInfo,
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontSize: fontSize * 0.8,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Text(
-            subInfo,
-            style: TextStyle(
-                fontStyle: FontStyle.italic, fontSize: fontSize * 0.8),
           ),
-        ),
-        trailing: _buildActionButton(itemState, stateProvider),
+          _buildActionButton(itemState, stateProvider
+              // stateProvider: stateProvider,
+              // itemIsComplete: itemIsComplete,
+              // isInprogress: isInProcess,
+              // isDone: isDone,
+              // isCompleted: isComplete,
+              // itemState: itemState
+              ),
+        ],
       ),
     );
   }
@@ -209,7 +233,7 @@ class OrderItem extends StatelessWidget {
     if (isDone) {
       return isComplete
           ? ElevatedButton(
-              style: _smallButtonStyle(),
+              style: _smallButtonStyle(itemState.completeButtonColor),
               onPressed: () {
                 itemState.handleCompleteProcess(
                     provider: stateProvider,
@@ -227,7 +251,7 @@ class OrderItem extends StatelessWidget {
           ? Text(itemState.completeButtonText,
               style: TextStyle(color: Colors.black, fontSize: fontSize * .8))
           : ElevatedButton(
-              style: _smallButtonStyle(),
+              style: _smallButtonStyle(itemState.buttonColor),
               onPressed: () {
                 itemState.handleStartProcess(
                     provider: stateProvider,
@@ -247,9 +271,9 @@ class OrderItem extends StatelessWidget {
   }
 
   // Button style to maintain consistency in size and padding
-  ButtonStyle _smallButtonStyle() {
+  ButtonStyle _smallButtonStyle(buttonColor) {
     return ElevatedButton.styleFrom(
-      backgroundColor: Colors.white,
+      backgroundColor: buttonColor,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       minimumSize: const Size(50, 30), // Small button size
     );

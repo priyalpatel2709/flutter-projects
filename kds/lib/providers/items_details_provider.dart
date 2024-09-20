@@ -181,6 +181,7 @@ class KDSItemsProvider with ChangeNotifier {
         log('Update successful: ${response.body}');
         _itemsError = ''; // Clear any previous errors
         // Apply filters after updating
+        startFetching(timerInterval: 10, storeId: storeId);
         _applyFilters();
       } else {
         log('Update failed: ${response.statusCode}');

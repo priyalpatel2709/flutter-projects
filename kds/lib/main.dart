@@ -3,6 +3,7 @@ import 'package:kds/views/expo_screenV2.dart';
 import 'package:kds/views/station_screenV2.dart';
 import 'package:provider/provider.dart';
 import 'constant/constants.dart';
+import 'providers/appsettings_provider.dart';
 import 'providers/items_details_provider.dart';
 import 'providers/order_item_state_provider.dart';
 import 'views/complateorder_screen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => KDSItemsProvider()),
+        ChangeNotifierProvider(create: (_) => AppSettingStateProvider()),
         ChangeNotifierProvider(
             create: (_) =>
                 OrderItemStateProvider(kdsItemsProvider: KDSItemsProvider())),
@@ -66,32 +68,48 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Call initializeSettings after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appSettingsProvider =
+          Provider.of<AppSettingStateProvider>(context, listen: false);
+      appSettingsProvider.initializeSettings(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: LayoutBuilder(
-        builder: (context, constraints) {
-          return BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            selectedItemColor: KdsConst.mainColor,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.view_list),
-                label: 'All Orders',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.business),
-                label: 'Stations',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.done_all),
-                label: 'Complete Order',
-              )
-            ],
-          );
-        },
-      ),
+    return Consumer<AppSettingStateProvider>(
+      builder:
+          (BuildContext context, AppSettingStateProvider value, Widget? child) {
+        return Scaffold(
+          body: _screens[_selectedIndex],
+          bottomNavigationBar: LayoutBuilder(
+            builder: (context, constraints) {
+              return BottomNavigationBar(
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                selectedItemColor: KdsConst.mainColor,
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.view_list),
+                    label: 'All Orders',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.business),
+                    label: 'Stations',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.done_all),
+                    label: 'Complete Order',
+                  )
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

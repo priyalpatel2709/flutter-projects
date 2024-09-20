@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
+import '../providers/appsettings_provider.dart';
 import '../providers/items_details_provider.dart';
 import '../utils/utils.dart';
 import 'widgets/appBar_widget.dart';
@@ -15,9 +16,12 @@ class CompleteOrder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<KDSItemsProvider>(
-      builder: (context, kdsProvider, child) => _CompleteOrderContent(
+    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
+      builder: (BuildContext context, KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider, _) =>
+          _CompleteOrderContent(
         kdsProvider: kdsProvider,
+        appSettingStateProvider: appSettingStateProvider,
       ),
     );
   }
@@ -25,7 +29,11 @@ class CompleteOrder extends StatelessWidget {
 
 class _CompleteOrderContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
-  const _CompleteOrderContent({super.key, required this.kdsProvider});
+  final AppSettingStateProvider appSettingStateProvider;
+  const _CompleteOrderContent(
+      {super.key,
+      required this.kdsProvider,
+      required this.appSettingStateProvider});
 
   @override
   _CompleteOrderState createState() => _CompleteOrderState();
@@ -114,14 +122,16 @@ class _CompleteOrderState extends State<_CompleteOrderContent> {
           widget.kdsProvider.changeExpoFilter(value);
         },
         buildFilterMenu: _buildFilterMenu(context),
+        appSettingStateProvider: widget.appSettingStateProvider,
       ),
       body: Padding(
-          padding: EdgeInsets.all(Utils.getPadding(context)),
+          padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
           child: FilteredOrdersList(
             filteredOrders: _getFilteredOrders(),
             selectedKdsId: 0,
             isHorizontal: isHorizontal,
             isComplete: true,
+            appSettingStateProvider: widget.appSettingStateProvider,
           )),
     );
   }

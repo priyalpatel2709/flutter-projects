@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
+import '../providers/appsettings_provider.dart';
 import '../providers/items_details_provider.dart';
 import '../utils/utils.dart';
 import 'widgets/appBar_widget.dart';
@@ -16,16 +17,24 @@ class StationScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<KDSItemsProvider>(
-      builder: (context, kdsProvider, _) =>
-          _StationScreenContent(kdsProvider: kdsProvider),
+    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
+      builder: (BuildContext context, KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider, _) =>
+          _StationScreenContent(
+        kdsProvider: kdsProvider,
+        appSettingStateProvider: appSettingStateProvider,
+      ),
     );
   }
 }
 
 class _StationScreenContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
-  const _StationScreenContent({Key? key, required this.kdsProvider})
+  final AppSettingStateProvider appSettingStateProvider;
+  const _StationScreenContent(
+      {Key? key,
+      required this.kdsProvider,
+      required this.appSettingStateProvider})
       : super(key: key);
 
   @override
@@ -72,9 +81,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
           widget.kdsProvider.changeExpoFilter(value);
         },
         buildFilterMenu: _buildFilterMenu(context),
+        appSettingStateProvider: widget.appSettingStateProvider,
       ),
       body: Padding(
-        padding: EdgeInsets.all(Utils.getPadding(context)),
+        padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -85,6 +95,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
                 filteredOrders: _getFilteredOrders(),
                 selectedKdsId: selectedKdsId ?? 0,
                 isHorizontal: isHorizontal,
+                appSettingStateProvider: widget.appSettingStateProvider,
               ),
             )
           ],
@@ -138,9 +149,9 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     return filteredByKdsId.where((order) {
       switch (_activeFilter) {
         case KdsConst.defaultFilter:
-          return order.items.any((item) => !item.isDone);
+          return order.items.any((item) => !item.isDone && !item.isComplete);
         case KdsConst.doneFilter:
-          return order.items.every((item) => item.isDone);
+          return order.items.every((item) => item.isDone || item.isComplete);
         default:
           return true;
       }
