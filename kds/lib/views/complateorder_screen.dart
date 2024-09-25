@@ -41,7 +41,6 @@ class _CompleteOrderContent extends StatefulWidget {
 
 class _CompleteOrderState extends State<_CompleteOrderContent> {
   String _activeFilter = KdsConst.defaultFilter;
-  bool isHorizontal = false;
 
   @override
   void initState() {
@@ -99,9 +98,7 @@ class _CompleteOrderState extends State<_CompleteOrderContent> {
       );
     }).where((order) {
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => order.isAnyInProgress ||
-            order.isAnyDone ||
-            order.isNewOrder && !order.isAllComplete,
+        KdsConst.defaultFilter => !order.isAllComplete,
         KdsConst.doneFilter => order.isAllComplete,
         _ => true
       };
@@ -112,14 +109,7 @@ class _CompleteOrderState extends State<_CompleteOrderContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(
-        title:
-            'Complete Order: $_activeFilter (${_getFilteredOrders().length})',
-        isHorizontal: isHorizontal,
-        iconOnPress: () {
-          setState(() {
-            isHorizontal = !isHorizontal;
-          });
-        },
+        title: 'Expo View: $_activeFilter (${_getFilteredOrders().length})',
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
@@ -132,7 +122,6 @@ class _CompleteOrderState extends State<_CompleteOrderContent> {
           child: FilteredOrdersList(
             filteredOrders: _getFilteredOrders(),
             selectedKdsId: 0,
-            isHorizontal: isHorizontal,
             isComplete: true,
             appSettingStateProvider: widget.appSettingStateProvider,
           )),

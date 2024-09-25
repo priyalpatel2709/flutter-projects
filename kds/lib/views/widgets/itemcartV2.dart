@@ -16,6 +16,7 @@ class ItemCartV2 extends StatelessWidget {
   final double fontSize;
   final double padding;
   final bool isComplete;
+  final String selectedView;
 
   const ItemCartV2({
     Key? key,
@@ -24,6 +25,7 @@ class ItemCartV2 extends StatelessWidget {
     required this.fontSize,
     required this.padding,
     this.isComplete = false,
+    required this.selectedView,
   }) : super(key: key);
 
   @override
@@ -35,12 +37,13 @@ class ItemCartV2 extends StatelessWidget {
         DateFormat('hh:mm a').format(createdOnDate); // Format local time
 
     return Card(
+      color: Colors.white,
       elevation: 3,
-      margin: EdgeInsets.all(padding),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        side: const BorderSide(color: Colors.black, width: 1),
-      ),
+      // margin: EdgeInsets.all(padding),
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(8.0),
+      //   // side: const BorderSide(color: KdsConst.black, width: .5),
+      // ),
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
@@ -71,7 +74,8 @@ class ItemCartV2 extends StatelessWidget {
                       selectedKdsId: selectedKdsId ?? 0,
                       fontSize: fontSize,
                       isComplete: isComplete,
-                      itemIsComplete: item.isComplete))
+                      itemIsComplete: item.isComplete,
+                      padding: padding))
                   .toList(),
             ),
           ],
@@ -83,7 +87,11 @@ class ItemCartV2 extends StatelessWidget {
   // Build the top section of the order (header) with order type and time
   Widget _buildOrderHeader(String formattedCreatedOn) {
     return Container(
-      color: _getOrderTypeColor(items.orderType),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: _getOrderTypeColor(items.orderType),
+        border: Border.all(color: KdsConst.black, width: .5),
+      ),
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,14 +102,14 @@ class ItemCartV2 extends StatelessWidget {
               Text(
                 items.orderType,
                 style: TextStyle(
-                    color: Colors.black,
+                    color: KdsConst.black,
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize),
               ),
               // const SizedBox(height: 4),
               Text(
                 formattedCreatedOn,
-                style: TextStyle(color: Colors.black, fontSize: fontSize),
+                style: TextStyle(color: KdsConst.black, fontSize: fontSize),
               ),
             ],
           ),
@@ -111,7 +119,7 @@ class ItemCartV2 extends StatelessWidget {
               Text(
                 items.orderTitle,
                 style: TextStyle(
-                    color: Colors.black,
+                    color: KdsConst.black,
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize),
               ),
@@ -149,6 +157,7 @@ class OrderItem extends StatelessWidget {
   final bool isInProcess;
   final bool itemIsComplete;
   final double fontSize;
+  final double padding;
 
   const OrderItem({
     super.key,
@@ -165,6 +174,7 @@ class OrderItem extends StatelessWidget {
     required this.fontSize,
     required this.isComplete,
     required this.itemIsComplete,
+    required this.padding,
   });
 
   @override
@@ -191,6 +201,7 @@ class OrderItem extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
+                        // '$name ($kdsId)',
                         name,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -215,7 +226,7 @@ class OrderItem extends StatelessWidget {
               ],
             ),
           ),
-          _buildActionButton(itemState, stateProvider, itemIsComplete
+          _buildActionButton(itemState, stateProvider, itemIsComplete, padding
               // stateProvider: stateProvider,
               // itemIsComplete: itemIsComplete,
               // isInprogress: isInProcess,
@@ -229,22 +240,25 @@ class OrderItem extends StatelessWidget {
   }
 
   // Build the action button based on item state (start process, complete, etc.)
-  Widget _buildActionButton(
-      itemState, OrderItemStateProvider stateProvider, bool itemIsComplete) {
+  Widget _buildActionButton(itemState, OrderItemStateProvider stateProvider,
+      bool itemIsComplete, double padding) {
     if (isDone) {
       return isComplete
-          ? ElevatedButton(
-              style: _smallButtonStyle(itemState.completeButtonColor),
-              onPressed: () {
-                itemState.handleCompleteProcess(
-                    provider: stateProvider,
-                    itemId: itemId,
-                    storeId: KdsConst.storeId,
-                    orderId: orderId);
-              },
-              child: Text('Complete',
-                  style:
-                      TextStyle(color: Colors.black, fontSize: fontSize * .8)),
+          ? Padding(
+              padding: EdgeInsets.all(8 + padding),
+              child: ElevatedButton(
+                style: _smallButtonStyle(KdsConst.onMainColor),
+                onPressed: () {
+                  itemState.handleCompleteProcess(
+                      provider: stateProvider,
+                      itemId: itemId,
+                      storeId: KdsConst.storeId,
+                      orderId: orderId);
+                },
+                child: Text('Complete',
+                    style: TextStyle(
+                        color: KdsConst.black, fontSize: fontSize * .8)),
+              ),
             )
           : const Icon(Icons.check_circle, color: Colors.green);
     } else {
@@ -252,26 +266,30 @@ class OrderItem extends StatelessWidget {
           ? itemIsComplete
               ? const Icon(Icons.check_circle, color: Colors.green)
               : Text(itemState.completeButtonText,
-                  style:
-                      TextStyle(color: Colors.black, fontSize: fontSize * .8))
+                  style: TextStyle(
+                      color: itemState.completeButtonColor,
+                      fontSize: fontSize * .8))
           : itemIsComplete
               ? const Icon(Icons.check_circle, color: Colors.green)
-              : ElevatedButton(
-                  style: _smallButtonStyle(itemState.buttonColor),
-                  onPressed: () {
-                    itemState.handleStartProcess(
-                        provider: stateProvider,
-                        itemId: itemId,
-                        storeId: KdsConst.storeId,
-                        orderId: orderId);
-                    stateProvider.updateState(uniqueId, itemState);
-                  },
-                  child: Text(
-                    itemState.countdown > 0
-                        ? 'Done (${itemState.countdown})'
-                        : itemState.buttonText,
-                    style:
-                        TextStyle(color: Colors.black, fontSize: fontSize * .8),
+              : Padding(
+                  padding: EdgeInsets.all(8 + padding),
+                  child: ElevatedButton(
+                    style: _smallButtonStyle(itemState.buttonColor),
+                    onPressed: () {
+                      itemState.handleStartProcess(
+                          provider: stateProvider,
+                          itemId: itemId,
+                          storeId: KdsConst.storeId,
+                          orderId: orderId);
+                      stateProvider.updateState(uniqueId, itemState);
+                    },
+                    child: Text(
+                      itemState.countdown > 0
+                          ? 'Done (${itemState.countdown})'
+                          : itemState.buttonText,
+                      style: TextStyle(
+                          color: KdsConst.black, fontSize: fontSize * .8),
+                    ),
                   ),
                 );
     }

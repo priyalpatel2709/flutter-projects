@@ -44,7 +44,6 @@ class _StationScreenContent extends StatefulWidget {
 class _StationScreenContentState extends State<_StationScreenContent> {
   int? selectedKdsId;
   String _activeFilter = KdsConst.defaultFilter;
-  bool isHorizontal = false;
 
   @override
   void initState() {
@@ -70,12 +69,6 @@ class _StationScreenContentState extends State<_StationScreenContent> {
       appBar: AppBarWidget(
         title:
             'Station ($selectedKdsId) : $_activeFilter (${_getFilteredOrders().length})',
-        isHorizontal: isHorizontal,
-        iconOnPress: () {
-          setState(() {
-            isHorizontal = !isHorizontal;
-          });
-        },
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
@@ -94,7 +87,6 @@ class _StationScreenContentState extends State<_StationScreenContent> {
               child: FilteredOrdersList(
                 filteredOrders: _getFilteredOrders(),
                 selectedKdsId: selectedKdsId ?? 0,
-                isHorizontal: isHorizontal,
                 appSettingStateProvider: widget.appSettingStateProvider,
               ),
             )

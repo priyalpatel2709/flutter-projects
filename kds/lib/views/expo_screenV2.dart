@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +44,7 @@ class _ExpoScreenContent extends StatefulWidget {
 
 class _ExpoScreenContentState extends State<_ExpoScreenContent> {
   String _activeFilter = KdsConst.defaultFilter;
-  bool isHorizontal = false;
+
   @override
   void initState() {
     widget.kdsProvider.startFetching(
@@ -56,12 +58,6 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
     return Scaffold(
       appBar: AppBarWidget(
         title: 'All Orders: $_activeFilter (${_getFilteredOrders().length})',
-        isHorizontal: isHorizontal,
-        iconOnPress: () {
-          setState(() {
-            isHorizontal = !isHorizontal;
-          });
-        },
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
@@ -74,7 +70,6 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
           child: FilteredOrdersList(
             filteredOrders: _getFilteredOrders(),
             selectedKdsId: 0,
-            isHorizontal: isHorizontal,
             appSettingStateProvider: widget.appSettingStateProvider,
           )),
     );
@@ -88,6 +83,7 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
     final filterOptions = [
       (KdsConst.defaultFilter, KdsConst.defaultFilter),
       (KdsConst.doneFilter, KdsConst.doneFilter),
+      ('All', "All"),
     ];
 
     return filterOptions
@@ -106,7 +102,7 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
       for (var item in order.items) {
         uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
       }
-
+      // log('order--->${widget.kdsProvider.groupedItems.length}');
       return GroupedOrder(
           id: order.id,
           items: uniqueItems.values.toList(),
@@ -128,15 +124,14 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
           isAllComplete: order.isAllComplete,
           isNewOrder: order.isNewOrder);
     }).where((order) {
-      // print(
-      //     'order--->${order.orderTitle} ${order.isAllDone} ${order.isAnyComplete}');
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => (order.isAnyInProgress ||
-                order.isNewOrder ||
-                order.isAnyDone ||
-                order.isAllInProgress) ||
-            (order.isAllDone && order.isAllComplete),
-        KdsConst.doneFilter => order.isAllDone || order.isAnyComplete,
+        KdsConst.defaultFilter =>
+          ((order.isAnyComplete == false || order.isAnyDone == false) &&
+                      (!order.isAllComplete) ||
+                  order.isAnyInProgress) ||
+              (order.isAllComplete == false && order.isAllDone == false),
+        KdsConst.doneFilter => order.isAllDone || order.isAllComplete,
+        'All' => true,
         _ => true
       };
     }).toList();

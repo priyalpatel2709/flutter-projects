@@ -8,8 +8,7 @@ import '../settings_screen.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final bool isHorizontal;
-  final VoidCallback iconOnPress;
+
   final Function(String) onFilterSelected;
   final AppSettingStateProvider appSettingStateProvider;
   final List<PopupMenuEntry<String>> buildFilterMenu;
@@ -17,26 +16,31 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppBarWidget({
     Key? key,
     required this.title,
-    required this.isHorizontal,
-    required this.iconOnPress,
     required this.onFilterSelected,
-    // required this.kdsProvider,
     required this.buildFilterMenu,
     required this.appSettingStateProvider,
   }) : super(key: key);
 
-  void showSettingsDialog(BuildContext context) {
+  void showSettingsDialog(BuildContext context, double fontSize) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Settings'),
+          title: Text(
+            'Settings',
+            style: TextStyle(
+                fontSize: appSettingStateProvider.fontSize,
+                fontWeight: FontWeight.bold),
+          ),
           content: SingleChildScrollView(
             child: SettingsScreen(),
           ),
           actions: [
             TextButton(
-              child: const Text('Close'),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: appSettingStateProvider.fontSize),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -69,28 +73,39 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: TextStyle(
-          color: Colors.white,
+          color: KdsConst.onMainColor,
           fontWeight: FontWeight.bold,
           fontSize: appSettingStateProvider.fontSize,
         ),
       ),
       actions: [
+        // IconButton(
+        //   onPressed: () {
+        //     appSettingStateProvider
+        //         .changesHorizontal(!appSettingStateProvider.isHorizontal);
+        //   },
+        //   icon: appSettingStateProvider.isHorizontal
+        //       ? const Icon(Icons.screen_lock_landscape)
+        //       : const Icon(Icons.screen_lock_portrait),
+        // ),
         IconButton(
+          icon: const Icon(
+            Icons.settings,
+            color: KdsConst.onMainColor,
+          ),
           onPressed: () {
-            appSettingStateProvider
-                .changesHorizontal(!appSettingStateProvider.isHorizontal);
-          },
-          icon: appSettingStateProvider.isHorizontal
-              ? const Icon(Icons.screen_lock_landscape)
-              : const Icon(Icons.screen_lock_portrait),
-        ),
-        IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () {
-            showSettingsDialog(context); // Call the modal popup
+            showSettingsDialog(context,
+                appSettingStateProvider.fontSize); // Call the modal popup
           },
         ),
         PopupMenuButton<String>(
+          color: KdsConst.onMainColor,
+          iconColor: KdsConst.onMainColor,
+          icon: const Icon(Icons.filter_list_alt),
+          // initialValue: 'All',
+          tooltip: 'Filter',
+          // position: PopupMenuPosition.over,
+
           onSelected: (value) {
             onFilterSelected(value);
           },

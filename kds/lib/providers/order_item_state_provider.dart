@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kds/providers/items_details_provider.dart';
 
+import '../constant/constants.dart';
+
 class OrderItemStateProvider extends ChangeNotifier {
   final Map<String, OrderItemState> _states = {};
   final KDSItemsProvider kdsItemsProvider;
@@ -50,13 +52,13 @@ class OrderItemStateProvider extends ChangeNotifier {
 
 class OrderItemState {
   String buttonText = 'Start';
-  String completeButtonText = 'New';
+  String completeButtonText = 'Not Started';
   bool isButtonVisible = true;
   int countdown = 0;
   Timer? _timer;
 
   Color buttonColor = Colors.lightBlueAccent;
-  Color completeButtonColor = Colors.white;
+  Color completeButtonColor = KdsConst.black;
 
   // Method to handle process start and switch button text
   Future<void> handleStartProcess({
@@ -69,7 +71,7 @@ class OrderItemState {
       buttonText = 'Done';
       completeButtonText = 'In Progress';
       buttonColor = Colors.green;
-      completeButtonColor = Colors.lightBlueAccent;
+      completeButtonColor = Colors.blue;
 
       // Call the async method to update items info and wait for completion
       await _updateItemInfoAndNotify(

@@ -50,7 +50,7 @@
 //         margin: const EdgeInsets.all(8),
 //         shape: RoundedRectangleBorder(
 //           borderRadius: BorderRadius.circular(8.0),
-//           side: const BorderSide(color: Colors.black, width: 1),
+//           side: const BorderSide(color: KdsConst.black, width: 1),
 //         ),
 //         child: Padding(
 //           padding: const EdgeInsets.all(8.0),
