@@ -125,12 +125,14 @@ class _ExpoScreenContentState extends State<_ExpoScreenContent> {
           isNewOrder: order.isNewOrder);
     }).where((order) {
       return switch (_activeFilter) {
-        KdsConst.defaultFilter =>
-          ((order.isAnyComplete == false || order.isAnyDone == false) &&
-                      (!order.isAllComplete) ||
-                  order.isAnyInProgress) ||
-              (order.isAllComplete == false && order.isAllDone == false),
-        KdsConst.doneFilter => order.isAllDone || order.isAllComplete,
+        KdsConst.defaultFilter => !(order.isAnyDone == true ||
+            order.isAnyComplete == true ||
+            order.isAllInProgress == false ||
+            order.isAllComplete == false),
+        KdsConst.doneFilter => (order.isAnyDone == true ||
+            order.isAnyComplete == true ||
+            order.isAllInProgress == false ||
+            order.isAllComplete == false),
         'All' => true,
         _ => true
       };

@@ -110,7 +110,7 @@ class KDSItemsProvider with ChangeNotifier {
                 !item.isInprogress && !item.isDone && !item.isComplete),
           );
         }).toList();
-
+        // log('Full Grouped Orders: ${jsonEncode(groupedOrders)}');
         _groupedItems = groupedOrders;
         _itemsError = '';
 
