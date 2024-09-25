@@ -40,11 +40,75 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
 
     return Column(
       children: [
+        SizedBox(width: 20 + widget.appSettingStateProvider.padding),
+        _orderTypeFilterBtn(),
+        SizedBox(width: 20 + widget.appSettingStateProvider.padding),
         Expanded(
           child: _buildPagedContent(),
         ),
         if (totalPages > 1) _buildPaginationControls(totalPages),
       ],
+    );
+  }
+
+  Widget _orderTypeFilterBtn() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _orderTypeBtn(
+          onPressed: () {
+            _selectOrderType(KdsConst.dineIn);
+          },
+          title: 'Dine In',
+          isSelected: widget.appSettingStateProvider.selectedOrderType ==
+              KdsConst.dineIn,
+        ),
+        SizedBox(width: 10 + widget.appSettingStateProvider.padding),
+        _orderTypeBtn(
+          onPressed: () {
+            _selectOrderType(KdsConst.pickup);
+          },
+          title: 'Delivery -Pick Up',
+          isSelected: widget.appSettingStateProvider.selectedOrderType ==
+              KdsConst.pickup,
+        ),
+        SizedBox(width: 10 + widget.appSettingStateProvider.padding),
+        _orderTypeBtn(
+          onPressed: () {
+            _selectOrderType(KdsConst.allFilter);
+          },
+          title: 'All Orders',
+          isSelected: widget.appSettingStateProvider.selectedOrderType ==
+              KdsConst.allFilter,
+        ),
+      ],
+    );
+  }
+
+  // Method to update the selected order type
+  void _selectOrderType(String orderType) {
+    widget.appSettingStateProvider.changeSelectedOrderType(orderType);
+  }
+
+  Widget _orderTypeBtn({
+    required Function() onPressed,
+    required String title,
+    required bool isSelected,
+  }) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: const RoundedRectangleBorder(),
+        backgroundColor: isSelected ? KdsConst.mainColor : Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        minimumSize: const Size(50, 30), // Small button size
+      ),
+      onPressed: onPressed,
+      child: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? KdsConst.onMainColor : Colors.black,
+        ),
+      ),
     );
   }
 
@@ -162,7 +226,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
                   });
                 }
               : null,
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
         ),
         Text('Page ${_currentPage + 1} of $totalPages'),
         IconButton(

@@ -10,6 +10,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int _crossAxisCount = 1;
   int _itemsPerPage = 8;
   String _selectedView = KdsConst.fixedGrid;
+  String _selectedOrderType = KdsConst.dineIn;
 
   double get fontSize => _fontSize;
   double get padding => _padding;
@@ -17,6 +18,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int get itemsPerPage => _itemsPerPage;
   bool get isHorizontal => _isHorizontal;
   String get selectedView => _selectedView;
+  String get selectedOrderType => _selectedOrderType;
 
   void initializeSettings(BuildContext context) {
     // Initialize values based on the current screen width
@@ -24,7 +26,6 @@ class AppSettingStateProvider extends ChangeNotifier {
     _padding = getPadding(context);
     _crossAxisCount = getCrossAxisCount(context);
     notifyListeners(); // Notify listeners to rebuild with updated values
-    print('does me??');
   }
 
   double getTitleFontSize(BuildContext context) {
@@ -38,31 +39,19 @@ class AppSettingStateProvider extends ChangeNotifier {
     }
   }
 
-  double getPadding(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    if (width >= 1200) {
-      return 1.0; // Laptop
-    } else if (width >= 800) {
-      return 1.0; // Tablet
-    } else {
-      return 1.0; // Phone
-    }
-  }
+  double getPadding(BuildContext context) =>
+      1.0; // No need to calculate based on screen width.
 
-  int getCrossAxisCount(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    if (width >= 1200) {
-      return 4; // Laptop
-    } else if (width >= 800) {
-      return 2; // Tablet
-    } else {
-      return 1; // Phone
-    }
-  }
+  int getCrossAxisCount(BuildContext context) =>
+      MediaQuery.of(context).size.width >= 800
+          ? (MediaQuery.of(context).size.width >= 1200 ? 4 : 2)
+          : 1;
 
   void changeFontSize(double fontSize) {
-    _fontSize = fontSize;
-    notifyListeners();
+    if (_fontSize != fontSize) {
+      _fontSize = fontSize;
+      notifyListeners();
+    }
   }
 
   void changePadding(double padding) {
@@ -81,12 +70,25 @@ class AppSettingStateProvider extends ChangeNotifier {
   }
 
   void changeView(String selectedView) {
-    _selectedView = selectedView;
-    notifyListeners();
+    if (_selectedView != selectedView) {
+      _selectedView = selectedView;
+      notifyListeners();
+    }
   }
 
+  /// Changes the number of items to show per page in the list/grid/masonry
+  /// views and notifies the listeners.
+  ///
+  /// The [itemsPerPage] argument should be a positive integer.
   void changeItemsPerPage(int itemsPerPage) {
-    _itemsPerPage = itemsPerPage;
+    if (itemsPerPage > 0 && _itemsPerPage != itemsPerPage) {
+      _itemsPerPage = itemsPerPage;
+      notifyListeners();
+    }
+  }
+
+  void changeSelectedOrderType(String orderType) {
+    _selectedOrderType = orderType;
     notifyListeners();
   }
 }

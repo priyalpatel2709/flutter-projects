@@ -40,33 +40,32 @@ class ItemCartV2 extends StatelessWidget {
       color: Colors.white,
       elevation: 3,
       // margin: EdgeInsets.all(padding),
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: BorderRadius.circular(8.0),
-      //   // side: const BorderSide(color: KdsConst.black, width: .5),
-      // ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        // side: const BorderSide(color: KdsConst.black, width: .5),
+      ),
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildOrderHeader(formattedCreatedOn),
+            _buildOrderHeader(
+                formattedCreatedOn, items.orderId, context, isComplete),
             const SizedBox(height: 4),
-            if (items.orderNote != null)
-              Text(
-                items.orderNote!,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-              ),
+            Text(
+              items.orderNote,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+            ),
             const Divider(),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: items.items
                   .map((item) => OrderItem(
                       quantity: item.qty,
-                      name: item.itemName ?? '',
-                      subInfo: item.modifiers ?? '',
+                      name: item.itemName,
+                      subInfo: item.modifiers,
                       uniqueId: '${item.itemId}-${items.orderId}',
-                      orderId: items.orderId ?? '',
+                      orderId: items.orderId,
                       isDone: item.isDone,
                       isInProcess: item.isInprogress,
                       itemId: item.itemId,
@@ -85,7 +84,9 @@ class ItemCartV2 extends StatelessWidget {
   }
 
   // Build the top section of the order (header) with order type and time
-  Widget _buildOrderHeader(String formattedCreatedOn) {
+  Widget _buildOrderHeader(String formattedCreatedOn, String orderId,
+      BuildContext context, bool isComplete) {
+    final stateProvider1 = Provider.of<OrderItemStateProvider>(context);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
@@ -114,7 +115,7 @@ class ItemCartV2 extends StatelessWidget {
             ],
           ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 items.orderTitle,
@@ -123,6 +124,24 @@ class ItemCartV2 extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize),
               ),
+              ElevatedButton(
+                style: _smallButtonStyle(KdsConst.onMainColor),
+                onPressed: () {
+                  // Add your button press logic here
+                  stateProvider1.handleUpdateItemsInfo(
+                      itemId: '',
+                      storeId: KdsConst.storeId,
+                      orderId: orderId,
+                      isDone: isComplete ? false : true,
+                      isInProgress: false,
+                      isCompleted: isComplete ? true : false);
+                },
+                child: Text(
+                  'All ${isComplete ? 'Complete' : 'Done'}',
+                  style:
+                      TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+                ),
+              )
             ],
           ),
         ],
@@ -141,6 +160,16 @@ class ItemCartV2 extends StatelessWidget {
         return Colors.blue;
     }
   }
+}
+
+// Button style to maintain consistency in size and padding
+ButtonStyle _smallButtonStyle(buttonColor) {
+  return ElevatedButton.styleFrom(
+    shape: const RoundedRectangleBorder(),
+    backgroundColor: buttonColor,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    minimumSize: const Size(50, 30), // Small button size
+  );
 }
 
 class OrderItem extends StatelessWidget {
@@ -309,14 +338,5 @@ class OrderItem extends StatelessWidget {
                   ),
                 );
     }
-  }
-
-  // Button style to maintain consistency in size and padding
-  ButtonStyle _smallButtonStyle(buttonColor) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: buttonColor,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      minimumSize: const Size(50, 30), // Small button size
-    );
   }
 }

@@ -19,6 +19,7 @@ class KdsConst {
   //filters values
   static const String defaultFilter = 'In Progress';
   static const String doneFilter = 'Done';
+  static const String allFilter = 'All';
 
   //colors
   static const Color mainColor = Color.fromARGB(255, 51, 119, 188);

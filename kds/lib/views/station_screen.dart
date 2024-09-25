@@ -12,8 +12,8 @@ import 'widgets/appBar_widget.dart';
 import 'widgets/filteredlist_widget.dart';
 import 'widgets/itemcart.dart';
 
-class StationScreenV2 extends StatelessWidget {
-  const StationScreenV2({Key? key}) : super(key: key);
+class StationScreen extends StatelessWidget {
+  const StationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +139,16 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     List<GroupedOrder> filteredByKdsId = _filterByKdsId();
 
     return filteredByKdsId.where((order) {
+      if (widget.appSettingStateProvider.selectedOrderType != order.orderType) {
+        return false;
+      }
       switch (_activeFilter) {
         case KdsConst.defaultFilter:
           return order.isAnyInProgress || order.isNewOrder;
         case KdsConst.doneFilter:
           return order.isAllDone || order.isAnyComplete;
+        case KdsConst.allFilter:
+          return true;
         default:
           return true;
       }
@@ -199,7 +204,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   }
 
   List<PopupMenuEntry<String>> _buildFilterMenu(BuildContext context) {
-    return ['In Progress', 'Done']
+    return [KdsConst.defaultFilter, KdsConst.doneFilter, KdsConst.allFilter]
         .map((filter) =>
             PopupMenuItem<String>(value: filter, child: Text(filter)))
         .toList();

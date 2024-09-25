@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kds/views/expo_screen.dart';
+import 'package:kds/views/multiorder_screen.dart';
 import 'package:kds/views/station_screen.dart';
 import 'package:provider/provider.dart';
 import 'constant/constants.dart';
 import 'providers/appsettings_provider.dart';
 import 'providers/items_details_provider.dart';
 import 'providers/order_item_state_provider.dart';
-import 'views/complateorder_screen.dart';
+import 'views/expo_screen.dart';
 // import 'views/expo_screen.dart';
 // import 'views/station_screen.dart';
 
@@ -51,14 +51,9 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _screens = <Widget>[
-    // ExpoScreen(), // Expo screen
-    // StationScreen(), // Station screen
-
-    // ? V2
-    ExpoScreenV2(), // Expo screen
-    StationScreenV2(), // Station screen
-
-    CompleteOrder(),
+    MultiStationView(),
+    StationScreen(),
+    ExpoView(),
   ];
 
   void _onItemTapped(int index) {
@@ -94,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.view_list),
-                    label: 'All Orders',
+                    label: 'Multi Station',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.business),
@@ -102,7 +97,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.done_all),
-                    label: 'Complete Order',
+                    label: 'Expo',
                   )
                 ],
               );

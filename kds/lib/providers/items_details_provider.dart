@@ -201,13 +201,16 @@ class KDSItemsProvider with ChangeNotifier {
 
   // Start a timer to fetch both items and stations periodically
   void startFetching({required int timerInterval, required int storeId}) {
-    fetchKDSItems(storeId: storeId);
-    fetchKDSStations(storeId: storeId); // Fetch immediately
-
-    _timer = Timer.periodic(Duration(seconds: timerInterval), (_) {
-      fetchKDSItems(storeId: storeId);
-      fetchKDSStations(storeId: storeId);
+    _timer = Timer.periodic(Duration(seconds: timerInterval), (timer) async {
+      await Future.wait([
+        fetchKDSItems(storeId: storeId),
+        fetchKDSStations(storeId: storeId),
+      ]);
     });
+
+    // Fetch immediately
+    fetchKDSItems(storeId: storeId);
+    fetchKDSStations(storeId: storeId);
   }
 
   // Stop fetching and cancel the timer

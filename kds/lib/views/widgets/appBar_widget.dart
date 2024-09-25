@@ -78,37 +78,32 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           fontSize: appSettingStateProvider.fontSize,
         ),
       ),
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(
+          'assets/images/honest-logo.png',
+          fit: BoxFit.fill,
+        ),
+      ),
+      leadingWidth: 100,
+      centerTitle: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
       actions: [
-        // IconButton(
-        //   onPressed: () {
-        //     appSettingStateProvider
-        //         .changesHorizontal(!appSettingStateProvider.isHorizontal);
-        //   },
-        //   icon: appSettingStateProvider.isHorizontal
-        //       ? const Icon(Icons.screen_lock_landscape)
-        //       : const Icon(Icons.screen_lock_portrait),
-        // ),
         IconButton(
           icon: const Icon(
             Icons.settings,
             color: KdsConst.onMainColor,
           ),
-          onPressed: () {
-            showSettingsDialog(context,
-                appSettingStateProvider.fontSize); // Call the modal popup
-          },
+          onPressed: () => showSettingsDialog(context,
+              appSettingStateProvider.fontSize), // Call the modal popup
         ),
         PopupMenuButton<String>(
           color: KdsConst.onMainColor,
           iconColor: KdsConst.onMainColor,
           icon: const Icon(Icons.filter_list_alt),
-          // initialValue: 'All',
           tooltip: 'Filter',
-          // position: PopupMenuPosition.over,
-
-          onSelected: (value) {
-            onFilterSelected(value);
-          },
+          onSelected: onFilterSelected,
           itemBuilder: (context) => buildFilterMenu,
         ),
       ],
