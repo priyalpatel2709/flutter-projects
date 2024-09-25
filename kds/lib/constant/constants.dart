@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 class KdsConst {
   KdsConst._();
 
+  //API URL
+  static const String apiUrl = 'https://storesposapi.azurewebsites.net/api/';
+
+  //API ENDPOINT
+  static const String getKDSStations = 'GetKDSStationsdetails';
+  static const String getKDSItems = 'GetKDSItemsdetails';
+  static const String updateKDSItemStatus = 'UpdateKDSItemstatus';
+
   static const int timerInterval = 20;
   static const int storeId = 1;
 

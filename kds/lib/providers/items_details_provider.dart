@@ -50,9 +50,10 @@ class KDSItemsProvider with ChangeNotifier {
 
   // Fetch ItemsDetails data
   Future<void> fetchKDSItems({required int storeId}) async {
-    final url = Uri.parse(
-        'https://storesposapi.azurewebsites.net/api/GetKDSItemsdetails/$storeId');
-    print('items calling');
+    final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId');
+    if (kDebugMode) {
+      print('items calling');
+    }
     try {
       final response = await http.get(url);
 
@@ -128,9 +129,11 @@ class KDSItemsProvider with ChangeNotifier {
 
   // Fetch StationsDetails data
   Future<void> fetchKDSStations({required int storeId}) async {
-    final url = Uri.parse(
-        'https://storesposapi.azurewebsites.net/api/GetKDSStationsdetails/$storeId');
-    print('items calling');
+    final url =
+        Uri.parse('${KdsConst.apiUrl}${KdsConst.getKDSStations}/$storeId');
+    if (kDebugMode) {
+      print('KDS Stations');
+    }
     try {
       final response = await http.get(url);
 
@@ -158,8 +161,7 @@ class KDSItemsProvider with ChangeNotifier {
     required bool isCompleted,
     bool isQueue = false,
   }) async {
-    final url = Uri.parse(
-        'https://storesposapi.azurewebsites.net/api/UpdateKDSItemstatus');
+    final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.updateKDSItemStatus}');
 
     // Create the request body
     final requestBody = {
