@@ -1,212 +1,322 @@
-// import 'dart:async';
+import 'dart:async';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:kds/models/iItems_details_model.dart';
+import 'package:provider/provider.dart';
 
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'package:kds/models/iItems_details_model.dart';
-// import 'package:provider/provider.dart';
+import '../../constant/constants.dart';
+import '../../models/groupedorder_model.dart';
+import '../../providers/order_item_state_provider.dart';
 
-// import '../../providers/order_item_state_provider.dart';
+class ItemCartV2 extends StatelessWidget {
+  final GroupedOrder items;
+  final int? selectedKdsId;
+  final double fontSize;
+  final double padding;
+  final bool isComplete;
+  final String selectedView;
 
-// class ItemCart extends StatelessWidget {
-//   final List<ItemsDetails> items;
+  const ItemCartV2({
+    Key? key,
+    required this.items,
+    this.selectedKdsId,
+    required this.fontSize,
+    required this.padding,
+    this.isComplete = false,
+    required this.selectedView,
+  }) : super(key: key);
 
-//   const ItemCart({
-//     Key? key,
-//     required this.items,
-//     required OrderItemStateProvider orderItemStateProvider,
-//   }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    // Parse and format `createdOn`
+    DateTime createdOnDate =
+        DateTime.tryParse(items.createdOn)?.toLocal() ?? DateTime.now();
+    String formattedCreatedOn =
+        DateFormat('hh:mm a').format(createdOnDate); // Format local time
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (items.isEmpty) {
-//       return SizedBox.shrink(); // Return an empty widget if there are no items
-//     }
+    return Card(
+      color: Colors.white,
+      elevation: 3,
+      // margin: EdgeInsets.all(padding),
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(8.0),
+      //   // side: const BorderSide(color: KdsConst.black, width: .5),
+      // ),
+      child: Padding(
+        padding: EdgeInsets.all(padding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildOrderHeader(formattedCreatedOn),
+            const SizedBox(height: 4),
+            if (items.orderNote != null)
+              Text(
+                items.orderNote!,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+              ),
+            const Divider(),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: items.items
+                  .map((item) => OrderItem(
+                      quantity: item.qty,
+                      name: item.itemName ?? '',
+                      subInfo: item.modifiers ?? '',
+                      uniqueId: '${item.itemId}-${items.orderId}',
+                      orderId: items.orderId ?? '',
+                      isDone: item.isDone,
+                      isInProcess: item.isInprogress,
+                      itemId: item.itemId,
+                      kdsId: item.kdsId,
+                      selectedKdsId: selectedKdsId ?? 0,
+                      fontSize: fontSize,
+                      isComplete: isComplete,
+                      itemIsComplete: item.isComplete,
+                      padding: padding))
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-//     // Group items by orderId
-//     final Map<String, List<ItemsDetails>> groupedItems = {};
-//     for (var item in items) {
-//       final orderId = item.orderId ?? '';
-//       if (!groupedItems.containsKey(orderId)) {
-//         groupedItems[orderId] = [];
-//       }
-//       groupedItems[orderId]!.add(item);
-//     }
+  // Build the top section of the order (header) with order type and time
+  Widget _buildOrderHeader(String formattedCreatedOn) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: _getOrderTypeColor(items.orderType),
+        border: Border.all(color: KdsConst.black, width: .5),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                items.orderType,
+                style: TextStyle(
+                    color: KdsConst.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize),
+              ),
+              // const SizedBox(height: 4),
+              Text(
+                formattedCreatedOn,
+                style: TextStyle(color: KdsConst.black, fontSize: fontSize),
+              ),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                items.orderTitle,
+                style: TextStyle(
+                    color: KdsConst.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-//     // Create a list of ItemCart widgets
-//     final itemCarts = groupedItems.entries.map((entry) {
-//       final orderId = entry.key;
-//       final items = entry.value;
+  // Get color based on order type
+  Color _getOrderTypeColor(String orderType) {
+    switch (orderType) {
+      case KdsConst.pickup:
+        return Colors.yellow;
+      case KdsConst.delivery:
+        return Colors.red;
+      default:
+        return Colors.blue;
+    }
+  }
+}
 
-//       // Parse the `createdOn` field to local time
-//       DateTime createdOnDate =
-//           DateTime.tryParse(items.first.createdOn ?? '')?.toLocal() ??
-//               DateTime.now();
-//       String formattedCreatedOn = DateFormat('yyyy-MM-dd hh:mm a')
-//           .format(createdOnDate); // Format the local time
+class OrderItem extends StatelessWidget {
+  final int quantity;
+  final int kdsId;
+  final int selectedKdsId;
+  final String name;
+  final String subInfo;
+  final String uniqueId;
+  final String itemId;
+  final String orderId;
+  final bool isDone;
+  final bool isComplete;
+  final bool isInProcess;
+  final bool itemIsComplete;
+  final double fontSize;
+  final double padding;
 
-//       return Card(
-//         elevation: 3,
-//         margin: const EdgeInsets.all(8),
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(8.0),
-//           side: const BorderSide(color: KdsConst.black, width: 1),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(8.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               // Top blue section with Dine-In, time, table, and order number
-//               Container(
-//                 color: Colors.blue,
-//                 padding: const EdgeInsets.all(8),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           items.first.ordertype ?? '',
-//                           style: const TextStyle(
-//                               color: Colors.white, fontWeight: FontWeight.bold),
-//                         ),
-//                         const SizedBox(height: 4),
-//                         Text(
-//                           formattedCreatedOn, // Display the formatted local time
-//                           style: const TextStyle(color: Colors.white),
-//                         ),
-//                       ],
-//                     ),
-//                     Column(
-//                       crossAxisAlignment: CrossAxisAlignment.end,
-//                       children: [
-//                         Text(
-//                           items.first.ordertitle ?? '',
-//                           style: const TextStyle(
-//                               color: Colors.white, fontWeight: FontWeight.bold),
-//                         ),
-//                         const SizedBox(height: 4),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const SizedBox(height: 8),
+  const OrderItem({
+    super.key,
+    required this.quantity,
+    required this.name,
+    required this.subInfo,
+    required this.uniqueId,
+    required this.orderId,
+    required this.isDone,
+    required this.isInProcess,
+    required this.itemId,
+    required this.kdsId,
+    required this.selectedKdsId,
+    required this.fontSize,
+    required this.isComplete,
+    required this.itemIsComplete,
+    required this.padding,
+  });
 
-//               // Order number and client name
-//               Text(
-//                 items.first.orderNote ?? '',
-//                 style: const TextStyle(fontWeight: FontWeight.bold),
-//               ),
-//               const Divider(),
+  @override
+  Widget build(BuildContext context) {
+    final stateProvider = Provider.of<OrderItemStateProvider>(context);
+    final itemState = stateProvider.getState(uniqueId);
 
-//               // Order items
-//               ...items
-//                   .map((item) => OrderItem(
-//                         quantity: item.qty ?? 0,
-//                         name: item.itemName ?? '',
-//                         subInfo: item.modifiers ?? '',
-//                         uniqueId: '${item.itemId}-${item.orderId}',
-//                         orderId: item.orderId ?? '',
-//                         isDone: item.isDone ?? false,
-//                         isInProcess: item.isInprogress ?? false,
-//                         itemId: item.itemId ?? '',
-//                       ))
-//                   .toList(),
-//             ],
-//           ),
-//         ),
-//       );
-//     }).toList();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align items vertically
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Align text to start
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '$quantity ',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: fontSize),
+                    ),
+                    Expanded(
+                      child: Text(
+                        // '$name ($kdsId)',
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSize * 0.8,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis, // Handle long text
+                      ),
+                    ),
+                  ],
+                ),
+                Visibility(
+                  visible: subInfo != '',
+                  child: Text(
+                    subInfo,
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontSize: fontSize * 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildActionButton(itemState, stateProvider, itemIsComplete, padding
+              // stateProvider: stateProvider,
+              // itemIsComplete: itemIsComplete,
+              // isInprogress: isInProcess,
+              // isDone: isDone,
+              // isCompleted: isComplete,
+              // itemState: itemState
+              ),
+        ],
+      ),
+    );
+  }
 
-//     return ListView(
-//       children: itemCarts,
-//     );
-//   }
-// }
+  // Build the action button based on item state (start process, complete, etc.)
+  Widget _buildActionButton(itemState, OrderItemStateProvider stateProvider,
+      bool itemIsComplete, double padding) {
+    if (isDone) {
+      return isComplete
+          ? Padding(
+              padding: EdgeInsets.all(8 + padding),
+              child: ElevatedButton(
+                style: _smallButtonStyle(KdsConst.onMainColor),
+                onPressed: () {
+                  itemState.handleCompleteProcess(
+                      provider: stateProvider,
+                      itemId: itemId,
+                      storeId: KdsConst.storeId,
+                      orderId: orderId);
+                },
+                child: Text('Complete',
+                    style: TextStyle(
+                        color: KdsConst.black, fontSize: fontSize * .8)),
+              ),
+            )
+          : ElevatedButton(
+              style: _smallButtonStyle(Colors.amber),
+              onPressed: () {
+                itemState.handleUndoProcess(
+                    provider: stateProvider,
+                    itemId: itemId,
+                    storeId: KdsConst.storeId,
+                    orderId: orderId);
+                stateProvider.updateState(uniqueId, itemState);
+              },
+              child: Text(
+                "Undo",
+                style:
+                    TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+              ),
+            );
+      // const Icon(Icons.check_circle, color: Colors.red);
+    } else {
+      return isComplete
+          ? itemIsComplete
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : Text(itemState.completeButtonText,
+                  style: TextStyle(
+                      color: itemState.completeButtonColor,
+                      fontSize: fontSize * .8))
+          : itemIsComplete
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : Padding(
+                  padding: EdgeInsets.all(8 + padding),
+                  child: ElevatedButton(
+                    style: _smallButtonStyle(itemState.buttonColor),
+                    onPressed: () {
+                      itemState.handleStartProcess(
+                          provider: stateProvider,
+                          itemId: itemId,
+                          storeId: KdsConst.storeId,
+                          orderId: orderId);
+                      stateProvider.updateState(uniqueId, itemState);
+                    },
+                    child: Text(
+                      itemState.countdown > 0
+                          ? 'Done (${itemState.countdown})'
+                          : itemState.buttonText,
+                      style: TextStyle(
+                          color: KdsConst.black, fontSize: fontSize * .8),
+                    ),
+                  ),
+                );
+    }
+  }
 
-// // class OrderItem extends StatelessWidget {
-// //   final int quantity;
-// //   final String name;
-// //   final String subInfo;
-// //   final String uniqueId;
-// //   final String itemId;
-// //   final String orderId;
-// //   final bool isDone;
-// //   final bool isInProcess;
-
-// //   const OrderItem({
-// //     super.key,
-// //     required this.quantity,
-// //     required this.name,
-// //     required this.subInfo,
-// //     required this.uniqueId,
-// //     required this.orderId,
-// //     required this.isDone,
-// //     required this.isInProcess,
-// //     required this.itemId,
-// //     // required this.orderItemStateProvider, // Pass the unique identifier
-// //   });
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     final stateProvider = Provider.of<OrderItemStateProvider>(context);
-// //     final itemState = stateProvider.getState(uniqueId);
-
-// //     return Padding(
-// //       padding: const EdgeInsets.symmetric(vertical: 4),
-// //       child: Row(
-// //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-// //         children: [
-// //           Expanded(
-// //             child: Column(
-// //               crossAxisAlignment: CrossAxisAlignment.start,
-// //               children: [
-// //                 Row(
-// //                   children: [
-// //                     Text(
-// //                       '$quantity ',
-// //                       style: const TextStyle(fontWeight: FontWeight.bold),
-// //                     ),
-// //                     Text(
-// //                       name,
-// //                       style: const TextStyle(fontWeight: FontWeight.bold),
-// //                     ),
-// //                   ],
-// //                 ),
-// //                 Padding(
-// //                   padding: const EdgeInsets.only(left: 20),
-// //                   child: Text(
-// //                     subInfo,
-// //                     style: const TextStyle(fontStyle: FontStyle.italic),
-// //                   ),
-// //                 ),
-// //               ],
-// //             ),
-// //           ),
-// //           if (!isDone)
-// //             ElevatedButton(
-// //               onPressed: () {
-// //                 // Handle button press
-// //                 itemState.handleStartProcess(
-// //                     provider: stateProvider,
-// //                     itemId: itemId,
-// //                     storeId: 1,
-// //                     orderId: orderId);
-// //                 stateProvider.updateState(uniqueId, itemState);
-// //               },
-// //               child: Text(
-// //                 itemState.countdown > 0
-// //                     ? 'Done (${itemState.countdown})'
-// //                     : itemState.buttonText,
-// //               ),
-// //             )
-// //           else
-// //             const Icon(Icons.check_circle, color: Colors.green),
-// //         ],
-// //       ),
-// //     );
-// //   }
-// // }
+  // Button style to maintain consistency in size and padding
+  ButtonStyle _smallButtonStyle(buttonColor) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: buttonColor,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      minimumSize: const Size(50, 30), // Small button size
+    );
+  }
+}

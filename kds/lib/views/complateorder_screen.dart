@@ -9,7 +9,7 @@ import '../providers/items_details_provider.dart';
 import '../utils/utils.dart';
 import 'widgets/appBar_widget.dart';
 import 'widgets/filteredlist_widget.dart';
-import 'widgets/itemcartV2.dart';
+import 'widgets/itemcart.dart';
 
 class CompleteOrder extends StatelessWidget {
   const CompleteOrder({super.key});

@@ -8,7 +8,7 @@ import '../../constant/constants.dart';
 import '../../models/groupedorder_model.dart';
 import '../../providers/appsettings_provider.dart';
 import '../../utils/utils.dart';
-import 'itemcartV2.dart';
+import 'itemcart.dart';
 
 class FilteredOrdersList extends StatefulWidget {
   final List<GroupedOrder> filteredOrders;

@@ -1,406 +1,141 @@
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
+import 'dart:developer';
 
-// import '../models/iItems_details_model.dart';
-// import '../providers/items_details_provider.dart';
-// import '../providers/order_item_state_provider.dart';
-// import 'widgets/itemcart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:provider/provider.dart';
+import '../constant/constants.dart';
+import '../models/groupedorder_model.dart';
+import '../providers/appsettings_provider.dart';
+import '../providers/items_details_provider.dart';
+import '../utils/utils.dart';
+import 'widgets/appBar_widget.dart';
+import 'widgets/filteredlist_widget.dart';
+import 'widgets/itemcart.dart';
 
-// class ExpoScreen extends StatefulWidget {
-//   const ExpoScreen({super.key});
+class ExpoScreenV2 extends StatelessWidget {
+  const ExpoScreenV2({Key? key}) : super(key: key);
 
-//   @override
-//   _ExpoScreenState createState() => _ExpoScreenState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
+      builder: (BuildContext context, KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider, _) =>
+          _ExpoScreenContent(
+        kdsProvider: kdsProvider,
+        appSettingStateProvider: appSettingStateProvider,
+      ),
+    );
+  }
+}
 
-// class _ExpoScreenState extends State<ExpoScreen> {
-//   late KDSItemsProvider _kdsProvider;
-//   FilterType _activeFilter = FilterType.isInProgress;
+class _ExpoScreenContent extends StatefulWidget {
+  final KDSItemsProvider kdsProvider;
+  final AppSettingStateProvider appSettingStateProvider;
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _kdsProvider = KDSItemsProvider();
-//     _kdsProvider.startFetching(timerInterval: 10, storeId: 1);
+  const _ExpoScreenContent(
+      {Key? key,
+      required this.kdsProvider,
+      required this.appSettingStateProvider})
+      : super(key: key);
 
-//     // Apply default filter
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       _kdsProvider.updateFilters(isInProgress: true);
-//     });
-//   }
+  @override
+  _ExpoScreenContentState createState() => _ExpoScreenContentState();
+}
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer2<KDSItemsProvider, OrderItemStateProvider>(
-//       builder: (context, kdsProvider, orderItemStateProvider, child) {
-//         if (kdsProvider.itemsError.isNotEmpty) {
-//           return Center(
-//             child: Text(kdsProvider.itemsError),
-//           );
-//         }
+class _ExpoScreenContentState extends State<_ExpoScreenContent> {
+  String _activeFilter = KdsConst.defaultFilter;
 
-//         return LayoutBuilder(
-//           builder: (BuildContext context, BoxConstraints constraints) {
-//             return Scaffold(
-//               appBar: AppBar(
-//                 backgroundColor: Colors.amber,
-//                 title: Text(_getActiveFilterTitle()),
-//                 centerTitle: true,
-//                 actions: [
-//                   PopupMenuButton<FilterType>(
-//                     onSelected: (FilterType filter) {
-//                       _applyFilter(kdsProvider, filter);
-//                     },
-//                     icon: const Icon(Icons.filter_list),
-//                     itemBuilder: (BuildContext context) {
-//                       return [
-//                         const PopupMenuItem(
-//                           value: FilterType.isQueue,
-//                           child: Text('Queue'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isInProgress,
-//                           child: Text('In Progress'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isDone,
-//                           child: Text('Done'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isCancel,
-//                           child: Text('Cancel'),
-//                         ),
-//                       ];
-//                     },
-//                   ),
-//                 ],
-//               ),
-//               floatingActionButton: FloatingActionButton(
-//                 onPressed: () {
-//                   kdsProvider.clearFilters();
-//                 },
-//                 child: const Icon(Icons.add),
-//                 backgroundColor: Colors.red,
-//               ),
-//               body: _buildLayoutBasedOnSize(
-//                   constraints, kdsProvider, orderItemStateProvider),
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
+  @override
+  void initState() {
+    widget.kdsProvider.startFetching(
+        timerInterval: KdsConst.timerInterval, storeId: KdsConst.storeId);
+    super.initState();
+    _activeFilter = widget.kdsProvider.expoFilter;
+  }
 
-//   String _getActiveFilterTitle() {
-//     switch (_activeFilter) {
-//       case FilterType.isInProgress:
-//         return 'In Progress';
-//       case FilterType.isQueue:
-//         return 'Queue';
-//       case FilterType.isDone:
-//         return 'Done';
-//       case FilterType.isCancel:
-//         return 'Cancel';
-//       default:
-//         return 'Expo';
-//     }
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarWidget(
+        title: 'All Orders: $_activeFilter (${_getFilteredOrders().length})',
+        onFilterSelected: (String value) {
+          _setFilter(value);
+          widget.kdsProvider.changeExpoFilter(value);
+        },
+        buildFilterMenu: _buildFilterMenu(context),
+        appSettingStateProvider: widget.appSettingStateProvider,
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
+          child: FilteredOrdersList(
+            filteredOrders: _getFilteredOrders(),
+            selectedKdsId: 0,
+            appSettingStateProvider: widget.appSettingStateProvider,
+          )),
+    );
+  }
 
-//   void _applyFilter(KDSItemsProvider kdsProvider, FilterType filter) {
-//     setState(() {
-//       _activeFilter = filter;
-//     });
-//     kdsProvider.clearFilters();
-//     switch (filter) {
-//       case FilterType.isQueue:
-//         kdsProvider.updateFilters(isQueue: true);
-//         break;
-//       case FilterType.isInProgress:
-//         kdsProvider.updateFilters(isInProgress: true);
-//         break;
-//       case FilterType.isDone:
-//         kdsProvider.updateFilters(isDone: true);
-//         break;
-//       case FilterType.isCancel:
-//         kdsProvider.updateFilters(isCancel: true);
-//         break;
-//       case FilterType.orderType:
-//       // TODO: Handle this case.
-//       case FilterType.createdOn:
-//       // TODO: Handle this case.
-//       case FilterType.kdsId:
-//       // TODO: Handle this case.
-//     }
-//   }
+  void _setFilter(String filter) {
+    setState(() => _activeFilter = filter);
+  }
 
-//   Widget _buildLayoutBasedOnSize(
-//       BoxConstraints constraints,
-//       KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     if (constraints.maxWidth >= 1200) {
-//       return _buildHorizontalLayout(kdsProvider, orderItemStateProvider);
-//     } else if (constraints.maxWidth >= 600) {
-//       return _buildGridLayout(kdsProvider, orderItemStateProvider);
-//     } else {
-//       return _buildVerticalLayout(kdsProvider, orderItemStateProvider);
-//     }
-//   }
+  List<PopupMenuItem<String>> _buildFilterMenu(BuildContext context) {
+    final filterOptions = [
+      (KdsConst.defaultFilter, KdsConst.defaultFilter),
+      (KdsConst.doneFilter, KdsConst.doneFilter),
+      ('All', "All"),
+    ];
 
-//   Widget _buildHorizontalLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Row(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
+    return filterOptions
+        .map((option) => PopupMenuItem<String>(
+              value: option.$1,
+              child: Text(option.$2),
+            ))
+        .toList();
+  }
 
-//   Widget _buildGridLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Column(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
+  // Expo Screen
+  List<GroupedOrder> _getFilteredOrders() {
+    return widget.kdsProvider.groupedItems.map((order) {
+      final uniqueItems = <String, OrderItemV2>{};
 
-//   Widget _buildVerticalLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Column(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildItemCartWithErrorHandling(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return LayoutBuilder(
-//       builder: (BuildContext context, BoxConstraints constraints) {
-//         try {
-//           return ItemCart(
-//             items: kdsProvider.filteredItems,
-//             orderItemStateProvider: orderItemStateProvider,
-//           );
-//         } catch (e, stackTrace) {
-//           print('Error rendering ItemCart: $e\n$stackTrace');
-//           return Center(
-//             child: Text('Error rendering ItemCart: $e'),
-//           );
-//         }
-//       },
-//     );
-//   }
-// }
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// import '../models/iItems_details_model.dart';
-// import '../providers/items_details_provider.dart';
-// import '../providers/order_item_state_provider.dart';
-// import 'widgets/itemcart.dart';
-
-// class ExpoScreen extends StatefulWidget {
-//   const ExpoScreen({super.key});
-
-//   @override
-//   _ExpoScreenState createState() => _ExpoScreenState();
-// }
-
-// class _ExpoScreenState extends State<ExpoScreen> {
-//   late KDSItemsProvider _kdsProvider;
-//   FilterType _activeFilter = FilterType.isInProgress;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _kdsProvider = KDSItemsProvider();
-//     _kdsProvider.startFetching(timerInterval: 10, storeId: 1);
-
-//     // Apply default filter
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       _kdsProvider.updateFilters(isInProgress: true);
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer2<KDSItemsProvider, OrderItemStateProvider>(
-//       builder: (context, kdsProvider, orderItemStateProvider, child) {
-//         if (kdsProvider.itemsError.isNotEmpty) {
-//           return Center(
-//             child: Text(kdsProvider.itemsError),
-//           );
-//         }
-
-//         return LayoutBuilder(
-//           builder: (BuildContext context, BoxConstraints constraints) {
-//             return Scaffold(
-//               appBar: AppBar(
-//                 backgroundColor: Colors.amber,
-//                 title: Text(_getActiveFilterTitle()),
-//                 centerTitle: true,
-//                 actions: [
-//                   PopupMenuButton<FilterType>(
-//                     onSelected: (FilterType filter) {
-//                       _applyFilter(kdsProvider, filter);
-//                     },
-//                     icon: const Icon(Icons.filter_list),
-//                     itemBuilder: (BuildContext context) {
-//                       return [
-//                         const PopupMenuItem(
-//                           value: FilterType.isQueue,
-//                           child: Text('Queue'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isInProgress,
-//                           child: Text('In Progress'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isDone,
-//                           child: Text('Done'),
-//                         ),
-//                         const PopupMenuItem(
-//                           value: FilterType.isCancel,
-//                           child: Text('Cancel'),
-//                         ),
-//                       ];
-//                     },
-//                   ),
-//                 ],
-//               ),
-//               floatingActionButton: FloatingActionButton(
-//                 onPressed: () {
-//                   kdsProvider.clearFilters();
-//                 },
-//                 child: const Icon(Icons.add),
-//                 backgroundColor: Colors.red,
-//               ),
-//               body: _buildLayoutBasedOnSize(
-//                   constraints, kdsProvider, orderItemStateProvider),
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
-
-//   String _getActiveFilterTitle() {
-//     switch (_activeFilter) {
-//       case FilterType.isInProgress:
-//         return 'In Progress';
-//       case FilterType.isQueue:
-//         return 'Queue';
-//       case FilterType.isDone:
-//         return 'Done';
-//       case FilterType.isCancel:
-//         return 'Cancel';
-//       default:
-//         return 'Expo';
-//     }
-//   }
-
-//   void _applyFilter(KDSItemsProvider kdsProvider, FilterType filter) {
-//     setState(() {
-//       _activeFilter = filter;
-//     });
-//     kdsProvider.clearFilters();
-//     switch (filter) {
-//       case FilterType.isQueue:
-//         kdsProvider.updateFilters(isQueue: true);
-//         break;
-//       case FilterType.isInProgress:
-//         kdsProvider.updateFilters(isInProgress: true);
-//         break;
-//       case FilterType.isDone:
-//         kdsProvider.updateFilters(isDone: true);
-//         break;
-//       case FilterType.isCancel:
-//         kdsProvider.updateFilters(isCancel: true);
-//         break;
-//       case FilterType.orderType:
-//       // TODO: Handle this case.
-//       case FilterType.createdOn:
-//       // TODO: Handle this case.
-//       case FilterType.kdsId:
-//       // TODO: Handle this case.
-//     }
-//   }
-
-//   Widget _buildLayoutBasedOnSize(
-//       BoxConstraints constraints,
-//       KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     if (constraints.maxWidth >= 1200) {
-//       return _buildHorizontalLayout(kdsProvider, orderItemStateProvider);
-//     } else if (constraints.maxWidth >= 600) {
-//       return _buildGridLayout(kdsProvider, orderItemStateProvider);
-//     } else {
-//       return _buildVerticalLayout(kdsProvider, orderItemStateProvider);
-//     }
-//   }
-
-//   Widget _buildHorizontalLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Row(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildGridLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Column(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildVerticalLayout(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return Column(
-//       children: [
-//         Expanded(
-//           child: _buildItemCartWithErrorHandling(
-//               kdsProvider, orderItemStateProvider),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildItemCartWithErrorHandling(KDSItemsProvider kdsProvider,
-//       OrderItemStateProvider orderItemStateProvider) {
-//     return LayoutBuilder(
-//       builder: (BuildContext context, BoxConstraints constraints) {
-//         try {
-//           return ItemCart(
-//             items: kdsProvider.filteredItems,
-//             orderItemStateProvider: orderItemStateProvider,
-//           );
-//         } catch (e, stackTrace) {
-//           print('Error rendering ItemCart: $e\n$stackTrace');
-//           return Center(
-//             child: Text('Error rendering ItemCart: $e'),
-//           );
-//         }
-//       },
-//     );
-//   }
-// }
+      for (var item in order.items) {
+        uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
+      }
+      // log('order--->${widget.kdsProvider.groupedItems.length}');
+      return GroupedOrder(
+          id: order.id,
+          items: uniqueItems.values.toList(),
+          kdsId: order.kdsId,
+          orderId: order.orderId,
+          orderTitle: order.orderTitle,
+          orderType: order.orderType,
+          orderNote: order.orderNote,
+          createdOn: order.createdOn,
+          storeId: order.storeId,
+          tableName: order.tableName,
+          displayOrderType: order.displayOrderType,
+          isAllInProgress: order.isAllInProgress,
+          isAllDone: order.isAllDone,
+          isAllCancel: order.isAllCancel,
+          isAnyInProgress: order.isAnyInProgress,
+          isAnyDone: order.isAnyDone,
+          isAnyComplete: order.isAnyComplete,
+          isAllComplete: order.isAllComplete,
+          isNewOrder: order.isNewOrder);
+    }).where((order) {
+      return switch (_activeFilter) {
+        KdsConst.defaultFilter => !(order.isAnyDone == true ||
+            order.isAnyComplete == true ||
+            order.isAllInProgress == false ||
+            order.isAllComplete == false),
+        KdsConst.doneFilter => (order.isAnyDone == true ||
+            order.isAnyComplete == true ||
+            order.isAllInProgress == false ||
+            order.isAllComplete == false),
+        'All' => true,
+        _ => true
+      };
+    }).toList();
+  }
+}

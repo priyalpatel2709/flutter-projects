@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kds/views/expo_screenV2.dart';
-import 'package:kds/views/station_screenV2.dart';
+import 'package:kds/views/expo_screen.dart';
+import 'package:kds/views/station_screen.dart';
 import 'package:provider/provider.dart';
 import 'constant/constants.dart';
 import 'providers/appsettings_provider.dart';

@@ -110,6 +110,23 @@ class OrderItemState {
     );
   }
 
+  Future<void> handleUndoProcess({
+    required OrderItemStateProvider provider,
+    required String itemId,
+    required int storeId,
+    required String orderId,
+  }) async {
+    await _updateItemInfoAndNotify(
+      provider: provider,
+      itemId: itemId,
+      storeId: storeId,
+      orderId: orderId,
+      isDone: false,
+      isInProgress: false,
+      isCompleted: false,
+    );
+  }
+
   // Method to update item info and notify listeners
   Future<void> _updateItemInfoAndNotify({
     required OrderItemStateProvider provider,
