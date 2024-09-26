@@ -41,7 +41,8 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
         Expanded(
           child: _buildPagedContent(),
         ),
-        if (totalPages > 1) _buildPaginationControls(totalPages),
+        if (totalPages > 1 && widget.appSettingStateProvider.showPagination)
+          _buildPaginationControls(totalPages),
       ],
     );
   }
@@ -100,12 +101,14 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
         _currentPage * widget.appSettingStateProvider.itemsPerPage;
     final endIndex =
         (_currentPage + 1) * widget.appSettingStateProvider.itemsPerPage;
-    final pagedOrders = widget.filteredOrders.sublist(
-      startIndex,
-      endIndex > widget.filteredOrders.length
-          ? widget.filteredOrders.length
-          : endIndex,
-    );
+    final pagedOrders = widget.appSettingStateProvider.showPagination
+        ? widget.filteredOrders.sublist(
+            startIndex,
+            endIndex > widget.filteredOrders.length
+                ? widget.filteredOrders.length
+                : endIndex,
+          )
+        : widget.filteredOrders;
 
     switch (widget.appSettingStateProvider.selectedView) {
       case KdsConst.list:

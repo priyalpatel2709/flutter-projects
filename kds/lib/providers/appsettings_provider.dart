@@ -11,12 +11,14 @@ class AppSettingStateProvider extends ChangeNotifier {
   int _itemsPerPage = 8;
   String _selectedView = KdsConst.fixedGrid;
   String _selectedOrderType = KdsConst.dineIn;
+  bool _showPagination = false;
 
   double get fontSize => _fontSize;
   double get padding => _padding;
   int get crossAxisCount => _crossAxisCount;
   int get itemsPerPage => _itemsPerPage;
   bool get isHorizontal => _isHorizontal;
+  bool get showPagination => _showPagination;
   String get selectedView => _selectedView;
   String get selectedOrderType => _selectedOrderType;
 
@@ -89,6 +91,11 @@ class AppSettingStateProvider extends ChangeNotifier {
 
   void changeSelectedOrderType(String orderType) {
     _selectedOrderType = orderType;
+    notifyListeners();
+  }
+
+  void changeShowPagination(bool showPagination) {
+    _showPagination = showPagination;
     notifyListeners();
   }
 }

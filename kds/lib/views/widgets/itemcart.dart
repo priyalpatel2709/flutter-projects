@@ -93,12 +93,16 @@ class ItemCartV2 extends StatelessWidget {
         color: _getOrderTypeColor(items.orderType),
         border: Border.all(color: KdsConst.black, width: .5),
       ),
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: EdgeInsets.all(1 + padding),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
         children: [
-          Column(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
             children: [
               Text(
                 items.orderType,
@@ -109,20 +113,21 @@ class ItemCartV2 extends StatelessWidget {
               ),
               // const SizedBox(height: 4),
               Text(
-                formattedCreatedOn,
-                style: TextStyle(color: KdsConst.black, fontSize: fontSize),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
                 items.orderTitle,
                 style: TextStyle(
                     color: KdsConst.black,
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                formattedCreatedOn,
+                style: TextStyle(color: KdsConst.black, fontSize: fontSize),
               ),
               ElevatedButton(
                 style: _smallButtonStyle(KdsConst.onMainColor),

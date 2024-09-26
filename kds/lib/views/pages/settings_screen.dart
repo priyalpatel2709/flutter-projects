@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../../constant/constants.dart';
@@ -60,19 +61,29 @@ class SettingsScreen extends StatelessWidget {
                 appSettingStateProvider.changeCrossAxisCount(value.toInt());
               },
             ),
-            Text(
-              'Items Per Page: ${appSettingStateProvider.itemsPerPage}',
-              style: TextStyle(fontSize: appSettingStateProvider.fontSize),
+            Visibility(
+              visible: appSettingStateProvider.showPagination,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Items Per Page: ${appSettingStateProvider.itemsPerPage}',
+                    style:
+                        TextStyle(fontSize: appSettingStateProvider.fontSize),
+                  ),
+                  Slider(
+                    value: appSettingStateProvider.itemsPerPage.toDouble(),
+                    min: 4,
+                    max: 8,
+                    divisions: 4,
+                    onChanged: (value) {
+                      appSettingStateProvider.changeItemsPerPage(value.toInt());
+                    },
+                  ),
+                ],
+              ),
             ),
-            Slider(
-              value: appSettingStateProvider.itemsPerPage.toDouble(),
-              min: 4,
-              max: 8,
-              divisions: 4,
-              onChanged: (value) {
-                appSettingStateProvider.changeItemsPerPage(value.toInt());
-              },
-            ),
+
             SizedBox(height: 8 + appSettingStateProvider.padding),
 
             // View Selection Radio Options
@@ -127,6 +138,21 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             ),
+            Row(
+              children: [
+                const Text('Show Pagination:'),
+                Switch(
+                  value: appSettingStateProvider.showPagination,
+                  onChanged: (value) {
+                    appSettingStateProvider.changeShowPagination(value);
+                  },
+                  activeColor: KdsConst.black,
+                  activeTrackColor: KdsConst.mainColor,
+                  inactiveThumbColor: KdsConst.onMainColor,
+                  inactiveTrackColor: Colors.grey.shade400,
+                ),
+              ],
+            )
           ],
         ),
       ),

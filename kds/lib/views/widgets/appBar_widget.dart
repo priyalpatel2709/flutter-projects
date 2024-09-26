@@ -80,14 +80,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.all(8.0),
         child: Image.asset(
           'assets/images/honest-logo.png',
-          fit: BoxFit.fill,
+          fit: BoxFit.contain,
         ),
       ),
-      leadingWidth: 100,
+      // leadingWidth: 80,
       centerTitle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-      ),
       actions: [
         IconButton(
           icon: const Icon(
