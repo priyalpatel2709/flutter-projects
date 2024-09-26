@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
-import '../constant/constants.dart';
-import '../models/groupedorder_model.dart';
-import '../providers/appsettings_provider.dart';
-import '../providers/items_details_provider.dart';
-import '../utils/utils.dart';
-import 'widgets/appBar_widget.dart';
-import 'widgets/filteredlist_widget.dart';
-import 'widgets/itemcart.dart';
+import '../../constant/constants.dart';
+import '../../models/groupedorder_model.dart';
+import '../../providers/appsettings_provider.dart';
+import '../../providers/items_details_provider.dart';
+import '../widgets/appBar_widget.dart';
+import '../widgets/filteredlist_widget.dart';
 
 class ExpoView extends StatelessWidget {
   const ExpoView({super.key});
@@ -30,10 +27,12 @@ class ExpoView extends StatelessWidget {
 class _ExpoViewContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
   final AppSettingStateProvider appSettingStateProvider;
-  const _ExpoViewContent(
-      {super.key,
-      required this.kdsProvider,
-      required this.appSettingStateProvider});
+
+  const _ExpoViewContent({
+    super.key,
+    required this.kdsProvider,
+    required this.appSettingStateProvider,
+  });
 
   @override
   _ExpoViewState createState() => _ExpoViewState();
@@ -49,31 +48,28 @@ class _ExpoViewState extends State<_ExpoViewContent> {
   }
 
   void _setFilter(String filter) {
-    setState(() => _activeFilter = filter);
+    setState(() {
+      _activeFilter = filter;
+    });
   }
 
-  List<PopupMenuItem<String>> _buildFilterMenu(BuildContext context) {
-    final filterOptions = [
-      (KdsConst.defaultFilter, KdsConst.defaultFilter),
-      (KdsConst.doneFilter, KdsConst.doneFilter),
-      (KdsConst.allFilter, KdsConst.allFilter),
-    ];
-
-    return filterOptions
-        .map((option) => PopupMenuItem<String>(
-              value: option.$1,
-              child: Text(option.$2),
-            ))
+  List<PopupMenuItem<String>> _buildFilterMenu() {
+    return [KdsConst.defaultFilter, KdsConst.doneFilter, KdsConst.allFilter]
+        .map(
+          (filter) => PopupMenuItem<String>(
+            value: filter,
+            child: Text(filter),
+          ),
+        )
         .toList();
   }
 
-  // Expo Screen
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.map((order) {
+      // Map items by unique id and name combination
       final uniqueItems = <String, OrderItemV2>{};
-
       for (var item in order.items) {
-        uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
+        uniqueItems['${item.itemId}_${item.itemName}'] = item;
       }
 
       return GroupedOrder(
@@ -98,9 +94,14 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         isNewOrder: order.isNewOrder,
       );
     }).where((order) {
-      if (widget.appSettingStateProvider.selectedOrderType != order.orderType) {
+      // Filter based on selected order type
+      if (widget.appSettingStateProvider.selectedOrderType !=
+              KdsConst.allFilter &&
+          widget.appSettingStateProvider.selectedOrderType != order.orderType) {
         return false;
       }
+
+      // Apply active filter
       return switch (_activeFilter) {
         KdsConst.defaultFilter => !order.isAllComplete,
         KdsConst.doneFilter => order.isAllComplete,
@@ -119,17 +120,18 @@ class _ExpoViewState extends State<_ExpoViewContent> {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
         },
-        buildFilterMenu: _buildFilterMenu(context),
+        buildFilterMenu: _buildFilterMenu(),
         appSettingStateProvider: widget.appSettingStateProvider,
       ),
       body: Padding(
-          padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
-          child: FilteredOrdersList(
-            filteredOrders: _getFilteredOrders(),
-            selectedKdsId: 0,
-            isComplete: true,
-            appSettingStateProvider: widget.appSettingStateProvider,
-          )),
+        padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
+        child: FilteredOrdersList(
+          filteredOrders: _getFilteredOrders(),
+          selectedKdsId: 0,
+          isComplete: true,
+          appSettingStateProvider: widget.appSettingStateProvider,
+        ),
+      ),
     );
   }
 }

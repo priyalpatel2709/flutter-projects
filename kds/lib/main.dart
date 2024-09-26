@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kds/views/multiorder_screen.dart';
-import 'package:kds/views/station_screen.dart';
+import 'package:kds/views/pages/multiorder_screen.dart';
+import 'package:kds/views/pages/station_screen.dart';
 import 'package:provider/provider.dart';
 import 'constant/constants.dart';
 import 'providers/appsettings_provider.dart';
 import 'providers/items_details_provider.dart';
 import 'providers/order_item_state_provider.dart';
-import 'views/expo_screen.dart';
+import 'views/pages/expo_screen.dart';
 // import 'views/expo_screen.dart';
 // import 'views/station_screen.dart';
 
@@ -80,6 +80,7 @@ class _MainScreenState extends State<MainScreen> {
           (BuildContext context, AppSettingStateProvider value, Widget? child) {
         return Scaffold(
           body: _screens[_selectedIndex],
+          primary: true,
           bottomNavigationBar: LayoutBuilder(
             builder: (context, constraints) {
               return BottomNavigationBar(

@@ -1,16 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
-import '../constant/constants.dart';
-import '../models/groupedorder_model.dart';
-import '../providers/appsettings_provider.dart';
-import '../providers/items_details_provider.dart';
-import '../utils/utils.dart';
-import 'widgets/appBar_widget.dart';
-import 'widgets/filteredlist_widget.dart';
-import 'widgets/itemcart.dart';
+import '../../constant/constants.dart';
+import '../../models/groupedorder_model.dart';
+import '../../providers/appsettings_provider.dart';
+import '../../providers/items_details_provider.dart';
+import '../widgets/appBar_widget.dart';
+import '../widgets/filteredlist_widget.dart';
 
 class MultiStationView extends StatelessWidget {
   const MultiStationView({super.key});
@@ -32,11 +27,11 @@ class _MultiStationViewContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
   final AppSettingStateProvider appSettingStateProvider;
 
-  const _MultiStationViewContent(
-      {Key? key,
-      required this.kdsProvider,
-      required this.appSettingStateProvider})
-      : super(key: key);
+  const _MultiStationViewContent({
+    Key? key,
+    required this.kdsProvider,
+    required this.appSettingStateProvider,
+  }) : super(key: key);
 
   @override
   _MultiStationViewContentState createState() =>
@@ -48,9 +43,11 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
 
   @override
   void initState() {
-    widget.kdsProvider.startFetching(
-        timerInterval: KdsConst.timerInterval, storeId: KdsConst.storeId);
     super.initState();
+    widget.kdsProvider.startFetching(
+      timerInterval: KdsConst.timerInterval,
+      storeId: KdsConst.storeId,
+    );
     _activeFilter = widget.kdsProvider.expoFilter;
   }
 
@@ -63,16 +60,17 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
         },
-        buildFilterMenu: _buildFilterMenu(context),
+        buildFilterMenu: _buildFilterMenu(),
         appSettingStateProvider: widget.appSettingStateProvider,
       ),
       body: Padding(
-          padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
-          child: FilteredOrdersList(
-            filteredOrders: _getFilteredOrders(),
-            selectedKdsId: 0,
-            appSettingStateProvider: widget.appSettingStateProvider,
-          )),
+        padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
+        child: FilteredOrdersList(
+          filteredOrders: _getFilteredOrders(),
+          selectedKdsId: 0,
+          appSettingStateProvider: widget.appSettingStateProvider,
+        ),
+      ),
     );
   }
 
@@ -80,31 +78,23 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
     setState(() => _activeFilter = filter);
   }
 
-  List<PopupMenuItem<String>> _buildFilterMenu(BuildContext context) {
-    final filterOptions = [
-      (KdsConst.defaultFilter, KdsConst.defaultFilter),
-      (KdsConst.doneFilter, KdsConst.doneFilter),
-      (KdsConst.allFilter, KdsConst.allFilter),
-    ];
-
-    return filterOptions
-        .map((option) => PopupMenuItem<String>(
-              value: option.$1,
-              child: Text(option.$2),
+  List<PopupMenuItem<String>> _buildFilterMenu() {
+    return [KdsConst.defaultFilter, KdsConst.doneFilter, KdsConst.allFilter]
+        .map((filter) => PopupMenuItem<String>(
+              value: filter,
+              child: Text(filter),
             ))
         .toList();
   }
 
-  // Expo Screen
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.map((order) {
       final uniqueItems = <String, OrderItemV2>{};
 
+      // Ensure uniqueness based on itemId and itemName
       for (var item in order.items) {
         uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
       }
-
-      // log('message--->${widget.appSettingStateProvider.selectedOrderType}');
 
       return GroupedOrder(
         id: order.id,
@@ -128,22 +118,23 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         isNewOrder: order.isNewOrder,
       );
     }).where((order) {
-      // Step 1: Apply filter based on the selectedOrderType
-      if (widget.appSettingStateProvider.selectedOrderType != order.orderType) {
+      // Filter by selected order type
+      if (widget.appSettingStateProvider.selectedOrderType !=
+              KdsConst.allFilter &&
+          widget.appSettingStateProvider.selectedOrderType != order.orderType) {
         return false;
       }
 
-      // Step 2: Apply filter based on _activeFilter switch
+      // Filter based on the active filter
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => !(order.isAnyDone == true ||
+        KdsConst.defaultFilter => (order.isNewOrder || order.isAnyInProgress) &&
+            (order.isAnyDone == true ||
                 order.isAnyComplete == true ||
                 order.isAllInProgress == false ||
-                order.isAllComplete == false) ||
-            order.isNewOrder ||
-            order.isAnyInProgress,
+                order.isAllComplete == false),
         KdsConst.doneFilter => order.isAllDone || order.isAllComplete,
         KdsConst.allFilter => true,
-        _ => true
+        _ => true,
       };
     }).toList();
   }

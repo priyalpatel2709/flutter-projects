@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../constant/constants.dart';
 import '../../providers/appsettings_provider.dart';
-import '../../providers/items_details_provider.dart';
-import '../../utils/utils.dart';
-import '../settings_screen.dart';
+import '../pages/settings_screen.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-
   final Function(String) onFilterSelected;
   final AppSettingStateProvider appSettingStateProvider;
   final List<PopupMenuEntry<String>> buildFilterMenu;
@@ -21,7 +18,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     required this.appSettingStateProvider,
   }) : super(key: key);
 
-  void showSettingsDialog(BuildContext context, double fontSize) {
+  void showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -29,8 +26,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           title: Text(
             'Settings',
             style: TextStyle(
-                fontSize: appSettingStateProvider.fontSize,
-                fontWeight: FontWeight.bold),
+              fontSize: appSettingStateProvider.fontSize,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: SingleChildScrollView(
             child: SettingsScreen(),
@@ -54,11 +52,11 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   void showSettingsModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Allows full-height modal
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom, // For keyboard
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: SettingsScreen(),
         );
@@ -88,15 +86,15 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: 100,
       centerTitle: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
       actions: [
         IconButton(
           icon: const Icon(
             Icons.settings,
             color: KdsConst.onMainColor,
           ),
-          onPressed: () => showSettingsDialog(context,
-              appSettingStateProvider.fontSize), // Call the modal popup
+          onPressed: () => showSettingsDialog(context),
         ),
         PopupMenuButton<String>(
           color: KdsConst.onMainColor,
@@ -110,7 +108,6 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  // This defines the preferred size for the widget, which is required for app bars
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

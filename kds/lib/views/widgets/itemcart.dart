@@ -127,7 +127,6 @@ class ItemCartV2 extends StatelessWidget {
               ElevatedButton(
                 style: _smallButtonStyle(KdsConst.onMainColor),
                 onPressed: () {
-                  // Add your button press logic here
                   stateProvider1.handleUpdateItemsInfo(
                       itemId: '',
                       storeId: KdsConst.storeId,
@@ -139,7 +138,7 @@ class ItemCartV2 extends StatelessWidget {
                 child: Text(
                   'All ${isComplete ? 'Complete' : 'Done'}',
                   style:
-                      TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+                      TextStyle(color: KdsConst.black, fontSize: fontSize * .5),
                 ),
               )
             ],
