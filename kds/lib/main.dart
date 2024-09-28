@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:kds/views/pages/multiorder_screen.dart';
 import 'package:kds/views/pages/station_screen.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,9 @@ import 'views/pages/expo_screen.dart';
 // import 'views/expo_screen.dart';
 // import 'views/station_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 

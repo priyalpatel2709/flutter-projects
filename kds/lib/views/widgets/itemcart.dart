@@ -12,7 +12,7 @@ class ItemCartV2 extends StatelessWidget {
   final int? selectedKdsId;
   final double fontSize;
   final double padding;
-  final bool isComplete;
+  final bool isExpoScree;
   final String selectedView;
 
   const ItemCartV2({
@@ -21,7 +21,7 @@ class ItemCartV2 extends StatelessWidget {
     this.selectedKdsId,
     required this.fontSize,
     required this.padding,
-    this.isComplete = false,
+    this.isExpoScree = false,
     required this.selectedView,
   }) : super(key: key);
 
@@ -56,7 +56,7 @@ class ItemCartV2 extends StatelessWidget {
                   orderId: items.orderId,
                   selectedKdsId: selectedKdsId ?? 0,
                   fontSize: fontSize,
-                  isComplete: isComplete,
+                  isExpoScree: isExpoScree,
                   padding: padding,
                   isDineIn: items.isDineIn),
             ),
@@ -100,11 +100,16 @@ class ItemCartV2 extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  formattedCreatedOn,
-                  style: TextStyle(color: KdsConst.black, fontSize: fontSize),
+                Expanded(
+                  child: Text(
+                    formattedCreatedOn,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: fontSize * 0.8),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                isComplete
+                isExpoScree
                     ? items.orderType != KdsConst.dineIn
                         ? Padding(
                             padding: EdgeInsets.all(8 + padding),
@@ -175,7 +180,7 @@ class OrderItem extends StatelessWidget {
   final String orderId;
   final int selectedKdsId;
   final double fontSize;
-  final bool isComplete;
+  final bool isExpoScree;
   final bool isDineIn;
   final double padding;
 
@@ -185,7 +190,7 @@ class OrderItem extends StatelessWidget {
     required this.orderId,
     required this.selectedKdsId,
     required this.fontSize,
-    required this.isComplete,
+    required this.isExpoScree,
     required this.padding,
     required this.isDineIn,
   }) : super(key: key);
@@ -238,7 +243,7 @@ class OrderItem extends StatelessWidget {
                 itemState,
                 stateProvider,
                 isDineIn,
-                isComplete,
+                isExpoScree,
               ),
             ],
           ),
@@ -248,31 +253,20 @@ class OrderItem extends StatelessWidget {
   }
 
   Widget _buildActionButton(BuildContext context, itemState,
-      OrderItemStateProvider stateProvider, bool isDineIn, bool isComplete) {
+      OrderItemStateProvider stateProvider, bool isDineIn, bool isExpoScree) {
     if (item.isDone) {
-      return isComplete
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildUndoButton(
-                    context, itemState, stateProvider, isComplete, isDineIn),
-                // _buildCompleteButton(
-                //     context, itemState, stateProvider, isDineIn),
-              ],
-            )
-          : _buildUndoButton(
-              context, itemState, stateProvider, isComplete, isDineIn);
+      return _buildUndoButton(
+          context, itemState, stateProvider, isExpoScree, isDineIn);
     } else {
-      return isComplete
+      return isExpoScree
           ? item.isComplete
-              ? const Icon(Icons.check_circle, color: Colors.green)
+              ? const Icon(Icons.check_circle, color: KdsConst.green)
               : Text(itemState.completeButtonText,
                   style: TextStyle(
                       color: itemState.completeButtonColor,
                       fontSize: fontSize * .8))
           : item.isComplete
-              ? const Icon(Icons.check_circle, color: Colors.green)
+              ? const Icon(Icons.check_circle, color: KdsConst.green)
               : _buildStartProcessButton(context, itemState, stateProvider);
     }
   }
@@ -296,7 +290,7 @@ class OrderItem extends StatelessWidget {
   }
 
   Widget _buildUndoButton(BuildContext context, itemState,
-      OrderItemStateProvider stateProvider, bool isComplete, bool isDineIn) {
+      OrderItemStateProvider stateProvider, bool isExpoScree, bool isDineIn) {
     return Row(
       children: [
         ElevatedButton(
@@ -317,7 +311,7 @@ class OrderItem extends StatelessWidget {
           width: 8.0,
         ),
         Visibility(
-          visible: isComplete && isDineIn,
+          visible: isExpoScree && isDineIn,
           child: ElevatedButton(
             style: _smallButtonStyle(KdsConst.green),
             onPressed: () {

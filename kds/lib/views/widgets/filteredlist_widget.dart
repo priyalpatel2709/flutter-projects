@@ -9,14 +9,14 @@ import 'itemcart.dart';
 class FilteredOrdersList extends StatefulWidget {
   final List<GroupedOrder> filteredOrders;
   final int selectedKdsId;
-  final bool isComplete;
+  final bool isExpoScree;
   final AppSettingStateProvider appSettingStateProvider;
 
   const FilteredOrdersList({
     Key? key,
     required this.filteredOrders,
     required this.selectedKdsId,
-    this.isComplete = false,
+    this.isExpoScree = false,
     required this.appSettingStateProvider,
   }) : super(key: key);
 
@@ -142,7 +142,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
       selectedKdsId: widget.selectedKdsId,
       fontSize: widget.appSettingStateProvider.fontSize,
       padding: widget.appSettingStateProvider.padding,
-      isComplete: widget.isComplete,
+      isExpoScree: widget.isExpoScree,
       selectedView: widget.appSettingStateProvider.selectedView,
     );
   }

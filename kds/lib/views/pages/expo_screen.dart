@@ -130,7 +130,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         child: FilteredOrdersList(
           filteredOrders: _getFilteredOrders(),
           selectedKdsId: 0,
-          isComplete: true,
+          isExpoScree: true,
           appSettingStateProvider: widget.appSettingStateProvider,
         ),
       ),
