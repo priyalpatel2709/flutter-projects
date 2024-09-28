@@ -31,9 +31,20 @@ class KdsConst {
   static const String pickup = 'Pickup';
   static const String delivery = 'Delivery';
   static const String dineIn = 'Dine-In';
+  static const String oBPickup = 'OB-Pickup';
 
   //view type
   static const String list = 'List';
   static const String grid = 'Grid';
   static const String fixedGrid = 'Fixed Grid';
+
+  //new Colors
+  static const Color grey = Color.fromARGB(255, 96, 102, 118);
+  static const Color orange = Color.fromARGB(255, 255, 131, 67);
+  static const Color lightGreen = Color.fromARGB(255, 190, 198, 160);
+  static const Color green = Color.fromARGB(255, 133, 230, 197);
+  static const Color red = Color.fromARGB(255, 239, 90, 111);
+  static const Color yellow = Color.fromARGB(255, 255, 166, 47);
+  static const Color blue = Color.fromARGB(255, 90, 178, 255);
+  // static const Color red = Color.fromARGB(1, 239, 90, 111);
 }

@@ -108,6 +108,7 @@ class KDSItemsProvider with ChangeNotifier {
             isAllComplete: items.every((item) => item.isComplete),
             isNewOrder: items.every((item) =>
                 !item.isInprogress && !item.isDone && !item.isComplete),
+            isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
           );
         }).toList();
         // log('Full Grouped Orders: ${jsonEncode(groupedOrders)}');
@@ -159,6 +160,8 @@ class KDSItemsProvider with ChangeNotifier {
     required bool isDone,
     required bool isInProgress,
     required bool isCompleted,
+    required bool isDelivered,
+    required bool isReadyToPickup,
     bool isQueue = false,
   }) async {
     final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.updateKDSItemStatus}');
@@ -171,7 +174,9 @@ class KDSItemsProvider with ChangeNotifier {
       // 'isQueue': isQueue,
       'isInprogress': isInProgress,
       'isDone': isDone,
-      'IsCompleted': isCompleted
+      'IsCompleted': isCompleted,
+      'IsDelivered': isDelivered,
+      'IsReadyToPickup': isReadyToPickup
     };
 
     try {

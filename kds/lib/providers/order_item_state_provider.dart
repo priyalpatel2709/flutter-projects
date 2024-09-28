@@ -32,6 +32,8 @@ class OrderItemStateProvider extends ChangeNotifier {
     required bool isDone,
     required bool isInProgress,
     required bool isCompleted,
+    required bool isReadyToPickup,
+    required bool isDelivered,
   }) async {
     try {
       await kdsItemsProvider.updateItemsInfo(
@@ -41,6 +43,8 @@ class OrderItemStateProvider extends ChangeNotifier {
         isDone: isDone,
         isInProgress: isInProgress,
         isCompleted: isCompleted,
+        isDelivered: isDelivered,
+        isReadyToPickup: isReadyToPickup,
       );
       notifyListeners();
     } catch (e) {
@@ -57,7 +61,7 @@ class OrderItemState {
   int countdown = 0;
   Timer? _timer;
 
-  Color buttonColor = Colors.lightBlueAccent;
+  Color buttonColor = KdsConst.grey;
   Color completeButtonColor = KdsConst.black;
 
   // Method to handle process start and switch button text
@@ -68,10 +72,10 @@ class OrderItemState {
     required String orderId,
   }) async {
     if (buttonText == 'Start') {
-      buttonText = 'Done';
+      buttonText = 'Complete';
       completeButtonText = 'In Progress';
-      buttonColor = Colors.green;
-      completeButtonColor = Colors.blue;
+      buttonColor = KdsConst.lightGreen;
+      completeButtonColor = KdsConst.orange;
 
       // Call the async method to update items info and wait for completion
       await _updateItemInfoAndNotify(
@@ -82,18 +86,20 @@ class OrderItemState {
         isDone: false,
         isInProgress: true,
         isCompleted: false,
+        isReadyToPickup: false,
+        isDelivered: false,
       );
-    } else if (buttonText == 'Done') {
+    } else if (buttonText == 'Complete') {
       _startCountdown(provider, itemId, storeId, orderId);
     }
   }
 
-  Future<void> handleCompleteProcess({
-    required OrderItemStateProvider provider,
-    required String itemId,
-    required int storeId,
-    required String orderId,
-  }) async {
+  Future<void> handleCompleteProcess(
+      {required OrderItemStateProvider provider,
+      required String itemId,
+      required int storeId,
+      required String orderId,
+      required bool isDineIn}) async {
     // if (buttonText == 'Done') {
     //   buttonText = 'Start';
     //   _completeCountdown(provider, itemId, storeId, orderId);
@@ -107,6 +113,8 @@ class OrderItemState {
       isDone: false,
       isInProgress: false,
       isCompleted: true,
+      isReadyToPickup: false,
+      isDelivered: false,
     );
   }
 
@@ -124,6 +132,27 @@ class OrderItemState {
       isDone: false,
       isInProgress: false,
       isCompleted: false,
+      isReadyToPickup: false,
+      isDelivered: false,
+    );
+  }
+
+  Future<void> handleDineInDeliverProcess({
+    required OrderItemStateProvider provider,
+    required String itemId,
+    required int storeId,
+    required String orderId,
+  }) async {
+    await _updateItemInfoAndNotify(
+      provider: provider,
+      itemId: itemId,
+      storeId: storeId,
+      orderId: orderId,
+      isDone: false,
+      isInProgress: false,
+      isCompleted: false,
+      isReadyToPickup: false,
+      isDelivered: true,
     );
   }
 
@@ -136,6 +165,8 @@ class OrderItemState {
     required bool isDone,
     required bool isInProgress,
     required bool isCompleted,
+    required bool isReadyToPickup,
+    required bool isDelivered,
   }) async {
     try {
       await provider.handleUpdateItemsInfo(
@@ -145,6 +176,8 @@ class OrderItemState {
         isDone: isDone,
         isInProgress: isInProgress,
         isCompleted: isCompleted,
+        isReadyToPickup: isReadyToPickup,
+        isDelivered: isDelivered,
       );
       provider.notifyListeners();
     } catch (e) {
@@ -182,6 +215,8 @@ class OrderItemState {
       isDone: true,
       isInProgress: false,
       isCompleted: false,
+      isReadyToPickup: false,
+      isDelivered: false,
     );
   }
 }

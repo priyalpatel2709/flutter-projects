@@ -13,6 +13,8 @@ class AppSettingStateProvider extends ChangeNotifier {
   String _selectedOrderType = KdsConst.dineIn;
   bool _showPagination = false;
 
+  int _selectedIndexPage = 0;
+
   double get fontSize => _fontSize;
   double get padding => _padding;
   int get crossAxisCount => _crossAxisCount;
@@ -21,6 +23,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   bool get showPagination => _showPagination;
   String get selectedView => _selectedView;
   String get selectedOrderType => _selectedOrderType;
+  int get selectedIndexPage => _selectedIndexPage;
 
   void initializeSettings(BuildContext context) {
     // Initialize values based on the current screen width
@@ -96,6 +99,11 @@ class AppSettingStateProvider extends ChangeNotifier {
 
   void changeShowPagination(bool showPagination) {
     _showPagination = showPagination;
+    notifyListeners();
+  }
+
+  void changeSelectedIndexPage(int selectedIndexPage) {
+    _selectedIndexPage = selectedIndexPage;
     notifyListeners();
   }
 }

@@ -92,13 +92,15 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         isAnyComplete: order.isAnyComplete,
         isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
+        isDineIn: order.isDineIn,
       );
     }).where((order) {
       // Filter based on selected order type
-      if (widget.appSettingStateProvider.selectedOrderType !=
-              KdsConst.allFilter &&
-          widget.appSettingStateProvider.selectedOrderType != order.orderType) {
-        return false;
+      if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
+        return order.orderType == KdsConst.dineIn;
+      } else if (widget.appSettingStateProvider.selectedOrderType ==
+          KdsConst.pickup) {
+        return order.orderType != KdsConst.dineIn;
       }
 
       // Apply active filter

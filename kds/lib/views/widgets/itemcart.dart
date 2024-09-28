@@ -1,9 +1,6 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:kds/models/iItems_details_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../constant/constants.dart';
@@ -30,52 +27,38 @@ class ItemCartV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Parse and format `createdOn`
-    DateTime createdOnDate =
+    final createdOnDate =
         DateTime.tryParse(items.createdOn)?.toLocal() ?? DateTime.now();
-    String formattedCreatedOn =
-        DateFormat('hh:mm a').format(createdOnDate); // Format local time
+    final formattedCreatedOn = DateFormat('hh:mm a').format(createdOnDate);
 
     return Card(
       color: Colors.white,
-      elevation: 3,
-      // margin: EdgeInsets.all(padding),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        // side: const BorderSide(color: KdsConst.black, width: .5),
-      ),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildOrderHeader(
-                formattedCreatedOn, items.orderId, context, isComplete),
+            _buildOrderHeader(context, formattedCreatedOn),
             const SizedBox(height: 4),
             Text(
               items.orderNote,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
             ),
             const Divider(),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: items.items
-                  .map((item) => OrderItem(
-                      quantity: item.qty,
-                      name: item.itemName,
-                      subInfo: item.modifiers,
-                      uniqueId: '${item.itemId}-${items.orderId}',
-                      orderId: items.orderId,
-                      isDone: item.isDone,
-                      isInProcess: item.isInprogress,
-                      itemId: item.itemId,
-                      kdsId: item.kdsId,
-                      selectedKdsId: selectedKdsId ?? 0,
-                      fontSize: fontSize,
-                      isComplete: isComplete,
-                      itemIsComplete: item.isComplete,
-                      padding: padding))
-                  .toList(),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.items.length,
+              itemBuilder: (context, index) => OrderItem(
+                  item: items.items[index],
+                  orderId: items.orderId,
+                  selectedKdsId: selectedKdsId ?? 0,
+                  fontSize: fontSize,
+                  isComplete: isComplete,
+                  padding: padding,
+                  isDineIn: items.isDineIn),
             ),
           ],
         ),
@@ -83,264 +66,313 @@ class ItemCartV2 extends StatelessWidget {
     );
   }
 
-  // Build the top section of the order (header) with order type and time
-  Widget _buildOrderHeader(String formattedCreatedOn, String orderId,
-      BuildContext context, bool isComplete) {
-    final stateProvider1 = Provider.of<OrderItemStateProvider>(context);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: _getOrderTypeColor(items.orderType),
-        border: Border.all(color: KdsConst.black, width: .5),
-      ),
-      padding: EdgeInsets.all(1 + padding),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Text(
-                items.orderType,
-                style: TextStyle(
-                    color: KdsConst.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize),
-              ),
-              // const SizedBox(height: 4),
-              Text(
-                items.orderTitle,
-                style: TextStyle(
-                    color: KdsConst.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                formattedCreatedOn,
-                style: TextStyle(color: KdsConst.black, fontSize: fontSize),
-              ),
-              ElevatedButton(
-                style: _smallButtonStyle(KdsConst.onMainColor),
-                onPressed: () {
-                  stateProvider1.handleUpdateItemsInfo(
-                      itemId: '',
-                      storeId: KdsConst.storeId,
-                      orderId: orderId,
-                      isDone: isComplete ? false : true,
-                      isInProgress: false,
-                      isCompleted: isComplete ? true : false);
-                },
-                child: Text(
-                  'All ${isComplete ? 'Complete' : 'Done'}',
-                  style:
-                      TextStyle(color: KdsConst.black, fontSize: fontSize * .5),
+  Widget _buildOrderHeader(BuildContext context, String formattedCreatedOn) {
+    return Consumer<OrderItemStateProvider>(
+      builder: (context, stateProvider, _) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(0.0),
+          color: _getOrderTypeColor(items.orderType),
+          border: Border.all(color: KdsConst.black, width: .5),
+        ),
+        padding: EdgeInsets.all(1 + padding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  items.orderType,
+                  style: TextStyle(
+                      color: KdsConst.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize),
                 ),
-              )
-            ],
-          ),
-        ],
+                Text(
+                  '#${items.orderTitle}',
+                  style: TextStyle(
+                      color: KdsConst.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedCreatedOn,
+                  style: TextStyle(color: KdsConst.black, fontSize: fontSize),
+                ),
+                isComplete
+                    ? items.orderType != KdsConst.dineIn
+                        ? Padding(
+                            padding: EdgeInsets.all(8 + padding),
+                            child: ElevatedButton(
+                              style: _smallButtonStyle(KdsConst.green),
+                              onPressed: () {
+                                stateProvider.handleUpdateItemsInfo(
+                                  itemId: '',
+                                  storeId: KdsConst.storeId,
+                                  orderId: items.orderId,
+                                  isDone: false,
+                                  isInProgress: false,
+                                  isCompleted: false,
+                                  isReadyToPickup: true,
+                                  isDelivered: false,
+                                );
+                              },
+                              child: Text('Ready To PickUp',
+                                  style: TextStyle(
+                                      color: KdsConst.black,
+                                      fontSize: fontSize * .8)),
+                            ),
+                          )
+                        : const SizedBox()
+                    : Visibility(
+                        visible: !items.isAllDone,
+                        child: ElevatedButton(
+                          style: _smallButtonStyle(KdsConst.green),
+                          onPressed: () => stateProvider.handleUpdateItemsInfo(
+                            itemId: '',
+                            storeId: KdsConst.storeId,
+                            orderId: items.orderId,
+                            isDone: true,
+                            isInProgress: false,
+                            isCompleted: false,
+                            isReadyToPickup: false,
+                            isDelivered: false,
+                          ),
+                          child: Text(
+                            'All  Done',
+                            style: TextStyle(
+                                color: KdsConst.black, fontSize: fontSize * .5),
+                          ),
+                        ),
+                      )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Get color based on order type
   Color _getOrderTypeColor(String orderType) {
     switch (orderType) {
       case KdsConst.pickup:
-        return Colors.yellow;
+        return KdsConst.yellow;
       case KdsConst.delivery:
-        return Colors.red;
+        return KdsConst.red;
       default:
-        return Colors.blue;
+        return KdsConst.blue;
     }
   }
 }
 
-// Button style to maintain consistency in size and padding
-ButtonStyle _smallButtonStyle(buttonColor) {
-  return ElevatedButton.styleFrom(
-    shape: const RoundedRectangleBorder(),
-    backgroundColor: buttonColor,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    minimumSize: const Size(50, 30), // Small button size
-  );
-}
-
 class OrderItem extends StatelessWidget {
-  final int quantity;
-  final int kdsId;
-  final int selectedKdsId;
-  final String name;
-  final String subInfo;
-  final String uniqueId;
-  final String itemId;
+  final OrderItemV2 item;
   final String orderId;
-  final bool isDone;
-  final bool isComplete;
-  final bool isInProcess;
-  final bool itemIsComplete;
+  final int selectedKdsId;
   final double fontSize;
+  final bool isComplete;
+  final bool isDineIn;
   final double padding;
 
   const OrderItem({
-    super.key,
-    required this.quantity,
-    required this.name,
-    required this.subInfo,
-    required this.uniqueId,
+    Key? key,
+    required this.item,
     required this.orderId,
-    required this.isDone,
-    required this.isInProcess,
-    required this.itemId,
-    required this.kdsId,
     required this.selectedKdsId,
     required this.fontSize,
     required this.isComplete,
-    required this.itemIsComplete,
     required this.padding,
-  });
+    required this.isDineIn,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final stateProvider = Provider.of<OrderItemStateProvider>(context);
-    final itemState = stateProvider.getState(uniqueId);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align items vertically
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start, // Align text to start
-              children: [
-                Row(
+    return Consumer<OrderItemStateProvider>(
+      builder: (context, stateProvider, _) {
+        final itemState = stateProvider.getState('${item.itemId}-$orderId');
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '$quantity ',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: fontSize),
-                    ),
-                    Expanded(
-                      child: Text(
-                        // '$name ($kdsId)',
-                        name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: fontSize * 0.8,
+                    Row(
+                      children: [
+                        Text(
+                          '${item.qty} ',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: fontSize),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis, // Handle long text
-                      ),
+                        Expanded(
+                          child: Text(
+                            item.itemName,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSize * 0.8),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (item.modifiers.isNotEmpty)
+                      Text(
+                        item.modifiers,
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: fontSize * 0.8),
+                      ),
                   ],
                 ),
-                Visibility(
-                  visible: subInfo != '',
-                  child: Text(
-                    subInfo,
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: fontSize * 0.8,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _buildActionButton(itemState, stateProvider, itemIsComplete, padding
-              // stateProvider: stateProvider,
-              // itemIsComplete: itemIsComplete,
-              // isInprogress: isInProcess,
-              // isDone: isDone,
-              // isCompleted: isComplete,
-              // itemState: itemState
               ),
-        ],
-      ),
+              _buildActionButton(
+                context,
+                itemState,
+                stateProvider,
+                isDineIn,
+                isComplete,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  // Build the action button based on item state (start process, complete, etc.)
-  Widget _buildActionButton(itemState, OrderItemStateProvider stateProvider,
-      bool itemIsComplete, double padding) {
-    if (isDone) {
+  Widget _buildActionButton(BuildContext context, itemState,
+      OrderItemStateProvider stateProvider, bool isDineIn, bool isComplete) {
+    if (item.isDone) {
       return isComplete
-          ? Padding(
-              padding: EdgeInsets.all(8 + padding),
-              child: ElevatedButton(
-                style: _smallButtonStyle(KdsConst.onMainColor),
-                onPressed: () {
-                  itemState.handleCompleteProcess(
-                      provider: stateProvider,
-                      itemId: itemId,
-                      storeId: KdsConst.storeId,
-                      orderId: orderId);
-                },
-                child: Text('Complete',
-                    style: TextStyle(
-                        color: KdsConst.black, fontSize: fontSize * .8)),
-              ),
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildUndoButton(
+                    context, itemState, stateProvider, isComplete, isDineIn),
+                // _buildCompleteButton(
+                //     context, itemState, stateProvider, isDineIn),
+              ],
             )
-          : ElevatedButton(
-              style: _smallButtonStyle(Colors.amber),
-              onPressed: () {
-                itemState.handleUndoProcess(
-                    provider: stateProvider,
-                    itemId: itemId,
-                    storeId: KdsConst.storeId,
-                    orderId: orderId);
-                stateProvider.updateState(uniqueId, itemState);
-              },
-              child: Text(
-                "Undo",
-                style:
-                    TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
-              ),
-            );
-      // const Icon(Icons.check_circle, color: Colors.red);
+          : _buildUndoButton(
+              context, itemState, stateProvider, isComplete, isDineIn);
     } else {
       return isComplete
-          ? itemIsComplete
+          ? item.isComplete
               ? const Icon(Icons.check_circle, color: Colors.green)
               : Text(itemState.completeButtonText,
                   style: TextStyle(
                       color: itemState.completeButtonColor,
                       fontSize: fontSize * .8))
-          : itemIsComplete
+          : item.isComplete
               ? const Icon(Icons.check_circle, color: Colors.green)
-              : Padding(
-                  padding: EdgeInsets.all(8 + padding),
-                  child: ElevatedButton(
-                    style: _smallButtonStyle(itemState.buttonColor),
-                    onPressed: () {
-                      itemState.handleStartProcess(
-                          provider: stateProvider,
-                          itemId: itemId,
-                          storeId: KdsConst.storeId,
-                          orderId: orderId);
-                      stateProvider.updateState(uniqueId, itemState);
-                    },
-                    child: Text(
-                      itemState.countdown > 0
-                          ? 'Done (${itemState.countdown})'
-                          : itemState.buttonText,
-                      style: TextStyle(
-                          color: KdsConst.black, fontSize: fontSize * .8),
-                    ),
-                  ),
-                );
+              : _buildStartProcessButton(context, itemState, stateProvider);
     }
   }
+
+  Widget _buildCompleteButton(BuildContext context, itemState,
+      OrderItemStateProvider stateProvider, bool isDineIn) {
+    return Padding(
+      padding: EdgeInsets.all(8 + padding),
+      child: ElevatedButton(
+        style: _smallButtonStyle(KdsConst.green),
+        onPressed: () => itemState.handleCompleteProcess(
+            provider: stateProvider,
+            itemId: item.itemId,
+            storeId: KdsConst.storeId,
+            orderId: orderId,
+            isDineIn: isDineIn),
+        child: Text(isDineIn ? 'Deliver' : 'Ready To PickUp',
+            style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
+      ),
+    );
+  }
+
+  Widget _buildUndoButton(BuildContext context, itemState,
+      OrderItemStateProvider stateProvider, bool isComplete, bool isDineIn) {
+    return Row(
+      children: [
+        ElevatedButton(
+          style: _smallButtonStyle(KdsConst.red),
+          onPressed: () {
+            itemState.handleUndoProcess(
+              provider: stateProvider,
+              itemId: item.itemId,
+              storeId: KdsConst.storeId,
+              orderId: orderId,
+            );
+            stateProvider.updateState('${item.itemId}-$orderId', itemState);
+          },
+          child: Text("Undo",
+              style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
+        ),
+        const SizedBox(
+          width: 8.0,
+        ),
+        Visibility(
+          visible: isComplete && isDineIn,
+          child: ElevatedButton(
+            style: _smallButtonStyle(KdsConst.green),
+            onPressed: () {
+              itemState.handleDineInDeliverProcess(
+                provider: stateProvider,
+                itemId: item.itemId,
+                storeId: KdsConst.storeId,
+                orderId: orderId,
+              );
+              stateProvider.updateState('${item.itemId}-$orderId', itemState);
+            },
+            child: Text("Deliver",
+                style:
+                    TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
+          ),
+        ),
+        const SizedBox(
+          width: 8.0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartProcessButton(
+      BuildContext context, itemState, OrderItemStateProvider stateProvider) {
+    return Padding(
+      padding: EdgeInsets.all(8 + padding),
+      child: ElevatedButton(
+        style: _smallButtonStyle(itemState.buttonColor),
+        onPressed: () {
+          itemState.handleStartProcess(
+            provider: stateProvider,
+            itemId: item.itemId,
+            storeId: KdsConst.storeId,
+            orderId: orderId,
+          );
+          stateProvider.updateState('${item.itemId}-$orderId', itemState);
+        },
+        child: Text(
+          itemState.countdown > 0
+              ? 'Done (${itemState.countdown})'
+              : itemState.buttonText,
+          style:
+              TextStyle(color: KdsConst.onMainColor, fontSize: fontSize * .8),
+        ),
+      ),
+    );
+  }
+}
+
+ButtonStyle _smallButtonStyle(Color buttonColor) {
+  return ElevatedButton.styleFrom(
+    shape: const RoundedRectangleBorder(),
+    backgroundColor: buttonColor,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    minimumSize: const Size(50, 30),
+  );
 }

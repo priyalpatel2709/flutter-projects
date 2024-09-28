@@ -35,64 +35,15 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
 
     return Column(
       children: [
-        SizedBox(height: 20 + widget.appSettingStateProvider.padding),
-        _orderTypeFilterButtons(),
-        SizedBox(height: 20 + widget.appSettingStateProvider.padding),
+        // SizedBox(height: 20 + widget.appSettingStateProvider.padding),
+        // _orderTypeFilterButtons(),
+        // SizedBox(height: 20 + widget.appSettingStateProvider.padding),
         Expanded(
           child: _buildPagedContent(),
         ),
         if (totalPages > 1 && widget.appSettingStateProvider.showPagination)
           _buildPaginationControls(totalPages),
       ],
-    );
-  }
-
-  Widget _orderTypeFilterButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _orderTypeButton(
-          onPressed: () => _selectOrderType(KdsConst.dineIn),
-          title: 'Dine In',
-          isSelected: widget.appSettingStateProvider.selectedOrderType ==
-              KdsConst.dineIn,
-        ),
-        SizedBox(width: 10 + widget.appSettingStateProvider.padding),
-        _orderTypeButton(
-          onPressed: () => _selectOrderType(KdsConst.pickup),
-          title: 'Delivery - Pick Up',
-          isSelected: widget.appSettingStateProvider.selectedOrderType ==
-              KdsConst.pickup,
-        ),
-        SizedBox(width: 10 + widget.appSettingStateProvider.padding),
-        _orderTypeButton(
-          onPressed: () => _selectOrderType(KdsConst.allFilter),
-          title: 'All Orders',
-          isSelected: widget.appSettingStateProvider.selectedOrderType ==
-              KdsConst.allFilter,
-        ),
-      ],
-    );
-  }
-
-  Widget _orderTypeButton({
-    required VoidCallback onPressed,
-    required String title,
-    required bool isSelected,
-  }) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? KdsConst.mainColor : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        minimumSize: const Size(50, 30),
-      ),
-      onPressed: onPressed,
-      child: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? KdsConst.onMainColor : Colors.black,
-        ),
-      ),
     );
   }
 

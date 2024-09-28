@@ -30,7 +30,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: SingleChildScrollView(
+          content: const SingleChildScrollView(
             child: SettingsScreen(),
           ),
           actions: [
@@ -64,12 +64,17 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  void navigateToSettingPage(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => SettingsScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: KdsConst.mainColor,
       title: Text(
-        title,
+        '[Order Type: ${appSettingStateProvider.selectedOrderType} ] $title',
         style: TextStyle(
           color: KdsConst.onMainColor,
           fontWeight: FontWeight.bold,
@@ -91,7 +96,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             Icons.settings,
             color: KdsConst.onMainColor,
           ),
-          onPressed: () => showSettingsDialog(context),
+          onPressed: () => navigateToSettingPage(context),
         ),
         PopupMenuButton<String>(
           color: KdsConst.onMainColor,

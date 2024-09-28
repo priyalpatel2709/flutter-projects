@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constant/constants.dart';
@@ -116,13 +118,21 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         isAnyComplete: order.isAnyComplete,
         isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
+        isDineIn: order.isDineIn,
       );
     }).where((order) {
       // Filter by selected order type
-      if (widget.appSettingStateProvider.selectedOrderType !=
-              KdsConst.allFilter &&
-          widget.appSettingStateProvider.selectedOrderType != order.orderType) {
-        return false;
+      // if (widget.appSettingStateProvider.selectedOrderType !=
+      //         KdsConst.allFilter &&
+      //     widget.appSettingStateProvider.selectedOrderType != order.orderType) {
+      //   return false;
+      // }
+
+      if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
+        return order.orderType == KdsConst.dineIn;
+      } else if (widget.appSettingStateProvider.selectedOrderType ==
+          KdsConst.pickup) {
+        return order.orderType != KdsConst.dineIn;
       }
 
       // Filter based on the active filter

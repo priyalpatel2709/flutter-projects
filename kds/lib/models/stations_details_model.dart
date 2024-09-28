@@ -26,3 +26,17 @@ class StationsDetails {
     return data;
   }
 }
+
+class OrderTypeOption {
+  final String value;
+  final String title;
+
+  OrderTypeOption(this.value, this.title);
+}
+
+class PageOption {
+  final int index;
+  final String title;
+
+  PageOption(this.index, this.title);
+}

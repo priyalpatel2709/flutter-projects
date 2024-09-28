@@ -120,6 +120,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
               isAnyComplete: order.isAnyComplete,
               isAllComplete: order.isAllComplete,
               isNewOrder: order.isNewOrder,
+              isDineIn: order.isDineIn,
             );
           }
           return null;
@@ -132,10 +133,11 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     List<GroupedOrder> filteredByKdsId = _filterByKdsId();
 
     return filteredByKdsId.where((order) {
-      if (widget.appSettingStateProvider.selectedOrderType !=
-              KdsConst.allFilter &&
-          widget.appSettingStateProvider.selectedOrderType != order.orderType) {
-        return false;
+      if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
+        return order.orderType == KdsConst.dineIn;
+      } else if (widget.appSettingStateProvider.selectedOrderType ==
+          KdsConst.pickup) {
+        return order.orderType != KdsConst.dineIn;
       }
       switch (_activeFilter) {
         case KdsConst.defaultFilter:

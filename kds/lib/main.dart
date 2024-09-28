@@ -79,31 +79,33 @@ class _MainScreenState extends State<MainScreen> {
       builder:
           (BuildContext context, AppSettingStateProvider value, Widget? child) {
         return Scaffold(
-          body: _screens[_selectedIndex],
-          primary: true,
-          bottomNavigationBar: LayoutBuilder(
-            builder: (context, constraints) {
-              return BottomNavigationBar(
-                currentIndex: _selectedIndex,
-                onTap: _onItemTapped,
-                selectedItemColor: KdsConst.mainColor,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.view_list),
-                    label: 'Multi Station',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.business),
-                    label: 'Stations',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.done_all),
-                    label: 'Expo',
-                  )
-                ],
-              );
-            },
-          ),
+          body: _screens[value.selectedIndexPage],
+          // primary: true,
+          // bottomNavigationBar: LayoutBuilder(
+          //   builder: (context, constraints) {
+          //     return BottomNavigationBar(
+          //       currentIndex: value.selectedIndexPage,
+          //       onTap: (values) {
+          //         value.changeSelectedIndexPage(values);
+          //       },
+          //       selectedItemColor: KdsConst.mainColor,
+          //       items: const <BottomNavigationBarItem>[
+          //         BottomNavigationBarItem(
+          //           icon: Icon(Icons.view_list),
+          //           label: 'Multi Station',
+          //         ),
+          //         BottomNavigationBarItem(
+          //           icon: Icon(Icons.business),
+          //           label: 'Stations',
+          //         ),
+          //         BottomNavigationBarItem(
+          //           icon: Icon(Icons.done_all),
+          //           label: 'Expo',
+          //         )
+          //       ],
+          //     );
+          //   },
+          // ),
         );
       },
     );
