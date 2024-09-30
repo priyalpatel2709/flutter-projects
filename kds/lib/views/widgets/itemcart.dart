@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +11,7 @@ class ItemCartV2 extends StatelessWidget {
   final int? selectedKdsId;
   final double fontSize;
   final double padding;
-  final bool isExpoScree;
+  final bool isExpoScreen;
   final String selectedView;
 
   const ItemCartV2({
@@ -21,7 +20,7 @@ class ItemCartV2 extends StatelessWidget {
     this.selectedKdsId,
     required this.fontSize,
     required this.padding,
-    this.isExpoScree = false,
+    this.isExpoScreen = false,
     required this.selectedView,
   }) : super(key: key);
 
@@ -42,23 +41,26 @@ class ItemCartV2 extends StatelessWidget {
           children: [
             _buildOrderHeader(context, formattedCreatedOn),
             const SizedBox(height: 4),
-            Text(
-              items.orderNote,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-            ),
+            if (items.orderNote.isNotEmpty)
+              Text(
+                items.orderNote,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+              ),
             const Divider(),
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.items.length,
               itemBuilder: (context, index) => OrderItem(
-                  item: items.items[index],
-                  orderId: items.orderId,
-                  selectedKdsId: selectedKdsId ?? 0,
-                  fontSize: fontSize,
-                  isExpoScree: isExpoScree,
-                  padding: padding,
-                  isDineIn: items.isDineIn),
+                item: items.items[index],
+                orderId: items.orderId,
+                selectedKdsId: selectedKdsId ?? 0,
+                fontSize: fontSize,
+                isExpoScreen: isExpoScreen,
+                padding: padding,
+                isDineIn: items.isDineIn,
+              ),
             ),
           ],
         ),
@@ -84,16 +86,18 @@ class ItemCartV2 extends StatelessWidget {
                 Text(
                   items.orderType,
                   style: TextStyle(
-                      color: KdsConst.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize),
+                    color: KdsConst.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
                 ),
                 Text(
                   '#${items.orderTitle}',
                   style: TextStyle(
-                      color: KdsConst.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize),
+                    color: KdsConst.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
                 ),
               ],
             ),
@@ -104,62 +108,74 @@ class ItemCartV2 extends StatelessWidget {
                   child: Text(
                     formattedCreatedOn,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: fontSize * 0.8),
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize * 0.8,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                isExpoScree
-                    ? items.orderType != KdsConst.dineIn
-                        ? Padding(
-                            padding: EdgeInsets.all(8 + padding),
-                            child: ElevatedButton(
-                              style: _smallButtonStyle(KdsConst.green),
-                              onPressed: () {
-                                stateProvider.handleUpdateItemsInfo(
-                                  itemId: '',
-                                  storeId: KdsConst.storeId,
-                                  orderId: items.orderId,
-                                  isDone: false,
-                                  isInProgress: false,
-                                  isCompleted: false,
-                                  isReadyToPickup: true,
-                                  isDelivered: false,
-                                );
-                              },
-                              child: Text('Ready To PickUp',
-                                  style: TextStyle(
-                                      color: KdsConst.black,
-                                      fontSize: fontSize * .8)),
-                            ),
-                          )
-                        : const SizedBox()
-                    : Visibility(
-                        visible: !items.isAllDone,
-                        child: ElevatedButton(
-                          style: _smallButtonStyle(KdsConst.green),
-                          onPressed: () => stateProvider.handleUpdateItemsInfo(
-                            itemId: '',
-                            storeId: KdsConst.storeId,
-                            orderId: items.orderId,
-                            isDone: true,
-                            isInProgress: false,
-                            isCompleted: false,
-                            isReadyToPickup: false,
-                            isDelivered: false,
-                          ),
-                          child: Text(
-                            'All  Done',
-                            style: TextStyle(
-                                color: KdsConst.black, fontSize: fontSize * .5),
-                          ),
-                        ),
-                      )
+                _buildActionButton(context, stateProvider),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButton(
+      BuildContext context, OrderItemStateProvider stateProvider) {
+    if (isExpoScreen) {
+      if (items.orderType != KdsConst.dineIn && !items.isReadyToPickup) {
+        return Padding(
+          padding: EdgeInsets.all(8 + padding),
+          child: ElevatedButton(
+            style: _smallButtonStyle(KdsConst.green),
+            onPressed: () => _handleReadyToPickup(stateProvider),
+            child: Text(
+              'Ready To PickUp',
+              style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+            ),
+          ),
+        );
+      }
+    } else if (!items.isAllDone) {
+      return ElevatedButton(
+        style: _smallButtonStyle(KdsConst.green),
+        onPressed: () => _handleAllDone(stateProvider),
+        child: Text(
+          'All Done',
+          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .5),
+        ),
+      );
+    }
+    return const SizedBox();
+  }
+
+  void _handleReadyToPickup(OrderItemStateProvider stateProvider) {
+    stateProvider.handleUpdateItemsInfo(
+      itemId: '',
+      storeId: KdsConst.storeId,
+      orderId: items.orderId,
+      isDone: false,
+      isInProgress: false,
+      isCompleted: false,
+      isReadyToPickup: true,
+      isDelivered: false,
+    );
+  }
+
+  void _handleAllDone(OrderItemStateProvider stateProvider) {
+    stateProvider.handleUpdateItemsInfo(
+      itemId: '',
+      storeId: KdsConst.storeId,
+      orderId: items.orderId,
+      isDone: true,
+      isInProgress: false,
+      isCompleted: false,
+      isReadyToPickup: false,
+      isDelivered: false,
     );
   }
 
@@ -169,6 +185,8 @@ class ItemCartV2 extends StatelessWidget {
         return KdsConst.yellow;
       case KdsConst.delivery:
         return KdsConst.red;
+      case KdsConst.dineIn:
+        return KdsConst.newColor;
       default:
         return KdsConst.blue;
     }
@@ -180,7 +198,7 @@ class OrderItem extends StatelessWidget {
   final String orderId;
   final int selectedKdsId;
   final double fontSize;
-  final bool isExpoScree;
+  final bool isExpoScreen;
   final bool isDineIn;
   final double padding;
 
@@ -190,7 +208,7 @@ class OrderItem extends StatelessWidget {
     required this.orderId,
     required this.selectedKdsId,
     required this.fontSize,
-    required this.isExpoScree,
+    required this.isExpoScreen,
     required this.padding,
     required this.isDineIn,
   }) : super(key: key);
@@ -220,8 +238,9 @@ class OrderItem extends StatelessWidget {
                           child: Text(
                             '${item.itemName} (${item.kdsId})',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: fontSize * 0.8),
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize * 0.8,
+                            ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -232,19 +251,14 @@ class OrderItem extends StatelessWidget {
                       Text(
                         item.modifiers,
                         style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: fontSize * 0.8),
+                          fontStyle: FontStyle.italic,
+                          fontSize: fontSize * 0.8,
+                        ),
                       ),
                   ],
                 ),
               ),
-              _buildActionButton(
-                context,
-                itemState,
-                stateProvider,
-                isDineIn,
-                isExpoScree,
-              ),
+              _buildActionButton(context, itemState, stateProvider),
             ],
           ),
         );
@@ -252,104 +266,89 @@ class OrderItem extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, itemState,
-      OrderItemStateProvider stateProvider, bool isDineIn, bool isExpoScree) {
+  Widget _buildActionButton(BuildContext context, dynamic itemState,
+      OrderItemStateProvider stateProvider) {
     if (item.isDone) {
-      return _buildUndoButton(
-          context, itemState, stateProvider, isExpoScree, isDineIn);
+      return _buildUndoButton(context, itemState, stateProvider);
+    } else if (isExpoScreen) {
+      return _buildExpoScreenButton(itemState);
     } else {
-      return isExpoScree
-          ? item.isComplete
-              ? const Icon(Icons.check_circle, color: KdsConst.green)
-              : Text(itemState.completeButtonText,
-                  style: TextStyle(
-                      color: itemState.completeButtonColor,
-                      fontSize: fontSize * .8))
-          : item.isComplete
-              ? const Icon(Icons.check_circle, color: KdsConst.green)
-              : _buildStartProcessButton(context, itemState, stateProvider);
+      return _buildKitchenScreenButton(context, itemState, stateProvider);
     }
   }
 
-  Widget _buildCompleteButton(BuildContext context, itemState,
-      OrderItemStateProvider stateProvider, bool isDineIn) {
-    return Padding(
-      padding: EdgeInsets.all(8 + padding),
-      child: ElevatedButton(
-        style: _smallButtonStyle(KdsConst.green),
-        onPressed: () => itemState.handleCompleteProcess(
-            provider: stateProvider,
-            itemId: item.itemId,
-            storeId: KdsConst.storeId,
-            orderId: orderId,
-            isDineIn: isDineIn),
-        child: Text(isDineIn ? 'Deliver' : 'Ready To PickUp',
-            style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
-      ),
-    );
+  Widget _buildExpoScreenButton(dynamic itemState) {
+    final isCompleteState = isDineIn ? item.isDelivered : item.isReadyToPickup;
+    if (isCompleteState) {
+      return const Icon(Icons.check_circle, color: KdsConst.green);
+    } else if (item.isInprogress) {
+      return Text(
+        'In Progress',
+        style: TextStyle(color: KdsConst.orange, fontSize: fontSize * .8),
+      );
+    } else {
+      return Text(
+        itemState.completeButtonText,
+        style: TextStyle(
+            color: itemState.completeButtonColor, fontSize: fontSize * .8),
+      );
+    }
   }
 
-  Widget _buildUndoButton(BuildContext context, itemState,
-      OrderItemStateProvider stateProvider, bool isExpoScree, bool isDineIn) {
+  Widget _buildKitchenScreenButton(BuildContext context, dynamic itemState,
+      OrderItemStateProvider stateProvider) {
+    final isCompleteState = isDineIn ? item.isDelivered : item.isReadyToPickup;
+    if (isCompleteState) {
+      return const Icon(Icons.check_circle, color: KdsConst.green);
+    } else if (item.isInprogress) {
+      return ElevatedButton(
+        style: _smallButtonStyle(KdsConst.green),
+        onPressed: () => _handleInProcess(itemState, stateProvider),
+        child: Text(
+          'Complete',
+          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+        ),
+      );
+    } else {
+      return _buildStartProcessButton(context, itemState, stateProvider);
+    }
+  }
+
+  Widget _buildUndoButton(BuildContext context, dynamic itemState,
+      OrderItemStateProvider stateProvider) {
     return Row(
       children: [
         ElevatedButton(
           style: _smallButtonStyle(KdsConst.red),
-          onPressed: () {
-            itemState.handleUndoProcess(
-              provider: stateProvider,
-              itemId: item.itemId,
-              storeId: KdsConst.storeId,
-              orderId: orderId,
-            );
-            stateProvider.updateState('${item.itemId}-$orderId', itemState);
-          },
-          child: Text("Undo",
-              style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
-        ),
-        const SizedBox(
-          width: 8.0,
-        ),
-        Visibility(
-          visible: isExpoScree && isDineIn,
-          child: ElevatedButton(
-            style: _smallButtonStyle(KdsConst.green),
-            onPressed: () {
-              itemState.handleDineInDeliverProcess(
-                provider: stateProvider,
-                itemId: item.itemId,
-                storeId: KdsConst.storeId,
-                orderId: orderId,
-              );
-              stateProvider.updateState('${item.itemId}-$orderId', itemState);
-            },
-            child: Text("Deliver",
-                style:
-                    TextStyle(color: KdsConst.black, fontSize: fontSize * .8)),
+          onPressed: () => _handleUndoProcess(itemState, stateProvider),
+          child: Text(
+            "Undo",
+            style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
           ),
         ),
-        const SizedBox(
-          width: 8.0,
-        ),
+        const SizedBox(width: 8.0),
+        if (isExpoScreen && isDineIn)
+          ElevatedButton(
+            style: _smallButtonStyle(KdsConst.green),
+            onPressed: () =>
+                _handleDineInDeliverProcess(itemState, stateProvider),
+            child: Text(
+              "Deliver",
+              style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
+            ),
+          ),
+        const SizedBox(width: 8.0),
       ],
     );
   }
 
-  Widget _buildStartProcessButton(
-      BuildContext context, itemState, OrderItemStateProvider stateProvider) {
+  Widget _buildStartProcessButton(BuildContext context, dynamic itemState,
+      OrderItemStateProvider stateProvider) {
     return Padding(
       padding: EdgeInsets.all(8 + padding),
       child: ElevatedButton(
         style: _smallButtonStyle(itemState.buttonColor),
-        onPressed: () {
-          itemState.handleStartProcess(
-            provider: stateProvider,
-            itemId: item.itemId,
-            storeId: KdsConst.storeId,
-            orderId: orderId,
-          );
-          stateProvider.updateState('${item.itemId}-$orderId', itemState);
-        },
+        onPressed: () => _handleStartProcess(itemState, stateProvider),
         child: Text(
           itemState.countdown > 0
               ? 'Done (${itemState.countdown})'
@@ -359,6 +358,49 @@ class OrderItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _handleInProcess(
+      dynamic itemState, OrderItemStateProvider stateProvider) {
+    itemState.handleInProcess(
+      provider: stateProvider,
+      itemId: item.itemId,
+      storeId: KdsConst.storeId,
+      orderId: orderId,
+    );
+  }
+
+  void _handleUndoProcess(
+      dynamic itemState, OrderItemStateProvider stateProvider) {
+    itemState.handleUndoProcess(
+      provider: stateProvider,
+      itemId: item.itemId,
+      storeId: KdsConst.storeId,
+      orderId: orderId,
+    );
+    stateProvider.updateState('${item.itemId}-$orderId', itemState);
+  }
+
+  void _handleDineInDeliverProcess(
+      dynamic itemState, OrderItemStateProvider stateProvider) {
+    itemState.handleDineInDeliverProcess(
+      provider: stateProvider,
+      itemId: item.itemId,
+      storeId: KdsConst.storeId,
+      orderId: orderId,
+    );
+    stateProvider.updateState('${item.itemId}-$orderId', itemState);
+  }
+
+  void _handleStartProcess(
+      dynamic itemState, OrderItemStateProvider stateProvider) {
+    itemState.handleStartProcess(
+      provider: stateProvider,
+      itemId: item.itemId,
+      storeId: KdsConst.storeId,
+      orderId: orderId,
+    );
+    stateProvider.updateState('${item.itemId}-$orderId', itemState);
   }
 }
 

@@ -11,6 +11,7 @@ class FilteredOrdersList extends StatefulWidget {
   final int selectedKdsId;
   final bool isExpoScree;
   final AppSettingStateProvider appSettingStateProvider;
+  final String error;
 
   const FilteredOrdersList({
     Key? key,
@@ -18,6 +19,7 @@ class FilteredOrdersList extends StatefulWidget {
     required this.selectedKdsId,
     this.isExpoScree = false,
     required this.appSettingStateProvider,
+    required this.error,
   }) : super(key: key);
 
   @override
@@ -33,18 +35,25 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
             widget.appSettingStateProvider.itemsPerPage)
         .ceil();
 
-    return Column(
-      children: [
-        // SizedBox(height: 20 + widget.appSettingStateProvider.padding),
-        // _orderTypeFilterButtons(),
-        // SizedBox(height: 20 + widget.appSettingStateProvider.padding),
-        Expanded(
-          child: _buildPagedContent(),
-        ),
-        if (totalPages > 1 && widget.appSettingStateProvider.showPagination)
-          _buildPaginationControls(totalPages),
-      ],
-    );
+    return widget.error == ''
+        ? Column(
+            children: [
+              Expanded(
+                child: _buildPagedContent(),
+              ),
+              if (totalPages > 1 &&
+                  widget.appSettingStateProvider.showPagination)
+                _buildPaginationControls(totalPages),
+            ],
+          )
+        : Center(
+            child: Text(
+              widget.error,
+              style: TextStyle(
+                  color: Colors.red,
+                  fontSize: widget.appSettingStateProvider.fontSize),
+            ),
+          );
   }
 
   Widget _buildPagedContent() {
@@ -142,7 +151,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
       selectedKdsId: widget.selectedKdsId,
       fontSize: widget.appSettingStateProvider.fontSize,
       padding: widget.appSettingStateProvider.padding,
-      isExpoScree: widget.isExpoScree,
+      isExpoScreen: widget.isExpoScree,
       selectedView: widget.appSettingStateProvider.selectedView,
     );
   }

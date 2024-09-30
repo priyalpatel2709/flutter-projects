@@ -18,12 +18,16 @@ class ItemsDetails {
   bool? isComplete;
   String? doneOn;
   bool? isCancel;
-  bool? isCompleted;
+  // bool? isCompleted;
   String? completedOn;
   String? createdBy;
   String? tableName;
   String? dPartner;
   String? displayOrdertype;
+  bool? isDelivered;
+  String? deliveredOn;
+  bool? isReadyToPickup;
+  String? readyToPickupOn;
 
   ItemsDetails({
     this.id,
@@ -44,13 +48,17 @@ class ItemsDetails {
     this.isDone,
     this.doneOn,
     this.isCancel,
-    this.isCompleted,
+    // this.isCompleted,
     this.completedOn,
     this.createdBy,
     this.tableName,
     this.dPartner,
     this.displayOrdertype,
     this.isComplete,
+    this.deliveredOn,
+    this.isDelivered,
+    this.isReadyToPickup,
+    this.readyToPickupOn,
   });
 
   ItemsDetails.fromJson(Map<String, dynamic> json) {
@@ -72,13 +80,17 @@ class ItemsDetails {
     isDone = json['isDone'];
     doneOn = json['doneOn'];
     isCancel = json['isCancelled'];
-    isCompleted = json['isCompleted'];
+    // isCompleted = json['isCompleted'];
     completedOn = json['completedOn'];
     createdBy = json['createdBy'];
     tableName = json['tableName'];
     dPartner = json['deliveryPartner'];
     displayOrdertype = json['displayOrdertype'];
     isComplete = json['isCompleted'];
+    deliveredOn = json['deliveredOn'];
+    isDelivered = json['isDelivered'];
+    isReadyToPickup = json['isReadyToPickup'];
+    readyToPickupOn = json['readyToPickupOn'];
   }
 
   Map<String, dynamic> toJson() {
@@ -101,13 +113,17 @@ class ItemsDetails {
     data['isDone'] = isDone;
     data['doneOn'] = doneOn;
     data['isCancelled'] = isCancel;
-    data['isCompleted'] = isCompleted;
+    // data['isCompleted'] = isCompleted;
     data['completedOn'] = completedOn;
     data['createdBy'] = createdBy;
     data['tableName'] = tableName;
     data['deliveryPartner'] = dPartner;
     data['displayOrdertype'] = displayOrdertype;
     data['isCompleted'] = isComplete;
+    data['readyToPickupOn'] = readyToPickupOn;
+    data['isReadyToPickup'] = isReadyToPickup;
+    data['deliveredOn'] = deliveredOn;
+    data['isDelivered'] = isDelivered;
     return data;
   }
 }

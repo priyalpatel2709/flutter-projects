@@ -77,13 +77,17 @@ class _StationScreenContentState extends State<_StationScreenContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStationSelector(),
+            widget.kdsProvider.stationsError == ''
+                ? _buildStationSelector()
+                : Text(widget.kdsProvider.stationsError,
+                    style: const TextStyle(color: Colors.red, fontSize: 16)),
             const SizedBox(height: 5),
             Expanded(
               child: FilteredOrdersList(
                 filteredOrders: _getFilteredOrders(),
                 selectedKdsId: selectedKdsId ?? 0,
                 appSettingStateProvider: widget.appSettingStateProvider,
+                error: widget.kdsProvider.itemsError,
               ),
             ),
           ],
@@ -120,10 +124,16 @@ class _StationScreenContentState extends State<_StationScreenContent> {
               isAllCancel: order.isAllCancel,
               isAnyInProgress: order.isAnyInProgress,
               isAnyDone: order.isAnyDone,
-              isAnyComplete: order.isAnyComplete,
-              isAllComplete: order.isAllComplete,
+              // isAnyComplete: order.isAnyComplete,
+              // isAllComplete: order.isAllComplete,
               isNewOrder: order.isNewOrder,
               isDineIn: order.isDineIn,
+              deliveredOn: order.deliveredOn,
+              isAllDelivered: order.isAllDelivered,
+              isAnyDelivered: order.isAnyDelivered,
+              isDelivered: order.isDelivered,
+              isReadyToPickup: order.isReadyToPickup,
+              readyToPickupOn: order.readyToPickupOn,
             );
           }
           return null;
@@ -146,7 +156,9 @@ class _StationScreenContentState extends State<_StationScreenContent> {
         case KdsConst.defaultFilter:
           return order.isAnyInProgress || order.isNewOrder;
         case KdsConst.doneFilter:
-          return order.isAllDone || order.isAnyComplete;
+          return order.isAllDone ||
+              order.isAllDelivered ||
+              order.isReadyToPickup;
         case KdsConst.allFilter:
         default:
           return true;

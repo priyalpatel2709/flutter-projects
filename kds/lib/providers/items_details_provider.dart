@@ -104,11 +104,20 @@ class KDSItemsProvider with ChangeNotifier {
             isAllCancel: allCancel,
             isAnyInProgress: items.any((item) => item.isInprogress),
             isAnyDone: items.any((item) => item.isDone),
-            isAnyComplete: items.any((item) => item.isComplete),
-            isAllComplete: items.every((item) => item.isComplete),
+            // isAnyComplete: items.any((item) => item.isComplete),
+            // isAllComplete: items.every((item) => item.isComplete),
             isNewOrder: items.every((item) =>
-                !item.isInprogress && !item.isDone && !item.isComplete),
+                !item.isInprogress &&
+                !item.isDone &&
+                !item.isDelivered &&
+                !item.isReadyToPickup),
             isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
+            deliveredOn: firstOrder['deliveredOn'],
+            isAllDelivered: items.every((item) => item.isDelivered),
+            isAnyDelivered: items.any((item) => item.isDelivered),
+            isDelivered: firstOrder['isDelivered'],
+            isReadyToPickup: firstOrder['isReadyToPickup'],
+            readyToPickupOn: firstOrder['readyToPickupOn'],
           );
         }).toList();
         // log('Full Grouped Orders: ${jsonEncode(groupedOrders)}');
@@ -175,8 +184,8 @@ class KDSItemsProvider with ChangeNotifier {
       'isInprogress': isInProgress,
       'isDone': isDone,
       'IsCompleted': isCompleted,
-      'IsDelivered': isDelivered,
-      'IsReadyToPickup': isReadyToPickup
+      'isDelivered': isDelivered,
+      'isReadyToPickup': isReadyToPickup
     };
 
     try {

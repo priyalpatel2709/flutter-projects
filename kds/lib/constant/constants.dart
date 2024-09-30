@@ -46,5 +46,6 @@ class KdsConst {
   static const Color red = Color.fromARGB(255, 239, 90, 111);
   static const Color yellow = Color.fromARGB(255, 255, 166, 47);
   static const Color blue = Color.fromARGB(255, 90, 178, 255);
+  static const Color newColor = Color.fromARGB(255, 189, 90, 255);
   // static const Color red = Color.fromARGB(1, 239, 90, 111);
 }

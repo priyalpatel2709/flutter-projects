@@ -71,6 +71,7 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
           filteredOrders: _getFilteredOrders(),
           selectedKdsId: 0,
           appSettingStateProvider: widget.appSettingStateProvider,
+          error: widget.kdsProvider.itemsError,
         ),
       ),
     );
@@ -115,10 +116,16 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         isAllCancel: order.isAllCancel,
         isAnyInProgress: order.isAnyInProgress,
         isAnyDone: order.isAnyDone,
-        isAnyComplete: order.isAnyComplete,
-        isAllComplete: order.isAllComplete,
+        // isAnyComplete: order.isAnyComplete,
+        // isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
         isDineIn: order.isDineIn,
+        deliveredOn: order.deliveredOn,
+        isAllDelivered: order.isAllDelivered,
+        isAnyDelivered: order.isAnyDelivered,
+        isDelivered: order.isDelivered,
+        isReadyToPickup: order.isReadyToPickup,
+        readyToPickupOn: order.readyToPickupOn,
       );
     }).where((order) {
       // Filter by selected order type
@@ -138,11 +145,12 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
       // Filter based on the active filter
       return switch (_activeFilter) {
         KdsConst.defaultFilter => (order.isNewOrder || order.isAnyInProgress) &&
-            (order.isAnyDone == true ||
-                order.isAnyComplete == true ||
-                order.isAllInProgress == false ||
-                order.isAllComplete == false),
-        KdsConst.doneFilter => order.isAllDone || order.isAllComplete,
+            (order.isAnyDone == true || order.isDineIn
+                ? order.isAnyDelivered == true
+                : order.isReadyToPickup == false ||
+                    order.isAllInProgress == false),
+        KdsConst.doneFilter =>
+          order.isAllDone || order.isAllDelivered || order.isReadyToPickup,
         KdsConst.allFilter => true,
         _ => true,
       };

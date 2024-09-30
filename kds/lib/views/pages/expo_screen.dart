@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -89,10 +91,16 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         isAllCancel: order.isAllCancel,
         isAnyInProgress: order.isAnyInProgress,
         isAnyDone: order.isAnyDone,
-        isAnyComplete: order.isAnyComplete,
-        isAllComplete: order.isAllComplete,
+        // isAnyComplete: order.isAnyComplete,
+        // isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
         isDineIn: order.isDineIn,
+        deliveredOn: order.deliveredOn,
+        isAllDelivered: order.isAllDelivered,
+        isAnyDelivered: order.isAnyDelivered,
+        isDelivered: order.isDelivered,
+        isReadyToPickup: order.isReadyToPickup,
+        readyToPickupOn: order.readyToPickupOn,
       );
     }).where((order) {
       // Filter based on selected order type
@@ -105,8 +113,10 @@ class _ExpoViewState extends State<_ExpoViewContent> {
 
       // Apply active filter
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => !order.isAllComplete,
-        KdsConst.doneFilter => order.isAllComplete,
+        KdsConst.defaultFilter =>
+          order.isDineIn ? !order.isAllDelivered : !order.isReadyToPickup,
+        KdsConst.doneFilter =>
+          order.isDineIn ? order.isAllDelivered : order.isReadyToPickup,
         KdsConst.allFilter => true,
         _ => true
       };
@@ -132,6 +142,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
           selectedKdsId: 0,
           isExpoScree: true,
           appSettingStateProvider: widget.appSettingStateProvider,
+          error: widget.kdsProvider.itemsError,
         ),
       ),
     );

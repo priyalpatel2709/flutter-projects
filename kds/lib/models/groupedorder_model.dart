@@ -10,6 +10,10 @@ class GroupedOrder {
   final String tableName;
   String? dPartner;
   final String displayOrderType;
+  final bool isDelivered;
+  final String deliveredOn;
+  final bool isReadyToPickup;
+  final String readyToPickupOn;
   late final List<OrderItemV2> items;
 
   // New fields
@@ -18,10 +22,12 @@ class GroupedOrder {
   final bool isAnyDone;
   final bool isAllCancel;
   final bool isAnyInProgress;
-  final bool isAnyComplete;
-  final bool isAllComplete;
+  // final bool isAnyComplete;
+  // final bool isAllComplete;
   final bool isNewOrder;
   final bool isDineIn;
+  final bool isAllDelivered;
+  final bool isAnyDelivered;
 
   GroupedOrder({
     required this.id,
@@ -41,10 +47,16 @@ class GroupedOrder {
     required this.isAllCancel,
     required this.isAnyInProgress,
     required this.isAnyDone,
-    required this.isAnyComplete,
-    required this.isAllComplete,
+    // required this.isAnyComplete,
+    // required this.isAllComplete,
     required this.isNewOrder,
     required this.isDineIn,
+    required this.deliveredOn,
+    required this.isAllDelivered,
+    required this.isAnyDelivered,
+    required this.isDelivered,
+    required this.isReadyToPickup,
+    required this.readyToPickupOn,
   });
 
   factory GroupedOrder.fromJson(Map<String, dynamic> json) {
@@ -68,10 +80,16 @@ class GroupedOrder {
       isAllCancel: json['isAllCancel'],
       isAnyInProgress: json['isAnyInProgress'],
       isAnyDone: json['isAnyDone'],
-      isAnyComplete: json['isAllComplete'],
-      isAllComplete: json['isAnyComplete'],
+      // isAnyComplete: json['isAllComplete'],
+      // isAllComplete: json['isAnyComplete'],
       isNewOrder: json['isNewOrder'],
       isDineIn: json['isDineIn'],
+      deliveredOn: json['deliveredOn'],
+      isAllDelivered: json['isAllDelivered'],
+      isAnyDelivered: json['isAnyDelivered'],
+      isDelivered: json['isDelivered'],
+      isReadyToPickup: json['isReadyToPickup'],
+      readyToPickupOn: json['readyToPickupOn'],
     );
   }
 
@@ -94,8 +112,8 @@ class GroupedOrder {
       'isAllCancel': isAllCancel,
       'isAnyInProgress': isAnyInProgress,
       'isAnyDone': isAnyDone,
-      'isAllComplete': isAllComplete,
-      'isAnyComplete': isAnyComplete,
+      // 'isAllComplete': isAllComplete,
+      // 'isAnyComplete': isAnyComplete,
       'isDineIn': isDineIn,
     };
   }
@@ -109,8 +127,12 @@ class OrderItemV2 {
   final bool isInprogress;
   final bool isDone;
   final bool isCancel;
-  final bool isComplete;
+  // final bool isComplete;
   final int kdsId;
+  final bool isDelivered;
+  final String deliveredOn;
+  final bool isReadyToPickup;
+  final String readyToPickupOn;
 
   OrderItemV2({
     required this.itemId,
@@ -121,7 +143,11 @@ class OrderItemV2 {
     required this.isDone,
     required this.isCancel,
     required this.kdsId,
-    required this.isComplete,
+    // required this.isComplete,
+    required this.isDelivered,
+    required this.deliveredOn,
+    required this.isReadyToPickup,
+    required this.readyToPickupOn,
   });
 
   factory OrderItemV2.fromJson(Map<String, dynamic> json) {
@@ -134,7 +160,11 @@ class OrderItemV2 {
       isDone: json['isDone'],
       isCancel: json['isCancelled'],
       kdsId: json['kdsId'],
-      isComplete: json['isCompleted'],
+      // isComplete: json['isCompleted'],
+      isDelivered: json['isDelivered'],
+      deliveredOn: json['deliveredOn'],
+      isReadyToPickup: json['isReadyToPickup'],
+      readyToPickupOn: json['readyToPickupOn'],
     );
   }
 
@@ -148,7 +178,11 @@ class OrderItemV2 {
       'isDone': isDone,
       'isCancelled': isCancel,
       'kdsId': kdsId,
-      'isCompleted': isComplete,
+      // 'isCompleted': isComplete,
+      'readyToPickupOn': readyToPickupOn,
+      'isReadyToPickup': isReadyToPickup,
+      'deliveredOn': deliveredOn,
+      'isDelivered': isDelivered,
     };
   }
 }

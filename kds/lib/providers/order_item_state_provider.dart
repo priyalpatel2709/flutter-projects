@@ -89,9 +89,16 @@ class OrderItemState {
         isReadyToPickup: false,
         isDelivered: false,
       );
-    } else if (buttonText == 'Complete') {
-      _startCountdown(provider, itemId, storeId, orderId);
-    }
+    } else if (buttonText == 'Complete') {}
+  }
+
+  Future<void> handleInProcess({
+    required OrderItemStateProvider provider,
+    required String itemId,
+    required int storeId,
+    required String orderId,
+  }) async {
+    _startCountdown(provider, itemId, storeId, orderId);
   }
 
   Future<void> handleCompleteProcess(
