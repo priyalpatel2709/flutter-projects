@@ -74,7 +74,7 @@ class OrderItemState {
     if (buttonText == 'Start') {
       buttonText = 'Complete';
       completeButtonText = 'In Progress';
-      buttonColor = KdsConst.lightGreen;
+      buttonColor = KdsConst.green;
       completeButtonColor = KdsConst.orange;
 
       // Call the async method to update items info and wait for completion

@@ -184,11 +184,11 @@ class ItemCartV2 extends StatelessWidget {
       case KdsConst.pickup:
         return KdsConst.yellow;
       case KdsConst.delivery:
-        return KdsConst.red;
+        return KdsConst.yellow;
       case KdsConst.dineIn:
-        return KdsConst.newColor;
-      default:
         return KdsConst.blue;
+      default:
+        return KdsConst.red;
     }
   }
 }
@@ -237,7 +237,7 @@ class OrderItem extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            '${item.itemName} (${item.kdsId})',
+                            item.itemName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: fontSize * 0.8,

@@ -123,6 +123,7 @@ class SettingsScreen extends StatelessWidget {
                     'View Settings',
                     _buildViewSelection(appSettings),
                   ),
+                  // const Center(child: Text('Release Date: 30/09/2024'))
                 ],
               ),
             ),
