@@ -78,6 +78,7 @@ class SettingsScreen extends StatelessWidget {
                             divisions: 10,
                           ),
                         ),
+                        // _buildButtonStyle(appSettings),
                       ],
                     ),
                   ),
@@ -267,6 +268,26 @@ class SettingsScreen extends StatelessWidget {
         Switch(
           value: appSettings.showPagination,
           onChanged: appSettings.changeShowPagination,
+          activeColor: KdsConst.black,
+          activeTrackColor: KdsConst.mainColor,
+          inactiveThumbColor: KdsConst.onMainColor,
+          inactiveTrackColor: Colors.grey.shade400,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButtonStyle(AppSettingStateProvider appSettings) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Increment Button Size',
+          style: TextStyle(fontSize: appSettings.fontSize),
+        ),
+        Switch(
+          value: appSettings.isBigButton,
+          onChanged: appSettings.changeButtonStyle,
           activeColor: KdsConst.black,
           activeTrackColor: KdsConst.mainColor,
           inactiveThumbColor: KdsConst.onMainColor,

@@ -152,9 +152,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
           KdsConst.pickup) {
         return order.orderType != KdsConst.dineIn;
       }
+
       switch (_activeFilter) {
         case KdsConst.defaultFilter:
-          return order.isAnyInProgress || order.isNewOrder;
+          return (order.isNewOrder) && (!order.isAllDone);
         case KdsConst.doneFilter:
           return order.isAllDone ||
               order.isAllDelivered ||

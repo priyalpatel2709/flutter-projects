@@ -143,12 +143,13 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
       }
 
       // Filter based on the active filter
+      // log('order -->${order.orderTitle} ${!order.isAllDone}');
       return switch (_activeFilter) {
-        KdsConst.defaultFilter => (order.isNewOrder || order.isAnyInProgress) &&
-            (order.isAnyDone == true || order.isDineIn
-                ? order.isAnyDelivered == true
-                : order.isReadyToPickup == false ||
-                    order.isAllInProgress == false),
+        KdsConst.defaultFilter => (order.isNewOrder ||
+                order.isAnyInProgress ||
+                order.isAllInProgress ||
+                order.isAnyDone) &&
+            (!order.isAllDone),
         KdsConst.doneFilter =>
           order.isAllDone || order.isAllDelivered || order.isReadyToPickup,
         KdsConst.allFilter => true,

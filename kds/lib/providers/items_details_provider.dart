@@ -106,18 +106,18 @@ class KDSItemsProvider with ChangeNotifier {
             isAnyDone: items.any((item) => item.isDone),
             // isAnyComplete: items.any((item) => item.isComplete),
             // isAllComplete: items.every((item) => item.isComplete),
-            isNewOrder: items.every((item) =>
-                !item.isInprogress &&
-                !item.isDone &&
-                !item.isDelivered &&
-                !item.isReadyToPickup),
-            isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
+            isNewOrder: items.every((item) => !item.isInprogress &&
+                    !item.isDone &&
+                    firstOrder['ordertype'] == KdsConst.dineIn
+                ? !item.isDelivered
+                : !item.isReadyToPickup),
             deliveredOn: firstOrder['deliveredOn'],
             isAllDelivered: items.every((item) => item.isDelivered),
             isAnyDelivered: items.any((item) => item.isDelivered),
             isDelivered: firstOrder['isDelivered'],
             isReadyToPickup: firstOrder['isReadyToPickup'],
             readyToPickupOn: firstOrder['readyToPickupOn'],
+            isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
           );
         }).toList();
         // log('Full Grouped Orders: ${jsonEncode(groupedOrders)}');

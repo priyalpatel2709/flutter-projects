@@ -19,6 +19,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   static const bool defaultShowPagination = false;
   static const int defaultSelectedIndexPage = 0;
   static const int defaultSelectedStation = 1;
+  static const bool defaultIsBigButton = true;
 
   // Settings
   bool _isHorizontal = defaultIsHorizontal;
@@ -31,6 +32,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   bool _showPagination = defaultShowPagination;
   int _selectedIndexPage = defaultSelectedIndexPage;
   int _selectedStation = defaultSelectedStation;
+  bool _isBigButton = defaultIsBigButton;
 
   AppSettingStateProvider() {
     _initHive();
@@ -65,6 +67,7 @@ class AppSettingStateProvider extends ChangeNotifier {
         _box.get('selectedIndexPage', defaultValue: defaultSelectedIndexPage);
     _selectedStation =
         _box.get('selectedStation', defaultValue: defaultSelectedStation);
+    _isBigButton = _box.get('isBigButton', defaultValue: isBigButton);
   }
 
   // Getters
@@ -78,6 +81,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   bool get showPagination => _showPagination;
   int get selectedIndexPage => _selectedIndexPage;
   int get selectedStation => _selectedStation;
+  bool get isBigButton => _isBigButton;
 
   Future<void> ensureInitialized() async {
     if (!_isInitialized) {
@@ -135,6 +139,7 @@ class AppSettingStateProvider extends ChangeNotifier {
         'showPagination': _showPagination,
         'selectedIndexPage': _selectedIndexPage,
         'selectedStation': _selectedStation,
+        'isBigButton': _isBigButton,
       });
     } catch (e) {
       debugPrint('Error saving settings: $e');
@@ -176,6 +181,9 @@ class AppSettingStateProvider extends ChangeNotifier {
         case 'selectedStation':
           _selectedStation = value as int;
           break;
+        case 'isBigButton':
+          _isBigButton = value as bool;
+          break;
         default:
           throw ArgumentError('Invalid setting key: $key');
       }
@@ -205,4 +213,6 @@ class AppSettingStateProvider extends ChangeNotifier {
       updateSetting('selectedIndexPage', selectedIndexPage);
   Future<void> changeSelectedStation(int selectedStation) =>
       updateSetting('selectedStation', selectedStation);
+  Future<void> changeButtonStyle(bool buttonStyle) =>
+      updateSetting('isBigButton', buttonStyle);
 }
