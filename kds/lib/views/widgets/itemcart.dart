@@ -218,7 +218,7 @@ class OrderItem extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            item.itemName,
+                            '${item.itemName} (${item.kdsId})',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: fontSize * 0.8),

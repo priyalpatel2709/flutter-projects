@@ -18,6 +18,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   static const String defaultSelectedOrderType = KdsConst.dineIn;
   static const bool defaultShowPagination = false;
   static const int defaultSelectedIndexPage = 0;
+  static const int defaultSelectedStation = 1;
 
   // Settings
   bool _isHorizontal = defaultIsHorizontal;
@@ -29,6 +30,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   String _selectedOrderType = defaultSelectedOrderType;
   bool _showPagination = defaultShowPagination;
   int _selectedIndexPage = defaultSelectedIndexPage;
+  int _selectedStation = defaultSelectedStation;
 
   AppSettingStateProvider() {
     _initHive();
@@ -43,7 +45,7 @@ class AppSettingStateProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error initializing Hive: $e');
-      // Handle the error appropriately, maybe set default values
+      // Consider implementing a more robust error handling strategy here
     }
   }
 
@@ -61,6 +63,8 @@ class AppSettingStateProvider extends ChangeNotifier {
         _box.get('showPagination', defaultValue: defaultShowPagination);
     _selectedIndexPage =
         _box.get('selectedIndexPage', defaultValue: defaultSelectedIndexPage);
+    _selectedStation =
+        _box.get('selectedStation', defaultValue: defaultSelectedStation);
   }
 
   // Getters
@@ -73,6 +77,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   String get selectedOrderType => _selectedOrderType;
   bool get showPagination => _showPagination;
   int get selectedIndexPage => _selectedIndexPage;
+  int get selectedStation => _selectedStation;
 
   Future<void> ensureInitialized() async {
     if (!_isInitialized) {
@@ -82,17 +87,25 @@ class AppSettingStateProvider extends ChangeNotifier {
 
   Future<void> initializeSettings(BuildContext context) async {
     await ensureInitialized();
+    bool shouldNotify = false;
+
     if (!_box.containsKey('fontSize')) {
       _fontSize = _getResponsiveFontSize(context);
+      shouldNotify = true;
     }
     if (!_box.containsKey('padding')) {
       _padding = defaultPadding;
+      shouldNotify = true;
     }
     if (!_box.containsKey('crossAxisCount')) {
       _crossAxisCount = _getResponsiveCrossAxisCount(context);
+      shouldNotify = true;
     }
-    await _saveSettings();
-    notifyListeners();
+
+    if (shouldNotify) {
+      await _saveSettings();
+      notifyListeners();
+    }
   }
 
   double _getResponsiveFontSize(BuildContext context) {
@@ -121,10 +134,11 @@ class AppSettingStateProvider extends ChangeNotifier {
         'selectedOrderType': _selectedOrderType,
         'showPagination': _showPagination,
         'selectedIndexPage': _selectedIndexPage,
+        'selectedStation': _selectedStation,
       });
     } catch (e) {
       debugPrint('Error saving settings: $e');
-      // Handle the error appropriately
+      // Consider implementing a more robust error handling strategy here
     }
   }
 
@@ -159,6 +173,9 @@ class AppSettingStateProvider extends ChangeNotifier {
         case 'selectedIndexPage':
           _selectedIndexPage = value as int;
           break;
+        case 'selectedStation':
+          _selectedStation = value as int;
+          break;
         default:
           throw ArgumentError('Invalid setting key: $key');
       }
@@ -186,4 +203,6 @@ class AppSettingStateProvider extends ChangeNotifier {
       updateSetting('showPagination', showPagination);
   Future<void> changeSelectedIndexPage(int selectedIndexPage) =>
       updateSetting('selectedIndexPage', selectedIndexPage);
+  Future<void> changeSelectedStation(int selectedStation) =>
+      updateSetting('selectedStation', selectedStation);
 }

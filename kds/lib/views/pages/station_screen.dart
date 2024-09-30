@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constant/constants.dart';
@@ -45,11 +47,12 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      selectedKdsId = widget.appSettingStateProvider.selectedStation;
       if (widget.kdsProvider.stations.isNotEmpty) {
-        final firstKdsId = widget.kdsProvider.stations.first.kdsId;
-        widget.kdsProvider.updateFilters(kdsId: firstKdsId);
+        widget.kdsProvider.updateFilters(
+            kdsId: widget.appSettingStateProvider.selectedStation);
+
         setState(() {
-          selectedKdsId = firstKdsId;
           _activeFilter = widget.kdsProvider.stationFilter;
         });
       }
@@ -184,8 +187,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   }
 
   void _updateSelectedStation(int? value) {
+    widget.appSettingStateProvider.changeSelectedStation(value ?? 1);
     setState(() {
       selectedKdsId = value;
+
       _updateFilters();
     });
   }
