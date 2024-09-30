@@ -72,7 +72,7 @@ class OrderItemState {
     required String orderId,
   }) async {
     if (buttonText == 'Start') {
-      buttonText = 'Complete';
+      buttonText = 'Done';
       completeButtonText = 'In Progress';
       buttonColor = KdsConst.green;
       completeButtonColor = KdsConst.orange;
@@ -89,7 +89,9 @@ class OrderItemState {
         isReadyToPickup: false,
         isDelivered: false,
       );
-    } else if (buttonText == 'Complete') {}
+    } else if (buttonText == 'Done') {
+      _startCountdown(provider, itemId, storeId, orderId);
+    }
   }
 
   Future<void> handleInProcess({

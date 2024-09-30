@@ -106,11 +106,11 @@ class KDSItemsProvider with ChangeNotifier {
             isAnyDone: items.any((item) => item.isDone),
             // isAnyComplete: items.any((item) => item.isComplete),
             // isAllComplete: items.every((item) => item.isComplete),
-            isNewOrder: items.every((item) => !item.isInprogress &&
-                    !item.isDone &&
+            isNewOrder: items.every((item) => item.isInprogress == false &&
+                    item.isDone == false &&
                     firstOrder['ordertype'] == KdsConst.dineIn
-                ? !item.isDelivered
-                : !item.isReadyToPickup),
+                ? item.isDelivered == false
+                : item.isReadyToPickup == false),
             deliveredOn: firstOrder['deliveredOn'],
             isAllDelivered: items.every((item) => item.isDelivered),
             isAnyDelivered: items.any((item) => item.isDelivered),
@@ -183,7 +183,7 @@ class KDSItemsProvider with ChangeNotifier {
       // 'isQueue': isQueue,
       'isInprogress': isInProgress,
       'isDone': isDone,
-      'IsCompleted': isCompleted,
+      // 'isCancelled': false,
       'isDelivered': isDelivered,
       'isReadyToPickup': isReadyToPickup
     };
@@ -202,9 +202,9 @@ class KDSItemsProvider with ChangeNotifier {
         startFetching(timerInterval: 10, storeId: storeId);
         _applyFilters();
       } else {
-        log('Update failed: ${response.statusCode}');
-        _itemsError =
-            'Failed to post data. Status code: ${response.statusCode}';
+        log('Update failed: ${response.body}');
+        // _itemsError =
+        //     'Failed to post data. Status code: ${response.statusCode}';
       }
     } catch (e) {
       _itemsError = 'Error: $e';

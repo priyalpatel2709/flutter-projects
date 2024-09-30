@@ -96,7 +96,8 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
 
       // Ensure uniqueness based on itemId and itemName
       for (var item in order.items) {
-        uniqueItems.putIfAbsent('${item.itemId}_${item.itemName}', () => item);
+        uniqueItems.putIfAbsent(
+            '${item.itemId}_${item.itemName}_${order.orderId}', () => item);
       }
 
       return GroupedOrder(
@@ -116,8 +117,6 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         isAllCancel: order.isAllCancel,
         isAnyInProgress: order.isAnyInProgress,
         isAnyDone: order.isAnyDone,
-        // isAnyComplete: order.isAnyComplete,
-        // isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
         isDineIn: order.isDineIn,
         deliveredOn: order.deliveredOn,
@@ -128,23 +127,17 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         readyToPickupOn: order.readyToPickupOn,
       );
     }).where((order) {
-      // Filter by selected order type
-      // if (widget.appSettingStateProvider.selectedOrderType !=
-      //         KdsConst.allFilter &&
-      //     widget.appSettingStateProvider.selectedOrderType != order.orderType) {
-      //   return false;
-      // }
-
+      // Check order type filter
+      bool passesOrderTypeFilter = true;
       if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
-        return order.orderType == KdsConst.dineIn;
+        passesOrderTypeFilter = order.orderType == KdsConst.dineIn;
       } else if (widget.appSettingStateProvider.selectedOrderType ==
           KdsConst.pickup) {
-        return order.orderType != KdsConst.dineIn;
+        passesOrderTypeFilter = order.orderType != KdsConst.dineIn;
       }
 
-      // Filter based on the active filter
-      // log('order -->${order.orderTitle} ${!order.isAllDone}');
-      return switch (_activeFilter) {
+      // Check active filter
+      bool passesActiveFilter = switch (_activeFilter) {
         KdsConst.defaultFilter => (order.isNewOrder ||
                 order.isAnyInProgress ||
                 order.isAllInProgress ||
@@ -155,6 +148,9 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         KdsConst.allFilter => true,
         _ => true,
       };
+
+      // Return true only if both filters pass
+      return passesOrderTypeFilter && passesActiveFilter;
     }).toList();
   }
 }

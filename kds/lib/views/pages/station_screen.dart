@@ -146,24 +146,26 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     List<GroupedOrder> filteredByKdsId = _filterByKdsId();
 
     return filteredByKdsId.where((order) {
+      // Check order type filter
+      bool passesOrderTypeFilter = true;
       if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
-        return order.orderType == KdsConst.dineIn;
+        passesOrderTypeFilter = order.orderType == KdsConst.dineIn;
       } else if (widget.appSettingStateProvider.selectedOrderType ==
           KdsConst.pickup) {
-        return order.orderType != KdsConst.dineIn;
+        passesOrderTypeFilter = order.orderType != KdsConst.dineIn;
       }
 
-      switch (_activeFilter) {
-        case KdsConst.defaultFilter:
-          return (order.isNewOrder) && (!order.isAllDone);
-        case KdsConst.doneFilter:
-          return order.isAllDone ||
-              order.isAllDelivered ||
-              order.isReadyToPickup;
-        case KdsConst.allFilter:
-        default:
-          return true;
-      }
+      // Check active filter
+      bool passesActiveFilter = switch (_activeFilter) {
+        KdsConst.defaultFilter => (order.isNewOrder) && (!order.isAllDone),
+        KdsConst.doneFilter =>
+          order.isAllDone || order.isAllDelivered || order.isReadyToPickup,
+        KdsConst.allFilter => true,
+        _ => true,
+      };
+
+      // Return true only if both filters pass
+      return passesOrderTypeFilter && passesActiveFilter;
     }).toList();
   }
 

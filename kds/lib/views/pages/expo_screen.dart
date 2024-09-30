@@ -91,8 +91,6 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         isAllCancel: order.isAllCancel,
         isAnyInProgress: order.isAnyInProgress,
         isAnyDone: order.isAnyDone,
-        // isAnyComplete: order.isAnyComplete,
-        // isAllComplete: order.isAllComplete,
         isNewOrder: order.isNewOrder,
         isDineIn: order.isDineIn,
         deliveredOn: order.deliveredOn,
@@ -105,22 +103,26 @@ class _ExpoViewState extends State<_ExpoViewContent> {
     }).where((order) {
       // Filter based on selected order type
       if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
-        return order.orderType == KdsConst.dineIn;
+        return order.orderType == KdsConst.dineIn && _applyActiveFilter(order);
       } else if (widget.appSettingStateProvider.selectedOrderType ==
           KdsConst.pickup) {
-        return order.orderType != KdsConst.dineIn;
+        return order.orderType != KdsConst.dineIn && _applyActiveFilter(order);
       }
 
-      // Apply active filter
-      return switch (_activeFilter) {
-        KdsConst.defaultFilter =>
-          order.isDineIn ? !order.isAllDelivered : !order.isReadyToPickup,
-        KdsConst.doneFilter =>
-          order.isDineIn ? order.isAllDelivered : order.isReadyToPickup,
-        KdsConst.allFilter => true,
-        _ => true
-      };
+      // If no specific order type is selected, just apply the active filter
+      return _applyActiveFilter(order);
     }).toList();
+  }
+
+  bool _applyActiveFilter(GroupedOrder order) {
+    return switch (_activeFilter) {
+      KdsConst.defaultFilter =>
+        order.isDineIn ? !order.isAllDelivered : !order.isReadyToPickup,
+      KdsConst.doneFilter =>
+        order.isDineIn ? order.isAllDelivered : order.isReadyToPickup,
+      KdsConst.allFilter => true,
+      _ => true
+    };
   }
 
   @override
