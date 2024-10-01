@@ -21,3 +21,16 @@ Future<void> launchInBrowser(Uri url) async {
     throw Exception('Could not launch $url');
   }
 }
+
+Future<void> launchInBrowserV2(String urlString) async {
+  if (await canLaunch(urlString)) {
+    await launch(
+      urlString,
+      forceSafariVC: false,
+      forceWebView: false,
+      headers: <String, String>{'header_key': 'header_value'},
+    );
+  } else {
+    throw 'Could not launch $urlString';
+  }
+}

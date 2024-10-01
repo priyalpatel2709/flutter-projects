@@ -267,6 +267,9 @@ class _Chatmessage_pageState extends State<Chatmessage_page> {
                   temp: temp,
                   index: index,
                   status: chatMessage.status,
+                  onTap: () {
+                    print('test');
+                  },
                 );
               },
             ),

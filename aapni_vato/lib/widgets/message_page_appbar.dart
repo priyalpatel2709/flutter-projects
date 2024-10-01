@@ -18,7 +18,7 @@ class MessagepageAppbar extends StatelessWidget {
       required this.userName,
       required this.status,
       // required Future<void> grpInfo,
-      required this.grpInfo, 
+      required this.grpInfo,
       required this.chatId})
       : super(key: key);
 
@@ -60,10 +60,10 @@ class MessagepageAppbar extends StatelessWidget {
                 userName,
                 style: const TextStyle(fontSize: 20),
               ),
-              Text(
-                status,
-                style: const TextStyle(fontSize: 15),
-              )
+              // Text(
+              //   status,
+              //   style: const TextStyle(fontSize: 15),
+              // )
             ],
           ),
         ],

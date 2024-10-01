@@ -1,9 +1,13 @@
 import 'package:aapni_vato/widgets/todaydate.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class Message_lisiview extends StatelessWidget {
+import '../utilits/miscellaneous.dart';
+
+class Message_lisiview extends StatefulWidget {
   final VoidCallback onDeleteMes;
+  final VoidCallback onTap;
   final String content;
   final bool isGroupChat;
   final String senderName;
@@ -27,8 +31,14 @@ class Message_lisiview extends StatelessWidget {
     required this.index,
     this.temp,
     required this.status,
+    required this.onTap,
   }) : super(key: key);
 
+  @override
+  State<Message_lisiview> createState() => _Message_lisiviewState();
+}
+
+class _Message_lisiviewState extends State<Message_lisiview> {
   // Method to format time
   String formatTime(DateTime dateTime) {
     final timeFormat = DateFormat.jm('en_IN'); // Add date and time format
@@ -48,16 +58,43 @@ class Message_lisiview extends StatelessWidget {
     return formatTime(dateTime); // Output: 10:47 AM
   }
 
+  bool showFullText = false;
+
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool containsUrl = content
+    bool containsImageUrl = widget.content
         .toString()
         .contains("http://res.cloudinary.com/dtzrtlyuu/image/upload/");
+
+    bool containsUrl = widget.content.toString().contains("http");
     CrossAxisAlignment alignment;
     bool right;
     bool left;
     Color colors;
-    bool isSameSender = chatSenderId == storedUserId;
+    bool isSameSender = widget.chatSenderId == widget.storedUserId;
     if (isSameSender) {
       alignment = CrossAxisAlignment.end;
       right = true;
@@ -71,17 +108,17 @@ class Message_lisiview extends StatelessWidget {
     }
 
     // Get the date from createdAt
-    String dateOnly = getDateOnly(createdAt);
+    String dateOnly = getDateOnly(widget.createdAt);
 
     return Column(
       children: [
         Today(
-          i: index,
+          i: widget.index,
           mCreatedAtDate: dateOnly,
-          temp: temp,
+          temp: widget.temp,
         ),
         ListTile(
-          key: key,
+          // key: key,
           title: Column(
             crossAxisAlignment: alignment,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
