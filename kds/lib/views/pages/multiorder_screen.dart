@@ -57,7 +57,9 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(
-        title: 'Multi Station: $_activeFilter (${_getFilteredOrders().length})',
+        filterName: _activeFilter,
+        screenName: 'Chef Multi Station',
+        orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);

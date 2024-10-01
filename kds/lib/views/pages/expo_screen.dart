@@ -129,7 +129,9 @@ class _ExpoViewState extends State<_ExpoViewContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(
-        title: 'Expo View: $_activeFilter (${_getFilteredOrders().length})',
+        filterName: _activeFilter,
+        screenName: 'Expo View',
+        orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);

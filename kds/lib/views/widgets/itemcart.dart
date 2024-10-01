@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:provider/provider.dart';
 
 import '../../constant/constants.dart';
@@ -28,101 +28,132 @@ class ItemCartV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final createdOnDate =
-        DateTime.tryParse(items.createdOn)?.toLocal() ?? DateTime.now();
-    final formattedCreatedOn = DateFormat('hh:mm a').format(createdOnDate);
+    String convertISOtoLocal(String isoTime, String orderTitle) {
+      // Parse the ISO 8601 date string
+      DateTime dateTime = DateTime.parse(isoTime);
 
-    return Card(
-      color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
-      child: Padding(
-        padding: EdgeInsets.all(padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildOrderHeader(context, formattedCreatedOn),
-            const SizedBox(height: 4),
-            if (items.orderNote.isNotEmpty)
-              Text(
-                items.orderNote,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-              ),
-            const Divider(),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: items.items.length,
-              itemBuilder: (context, index) => OrderItem(
-                item: items.items[index],
-                orderId: items.orderId,
-                selectedKdsId: selectedKdsId ?? 0,
-                fontSize: fontSize,
-                isExpoScreen: isExpoScreen,
-                padding: padding,
-                isDineIn: items.isDineIn,
+      DateTime pstDateTime = dateTime.toUtc().toLocal();
+
+      // Format the PST date
+      String formattedDate = intl.DateFormat('hh:mm a').format(pstDateTime);
+
+      return formattedDate;
+    }
+
+    return Consumer<OrderItemStateProvider>(
+      builder:
+          (BuildContext context, OrderItemStateProvider value, Widget? child) {
+        return Padding(
+          padding: EdgeInsets.all(padding + 4),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: KdsConst.yellow_newDesign, width: .5),
+            ),
+            child: Card(
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0)),
+              child: Padding(
+                padding: EdgeInsets.all(padding + 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOrderHeader(
+                        context,
+                        convertISOtoLocal(
+                            '${items.createdOn}Z', items.orderTitle),
+                        value),
+                    const SizedBox(height: 4),
+                    if (items.orderNote.isNotEmpty)
+                      Text(
+                        items.orderNote,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: fontSize),
+                      ),
+                    const Divider(),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: items.items.length,
+                      itemBuilder: (context, index) {
+                        return OrderItem(
+                          item: items.items[index],
+                          orderId: items.orderId,
+                          selectedKdsId: selectedKdsId ?? 0,
+                          fontSize: fontSize,
+                          isExpoScreen: isExpoScreen,
+                          padding: padding,
+                          isDineIn: items.isDineIn,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildOrderHeader(BuildContext context, String formattedCreatedOn) {
-    return Consumer<OrderItemStateProvider>(
-      builder: (context, stateProvider, _) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(0.0),
-          color: _getOrderTypeColor(items.orderType),
-          border: Border.all(color: KdsConst.black, width: .5),
-        ),
-        padding: EdgeInsets.all(1 + padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  items.orderType,
+  Widget _buildOrderHeader(BuildContext context, String formattedCreatedOn,
+      OrderItemStateProvider stateProvider) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(0.0),
+        // color: _getOrderTypeColor(items.orderType),
+        gradient: LinearGradient(colors: <Color>[
+          _getOrderTypeColor(items.orderType),
+          Colors.white,
+        ]),
+        border: Border.all(color: KdsConst.black, width: .5),
+      ),
+      padding: EdgeInsets.all(1 + padding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                items.orderType,
+                style: TextStyle(
+                  color: KdsConst.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+              Text(
+                '#${items.orderTitle}',
+                style: TextStyle(
+                  color: KdsConst.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  formattedCreatedOn,
                   style: TextStyle(
-                    color: KdsConst.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                    fontSize: fontSize * 0.8,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  '#${items.orderTitle}',
-                  style: TextStyle(
-                    color: KdsConst.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Text(
-                    formattedCreatedOn,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize * 0.8,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                _buildActionButton(context, stateProvider),
-              ],
-            ),
-          ],
-        ),
+              ),
+              _buildActionButton(context, stateProvider),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -137,7 +168,7 @@ class ItemCartV2 extends StatelessWidget {
             style: _smallButtonStyle(KdsConst.green),
             onPressed: () => _handleReadyToPickup(stateProvider),
             child: Text(
-              'Ready To PickUp',
+              'Ready',
               style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
             ),
           ),
@@ -159,13 +190,15 @@ class ItemCartV2 extends StatelessWidget {
           ),
         );
       }
-    } else if (!items.isAllDone) {
+    } else if (!items.isAllDone && items.isDineIn
+        ? !items.isAllDelivered
+        : !items.isReadyToPickup) {
       return ElevatedButton(
-        style: _smallButtonStyle(KdsConst.green),
+        style: _smallButtonStyle(KdsConst.darkGreen),
         onPressed: () => _handleAllDone(stateProvider),
         child: Text(
           'All Done',
-          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .5),
+          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
         ),
       );
     }
@@ -214,13 +247,13 @@ class ItemCartV2 extends StatelessWidget {
   Color _getOrderTypeColor(String orderType) {
     switch (orderType) {
       case KdsConst.pickup:
-        return KdsConst.yellow;
+        return KdsConst.pickUpColor;
       case KdsConst.delivery:
-        return KdsConst.yellow;
+        return KdsConst.yellow_newDesign;
       case KdsConst.dineIn:
-        return KdsConst.blue;
+        return KdsConst.dineInColor;
       default:
-        return KdsConst.red;
+        return KdsConst.yellow_newDesign;
     }
   }
 }
@@ -253,7 +286,7 @@ class OrderItem extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Column(
@@ -265,7 +298,8 @@ class OrderItem extends StatelessWidget {
                         Text(
                           '${item.qty} ',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: fontSize),
+                              fontWeight: FontWeight.bold,
+                              fontSize: fontSize * 0.8),
                         ),
                         Expanded(
                           child: Text(
@@ -313,11 +347,18 @@ class OrderItem extends StatelessWidget {
   Widget _buildExpoScreenButton(dynamic itemState) {
     final isCompleteState = isDineIn ? item.isDelivered : item.isReadyToPickup;
     if (isCompleteState) {
-      return const Icon(Icons.check_circle, color: KdsConst.green);
+      return Text('Completed',
+          style: TextStyle(
+              color: KdsConst.newGreen,
+              fontSize: fontSize * .8,
+              fontWeight: FontWeight.bold));
     } else if (item.isInprogress) {
       return Text(
         'In Progress',
-        style: TextStyle(color: KdsConst.orange, fontSize: fontSize * .8),
+        style: TextStyle(
+            color: KdsConst.orange,
+            fontSize: fontSize * .8,
+            fontWeight: FontWeight.bold),
       );
     } else {
       return Text(
@@ -332,15 +373,18 @@ class OrderItem extends StatelessWidget {
       OrderItemStateProvider stateProvider) {
     final isCompleteState = isDineIn ? item.isDelivered : item.isReadyToPickup;
     if (isCompleteState) {
-      return const Icon(Icons.check_circle, color: KdsConst.green);
+      return Text('Completed',
+          style: TextStyle(
+              color: KdsConst.newGreen,
+              fontSize: fontSize * .8,
+              fontWeight: FontWeight.bold));
     } else if (item.isInprogress) {
       return ElevatedButton(
         style: _smallButtonStyle(KdsConst.green),
         onPressed: () => _handleInProcess(itemState, stateProvider),
         child: Text(
           itemState.countdown > 0 ? 'Done (${itemState.countdown})' : 'Done',
-          style:
-              TextStyle(color: KdsConst.onMainColor, fontSize: fontSize * .8),
+          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
         ),
       );
     } else {
@@ -369,7 +413,7 @@ class OrderItem extends StatelessWidget {
             onPressed: () =>
                 _handleDineInDeliverProcess(itemState, stateProvider),
             child: Text(
-              "Deliver",
+              "Serve",
               style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
             ),
           ),
@@ -389,8 +433,7 @@ class OrderItem extends StatelessWidget {
           itemState.countdown > 0
               ? 'Done (${itemState.countdown})'
               : itemState.buttonText,
-          style:
-              TextStyle(color: KdsConst.onMainColor, fontSize: fontSize * .8),
+          style: TextStyle(color: KdsConst.black, fontSize: fontSize * .8),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,6 +27,7 @@ class KDSItemsProvider with ChangeNotifier {
   List<StationsDetails> _stations = [];
   String _itemsError = '';
   String _stationsError = '';
+  String _updateItemError = '';
   Timer? _timer;
   int _selectedStation = 0;
   String _stationFilter = KdsConst.defaultFilter;
@@ -33,9 +35,6 @@ class KDSItemsProvider with ChangeNotifier {
 
   List<ItemsDetails> _filteredItems = [];
 
-  // Define an enum for filter types
-
-  // Use a map to store filter values
   final Map<FilterType, dynamic> _filters = {};
 
   // Getters
@@ -46,21 +45,22 @@ class KDSItemsProvider with ChangeNotifier {
   String get stationsError => _stationsError;
   String get stationFilter => _stationFilter;
   String get expoFilter => _expoFilter;
+  String get updateItemError => _updateItemError;
   List<ItemsDetails> get filteredItems => _filteredItems;
 
   // Fetch ItemsDetails data
   Future<void> fetchKDSItems({required int storeId}) async {
     final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId');
     if (kDebugMode) {
-      print('items calling');
+      print('Fetching KDS Items...');
     }
     try {
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
 
-        // Step 3: Group the items by orderId
+        // Group items by orderId
         Map<String, List<Map<String, dynamic>>> grouped = {};
         for (var item in data) {
           String orderId = item['orderId'];
@@ -70,7 +70,7 @@ class KDSItemsProvider with ChangeNotifier {
           grouped[orderId]!.add(item);
         }
 
-        // Step 4: Convert the grouped data to the new format
+        // Convert the grouped data to GroupedOrder
         List<GroupedOrder> groupedOrders = grouped.entries.map((entry) {
           var orderItems = entry.value;
 
@@ -79,12 +79,11 @@ class KDSItemsProvider with ChangeNotifier {
             return OrderItemV2.fromJson(item);
           }).toList();
 
-          // Check if all items have specific statuses
+          // Check statuses
           bool allInProgress = items.every((item) => item.isInprogress);
           bool allDone = items.every((item) => item.isDone);
           bool allCancel = items.every((item) => item.isCancel);
 
-          // Create the GroupedOrder
           var firstOrder = orderItems.first;
           return GroupedOrder(
             id: firstOrder['id'],
@@ -104,8 +103,6 @@ class KDSItemsProvider with ChangeNotifier {
             isAllCancel: allCancel,
             isAnyInProgress: items.any((item) => item.isInprogress),
             isAnyDone: items.any((item) => item.isDone),
-            // isAnyComplete: items.any((item) => item.isComplete),
-            // isAllComplete: items.every((item) => item.isComplete),
             isNewOrder: items.every((item) => item.isInprogress == false &&
                     item.isDone == false &&
                     firstOrder['ordertype'] == KdsConst.dineIn
@@ -120,18 +117,28 @@ class KDSItemsProvider with ChangeNotifier {
             isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
           );
         }).toList();
-        // log('Full Grouped Orders: ${jsonEncode(groupedOrders)}');
+
         _groupedItems = groupedOrders;
         _itemsError = '';
 
         // Reapply filters after fetching
         _applyFilters();
       } else {
-        _itemsError = 'Failed to load items data: ${response.statusCode}';
+        _itemsError = 'Failed to load items: ${response.statusCode}';
       }
+    } on SocketException {
+      _itemsError = 'No internet connection. Please check your connection.';
+    } on TimeoutException {
+      _itemsError = 'The request timed out. Please try again later.';
+    } on FormatException {
+      _itemsError = 'Received data is in an invalid format.';
+    } on HttpException {
+      _itemsError = 'HTTP error occurred. Please try again later.';
+    } on IOException {
+      _itemsError = 'An I/O error occurred. Please try again.';
     } catch (e) {
       log('Error fetching items: $e');
-      _itemsError = 'Error fetching items: $e';
+      _itemsError = 'An unexpected error occurred. Please try again later.';
     }
 
     notifyListeners();
@@ -142,10 +149,10 @@ class KDSItemsProvider with ChangeNotifier {
     final url =
         Uri.parse('${KdsConst.apiUrl}${KdsConst.getKDSStations}/$storeId');
     if (kDebugMode) {
-      print('KDS Stations');
+      print('Fetching KDS Stations...');
     }
     try {
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -155,8 +162,19 @@ class KDSItemsProvider with ChangeNotifier {
       } else {
         _stationsError = 'Failed to load stations data: ${response.statusCode}';
       }
+    } on SocketException {
+      _stationsError = 'No internet connection. Please check your connection.';
+    } on TimeoutException {
+      _stationsError = 'The request timed out. Please try again later.';
+    } on FormatException {
+      _stationsError = 'Received data is in an invalid format.';
+    } on HttpException {
+      _stationsError = 'HTTP error occurred. Please try again later.';
+    } on IOException {
+      _stationsError = 'An I/O error occurred. Please try again.';
     } catch (e) {
-      _stationsError = 'Error fetching stations: $e';
+      log('Error fetching stations: $e');
+      _stationsError = 'An unexpected error occurred. Please try again later.';
     }
 
     notifyListeners();
@@ -175,39 +193,50 @@ class KDSItemsProvider with ChangeNotifier {
   }) async {
     final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.updateKDSItemStatus}');
 
-    // Create the request body
     final requestBody = {
       'storeId': storeId,
       'orderId': orderId,
       'itemId': itemId,
-      // 'isQueue': isQueue,
       'isInprogress': isInProgress,
       'isDone': isDone,
-      // 'isCancelled': false,
       'isDelivered': isDelivered,
       'isReadyToPickup': isReadyToPickup
     };
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
-      log(' jsonEncode(requestBody)---${jsonEncode(requestBody)}');
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(requestBody),
+          )
+          .timeout(const Duration(seconds: 10));
+
       if (response.statusCode == 200) {
         log('Update successful: ${response.body}');
-        _itemsError = ''; // Clear any previous errors
-        // Apply filters after updating
+        _updateItemError = 'Dene'; // Clear any previous errors
         startFetching(timerInterval: 10, storeId: storeId);
         _applyFilters();
       } else {
         log('Update failed: ${response.body}');
-        // _itemsError =
-        //     'Failed to post data. Status code: ${response.statusCode}';
+        _updateItemError =
+            'Failed to update item status: ${response.statusCode}';
       }
+    } on SocketException {
+      _updateItemError =
+          'No internet connection. Please check your connection.';
+    } on TimeoutException {
+      _updateItemError = 'The request timed out. Please try again later.';
+    } on FormatException {
+      _updateItemError = 'Received data is in an invalid format.';
+    } on HttpException {
+      _updateItemError = 'HTTP error occurred. Please try again later.';
+    } on IOException {
+      _updateItemError = 'An I/O error occurred. Please try again.';
     } catch (e) {
-      _itemsError = 'Error: $e';
+      log('Error updating items: $e');
+      _updateItemError =
+          'An unexpected error occurred. Please try again later.';
     }
 
     notifyListeners();
@@ -258,8 +287,9 @@ class KDSItemsProvider with ChangeNotifier {
     if (isInProgress != null) _filters[FilterType.isInProgress] = isInProgress;
     if (isDone != null) _filters[FilterType.isDone] = isDone;
     if (isCancel != null) _filters[FilterType.isCancel] = isCancel;
-    if (orderType != null)
+    if (orderType != null) {
       _filters[FilterType.orderType] = orderType.toLowerCase();
+    }
     if (createdOn != null) _filters[FilterType.createdOn] = createdOn;
     if (kdsId != null) _filters[FilterType.kdsId] = kdsId;
 
@@ -314,6 +344,11 @@ class KDSItemsProvider with ChangeNotifier {
 
   void changeExpoFilter(String value) {
     _expoFilter = value;
+    notifyListeners();
+  }
+
+  void emptyUpdateItemError() {
+    _updateItemError = '';
     notifyListeners();
   }
 }

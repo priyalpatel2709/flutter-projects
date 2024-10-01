@@ -63,8 +63,9 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget(
-        title:
-            'Station ($selectedKdsId) : $_activeFilter (${_getFilteredOrders().length})',
+        filterName: _activeFilter,
+        screenName: 'Chef Station',
+        orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);
           widget.kdsProvider.changeExpoFilter(value);
@@ -157,7 +158,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
 
       // Check active filter
       bool passesActiveFilter = switch (_activeFilter) {
-        KdsConst.defaultFilter => (order.isNewOrder) && (!order.isAllDone),
+        KdsConst.defaultFilter => (order.isNewOrder ||
+                order.isAnyInProgress ||
+                order.isAllInProgress) ||
+            (order.isAllDone),
         KdsConst.doneFilter =>
           order.isAllDone || order.isAllDelivered || order.isReadyToPickup,
         KdsConst.allFilter => true,

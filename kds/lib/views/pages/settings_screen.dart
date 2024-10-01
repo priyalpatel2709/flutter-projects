@@ -16,19 +16,21 @@ class SettingsScreen extends StatelessWidget {
       builder: (context, appSettings, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(
+            centerTitle: true,
+            title: const Text(
               'Settings',
               style: TextStyle(
-                fontSize: appSettings.fontSize,
-                color: KdsConst.onMainColor,
+                fontSize: 22,
+                color: KdsConst.black,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            backgroundColor: KdsConst.mainColor,
+            backgroundColor: KdsConst.yellow_newDesign,
           ),
           body: SingleChildScrollView(
             child: Padding(
               padding:
-                  EdgeInsets.symmetric(horizontal: 16 + appSettings.padding),
+                  EdgeInsets.symmetric(horizontal: 8 + appSettings.padding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,27 +137,33 @@ class SettingsScreen extends StatelessWidget {
 
   // Helper method for wrapping sections in a Card-like container
   Widget _buildSectionCard(BuildContext context, String title, Widget content) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: KdsConst.yellow_newDesign, width: .5),
       ),
-      elevation: 3.0,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headline6!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: KdsConst.mainColor,
-                  ),
-            ),
-            const SizedBox(height: 10),
-            content,
-          ],
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0.0),
+        ),
+        elevation: 0.0,
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: KdsConst.black,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 10),
+              content,
+            ],
+          ),
         ),
       ),
     );
@@ -184,7 +192,7 @@ class SettingsScreen extends StatelessWidget {
           max: max,
           divisions: divisions,
           onChanged: onChanged,
-          activeColor: KdsConst.mainColor,
+          activeColor: KdsConst.yellow_newDesign,
           inactiveColor: Colors.grey.shade400,
         ),
         const SizedBox(height: 16),
@@ -204,6 +212,7 @@ class SettingsScreen extends StatelessWidget {
               value: view,
               groupValue: appSettings.selectedView,
               onChanged: (value) => appSettings.changeView(value!),
+              activeColor: KdsConst.black,
               dense: true,
             )),
         const SizedBox(height: 16),
@@ -228,7 +237,7 @@ class SettingsScreen extends StatelessWidget {
             groupValue: appSettings.selectedOrderType,
             onChanged: (value) => appSettings.changeSelectedOrderType(value!),
             dense: true,
-            activeColor: KdsConst.mainColor,
+            activeColor: KdsConst.black,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.0 + appSettings.padding,
               vertical: 4.0,
@@ -244,7 +253,7 @@ class SettingsScreen extends StatelessWidget {
             groupValue: appSettings.selectedIndexPage,
             onChanged: (value) => appSettings.changeSelectedIndexPage(value!),
             dense: true,
-            activeColor: KdsConst.mainColor,
+            activeColor: KdsConst.black,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.0 + appSettings.padding,
               vertical: 4.0,
@@ -270,7 +279,7 @@ class SettingsScreen extends StatelessWidget {
           value: appSettings.showPagination,
           onChanged: appSettings.changeShowPagination,
           activeColor: KdsConst.black,
-          activeTrackColor: KdsConst.mainColor,
+          activeTrackColor: KdsConst.yellow_newDesign,
           inactiveThumbColor: KdsConst.onMainColor,
           inactiveTrackColor: Colors.grey.shade400,
         ),

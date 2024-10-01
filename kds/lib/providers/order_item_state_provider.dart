@@ -10,6 +10,7 @@ import '../constant/constants.dart';
 class OrderItemStateProvider extends ChangeNotifier {
   final Map<String, OrderItemState> _states = {};
   final KDSItemsProvider kdsItemsProvider;
+  String _updateError = '';
 
   OrderItemStateProvider({required this.kdsItemsProvider});
 
@@ -18,11 +19,20 @@ class OrderItemStateProvider extends ChangeNotifier {
     return _states[itemId] ?? OrderItemState();
   }
 
+  void resetState(String itemId) {
+    if (_states.containsKey(itemId)) {
+      _states[itemId] = OrderItemState(); // Reset to default state
+      notifyListeners(); // Notify listeners to update the UI
+    }
+  }
+
   // Update state for a specific itemId
   void updateState(String itemId, OrderItemState state) {
     _states[itemId] = state;
     notifyListeners();
   }
+
+  String get updateError => _updateError;
 
   // Trigger `updateItemsInfo` when the countdown or process is done
   Future<void> handleUpdateItemsInfo({
@@ -46,11 +56,18 @@ class OrderItemStateProvider extends ChangeNotifier {
         isDelivered: isDelivered,
         isReadyToPickup: isReadyToPickup,
       );
+      _updateError = kdsItemsProvider.updateItemError;
+
       notifyListeners();
     } catch (e) {
       // Handle errors (e.g., show a message to the user)
       debugPrint('Failed to update item info: $e');
     }
+  }
+
+  void emptyUpdateErrorMassage() {
+    kdsItemsProvider.emptyUpdateItemError();
+    notifyListeners();
   }
 }
 
@@ -144,6 +161,8 @@ class OrderItemState {
       isReadyToPickup: false,
       isDelivered: false,
     );
+
+    provider.resetState('$itemId-$orderId');
   }
 
   Future<void> handleDineInDeliverProcess({
