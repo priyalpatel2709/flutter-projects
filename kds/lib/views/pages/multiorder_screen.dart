@@ -94,7 +94,7 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
 
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.map((order) {
-      final uniqueItems = <String, OrderItemV2>{};
+      final uniqueItems = <String, OrderItemModel>{};
 
       // Ensure uniqueness based on itemId and itemName
       for (var item in order.items) {

@@ -146,7 +146,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
   }
 
   Widget _buildItemCart(GroupedOrder order) {
-    return ItemCartV2(
+    return ItemCart(
       items: order,
       selectedKdsId: widget.selectedKdsId,
       fontSize: widget.appSettingStateProvider.fontSize,

@@ -75,8 +75,8 @@ class KDSItemsProvider with ChangeNotifier {
           var orderItems = entry.value;
 
           // Create the list of OrderItemV2
-          List<OrderItemV2> items = orderItems.map((item) {
-            return OrderItemV2.fromJson(item);
+          List<OrderItemModel> items = orderItems.map((item) {
+            return OrderItemModel.fromJson(item);
           }).toList();
 
           // Check statuses

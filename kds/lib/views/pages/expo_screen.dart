@@ -69,7 +69,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.map((order) {
       // Map items by unique id and name combination
-      final uniqueItems = <String, OrderItemV2>{};
+      final uniqueItems = <String, OrderItemModel>{};
       for (var item in order.items) {
         uniqueItems['${item.itemId}_${item.itemName}'] = item;
       }

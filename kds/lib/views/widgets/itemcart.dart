@@ -8,7 +8,7 @@ import '../../constant/constants.dart';
 import '../../models/groupedorder_model.dart';
 import '../../providers/order_item_state_provider.dart';
 
-class ItemCartV2 extends StatelessWidget {
+class ItemCart extends StatelessWidget {
   final GroupedOrder items;
   final int? selectedKdsId;
   final double fontSize;
@@ -16,7 +16,7 @@ class ItemCartV2 extends StatelessWidget {
   final bool isExpoScreen;
   final String selectedView;
 
-  const ItemCartV2({
+  const ItemCart({
     Key? key,
     required this.items,
     this.selectedKdsId,
@@ -259,7 +259,7 @@ class ItemCartV2 extends StatelessWidget {
 }
 
 class OrderItem extends StatelessWidget {
-  final OrderItemV2 item;
+  final OrderItemModel item;
   final String orderId;
   final int selectedKdsId;
   final double fontSize;
