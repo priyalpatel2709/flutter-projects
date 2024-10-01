@@ -25,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            backgroundColor: KdsConst.yellow_newDesign,
+            backgroundColor: KdsConst.mainColor,
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -139,7 +139,7 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildSectionCard(BuildContext context, String title, Widget content) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: KdsConst.yellow_newDesign, width: .5),
+        border: Border.all(color: KdsConst.mainColor, width: .5),
       ),
       child: Card(
         shape: RoundedRectangleBorder(
@@ -192,8 +192,8 @@ class SettingsScreen extends StatelessWidget {
           max: max,
           divisions: divisions,
           onChanged: onChanged,
-          activeColor: KdsConst.yellow_newDesign,
-          inactiveColor: Colors.grey.shade400,
+          activeColor: KdsConst.mainColor,
+          inactiveColor: KdsConst.grey,
         ),
         const SizedBox(height: 16),
       ],
@@ -279,9 +279,9 @@ class SettingsScreen extends StatelessWidget {
           value: appSettings.showPagination,
           onChanged: appSettings.changeShowPagination,
           activeColor: KdsConst.black,
-          activeTrackColor: KdsConst.yellow_newDesign,
-          inactiveThumbColor: KdsConst.onMainColor,
-          inactiveTrackColor: Colors.grey.shade400,
+          activeTrackColor: KdsConst.mainColor,
+          inactiveThumbColor: KdsConst.white,
+          inactiveTrackColor: KdsConst.grey,
         ),
       ],
     );
@@ -300,8 +300,8 @@ class SettingsScreen extends StatelessWidget {
           onChanged: appSettings.changeButtonStyle,
           activeColor: KdsConst.black,
           activeTrackColor: KdsConst.mainColor,
-          inactiveThumbColor: KdsConst.onMainColor,
-          inactiveTrackColor: Colors.grey.shade400,
+          inactiveThumbColor: KdsConst.white,
+          inactiveTrackColor: KdsConst.grey,
         ),
       ],
     );

@@ -46,10 +46,10 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
   @override
   void initState() {
     super.initState();
-    widget.kdsProvider.startFetching(
-      timerInterval: KdsConst.timerInterval,
-      storeId: KdsConst.storeId,
-    );
+    // widget.kdsProvider.startFetching(
+    //   timerInterval: KdsConst.timerInterval,
+    //   storeId: KdsConst.storeId,
+    // );
     _activeFilter = widget.kdsProvider.expoFilter;
   }
 

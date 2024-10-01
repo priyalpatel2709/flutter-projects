@@ -29,7 +29,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: KdsConst.yellow_newDesign,
+      backgroundColor: KdsConst.mainColor,
       elevation: 0,
       toolbarHeight: 100,
       leadingWidth: 0,
@@ -104,7 +104,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   tooltip: 'Settings',
                 ),
                 PopupMenuButton<String>(
-                  color: KdsConst.onMainColor,
+                  color: KdsConst.white,
                   icon:
                       const Icon(Icons.filter_list_alt, color: KdsConst.black),
                   tooltip: 'Filter',

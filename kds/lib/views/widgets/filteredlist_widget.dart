@@ -50,7 +50,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
             child: Text(
               widget.error,
               style: TextStyle(
-                  color: Colors.red,
+                  color: KdsConst.red,
                   fontSize: widget.appSettingStateProvider.fontSize),
             ),
           );

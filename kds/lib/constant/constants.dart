@@ -13,19 +13,13 @@ class KdsConst {
   static const String getKDSItems = 'GetKDSItemsdetails';
   static const String updateKDSItemStatus = 'UpdateKDSItemstatus';
 
-  static const int timerInterval = 20;
+  static const int timerInterval = 10;
   static const int storeId = 1;
 
   //filters values
   static const String defaultFilter = 'In Progress';
   static const String doneFilter = 'Done';
   static const String allFilter = 'All';
-
-  //colors
-  static const Color mainColor = Color.fromARGB(255, 57, 169, 219);
-  static const Color onMainColor = Color.fromARGB(255, 255, 255, 255);
-  static const Color black = Color.fromARGB(255, 0, 0, 0);
-  static const Color tryColor = Color(0xfff3b33e);
 
   //order type
   static const String pickup = 'Pickup';
@@ -39,20 +33,24 @@ class KdsConst {
   static const String fixedGrid = 'Fixed Grid';
 
   //new Colors
-  static const Color grey = Color.fromARGB(255, 148, 181, 199);
-  static const Color orange = Color.fromARGB(255, 255, 131, 67);
-  static const Color lightGreen = Color.fromARGB(255, 190, 198, 160);
-  static const Color green = Color.fromARGB(255, 127, 165, 153);
-  static const Color red = Color.fromARGB(255, 239, 90, 111);
-  static const Color yellow = Color.fromARGB(255, 255, 166, 47);
-  static const Color blue = Color.fromARGB(255, 57, 169, 219);
-  static const Color newColor = Color.fromARGB(255, 189, 90, 255);
-  static const Color darkGreen = Color.fromARGB(255, 133, 230, 197);
-  static const Color newGreen = Color.fromARGB(255, 79, 175, 80);
-  // static const Color red = Color.fromARGB(1, 239, 90, 111);
 
-  static const Color yellow_newDesign = Color.fromARGB(213, 243, 180, 62);
+  static const Color mainColor = Color.fromARGB(213, 243, 180, 62);
 
+  static const Color white = Color.fromARGB(255, 255, 255, 255);
+  static const Color black = Color.fromARGB(255, 0, 0, 0);
+
+  //Button Colors
+  static const Color red = Color.fromARGB(255, 239, 90, 111); //Undo
+  static const Color darkGreen = Color.fromARGB(255, 133, 230, 197); // All Done
+  static const Color grey = Color.fromARGB(255, 148, 181, 199); //Start
+  static const Color green = Color.fromARGB(255, 127, 165, 153); //complete state 
+
+  //Label Text Colors
+  static const Color orange = Color.fromARGB(255, 255, 131, 67); // In Progress
+  static const Color completedTextGreen =
+      Color.fromARGB(255, 79, 175, 80); //Completed
+      
+  //Order Type Colors
   static const Color dineInColor = Color.fromARGB(255, 182, 207, 182);
   static const Color pickUpColor = Color.fromARGB(255, 255, 175, 165);
   static const Color deliveryColor = Color.fromARGB(255, 212, 240, 240);

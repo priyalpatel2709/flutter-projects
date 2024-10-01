@@ -81,7 +81,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
             widget.kdsProvider.stationsError == ''
                 ? _buildStationSelector()
                 : Text(widget.kdsProvider.stationsError,
-                    style: const TextStyle(color: Colors.red, fontSize: 16)),
+                    style: const TextStyle(color: KdsConst.red, fontSize: 16)),
             const SizedBox(height: 5),
             Expanded(
               child: FilteredOrdersList(

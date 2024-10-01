@@ -214,8 +214,9 @@ class KDSItemsProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         log('Update successful: ${response.body}');
-        _updateItemError = 'Dene'; // Clear any previous errors
-        startFetching(timerInterval: 10, storeId: storeId);
+        _updateItemError = ''; // Clear any previous errors
+        // startFetching(timerInterval: 10, storeId: storeId);
+        fetchKDSItems(storeId: storeId);
         _applyFilters();
       } else {
         log('Update failed: ${response.body}');
@@ -247,13 +248,13 @@ class KDSItemsProvider with ChangeNotifier {
     _timer = Timer.periodic(Duration(seconds: timerInterval), (timer) async {
       await Future.wait([
         fetchKDSItems(storeId: storeId),
-        fetchKDSStations(storeId: storeId),
+        // fetchKDSStations(storeId: storeId),
       ]);
     });
 
     // Fetch immediately
     fetchKDSItems(storeId: storeId);
-    fetchKDSStations(storeId: storeId);
+    // fetchKDSStations(storeId: storeId);
   }
 
   // Stop fetching and cancel the timer

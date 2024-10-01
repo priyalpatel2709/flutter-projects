@@ -47,7 +47,7 @@ class ItemCartV2 extends StatelessWidget {
           padding: EdgeInsets.all(padding + 4),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: KdsConst.yellow_newDesign, width: .5),
+              border: Border.all(color: KdsConst.mainColor, width: .5),
             ),
             child: Card(
               color: Colors.white,
@@ -249,11 +249,11 @@ class ItemCartV2 extends StatelessWidget {
       case KdsConst.pickup:
         return KdsConst.pickUpColor;
       case KdsConst.delivery:
-        return KdsConst.yellow_newDesign;
+        return KdsConst.mainColor;
       case KdsConst.dineIn:
         return KdsConst.dineInColor;
       default:
-        return KdsConst.yellow_newDesign;
+        return KdsConst.mainColor;
     }
   }
 }
@@ -349,7 +349,7 @@ class OrderItem extends StatelessWidget {
     if (isCompleteState) {
       return Text('Completed',
           style: TextStyle(
-              color: KdsConst.newGreen,
+              color: KdsConst.completedTextGreen,
               fontSize: fontSize * .8,
               fontWeight: FontWeight.bold));
     } else if (item.isInprogress) {
@@ -375,7 +375,7 @@ class OrderItem extends StatelessWidget {
     if (isCompleteState) {
       return Text('Completed',
           style: TextStyle(
-              color: KdsConst.newGreen,
+              color: KdsConst.completedTextGreen,
               fontSize: fontSize * .8,
               fontWeight: FontWeight.bold));
     } else if (item.isInprogress) {
