@@ -130,7 +130,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
     return Scaffold(
       appBar: AppBarWidget(
         filterName: _activeFilter,
-        screenName: 'Expo View',
+        screenName: KdsConst.expoScreen,
         orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);

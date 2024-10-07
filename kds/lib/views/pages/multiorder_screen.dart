@@ -58,7 +58,7 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
     return Scaffold(
       appBar: AppBarWidget(
         filterName: _activeFilter,
-        screenName: 'Chef Multi Station',
+        screenName: KdsConst.multiStationScreen,
         orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);

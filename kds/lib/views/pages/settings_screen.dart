@@ -66,6 +66,14 @@ class SettingsScreen extends StatelessWidget {
                           appSettings,
                           divisions: 7,
                         ),
+                        _buildSliderSetting(
+                          'App Bar Logo Size',
+                          appSettings.appBarLogoSize,
+                          60.0,
+                          100.0,
+                          appSettings.changeAppBarLogoSize,
+                          appSettings,
+                        ),
                         _buildPaginationToggle(appSettings),
                         Visibility(
                           visible: appSettings.showPagination,
@@ -111,9 +119,9 @@ class SettingsScreen extends StatelessWidget {
                         _buildRadioGroup(
                           appSettings,
                           pageOptions: [
-                            PageOption(0, 'Multi Station'),
-                            PageOption(1, 'Single Station'),
-                            PageOption(2, 'Expo Screen'),
+                            PageOption(0, KdsConst.multiStationScreen),
+                            PageOption(1, KdsConst.singleStationScreen),
+                            PageOption(2, KdsConst.expoScreen),
                           ],
                         ),
                       ],

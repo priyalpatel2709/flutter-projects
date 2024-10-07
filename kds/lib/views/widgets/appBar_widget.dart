@@ -33,89 +33,109 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       toolbarHeight: 100,
       leadingWidth: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  appSettingStateProvider.selectedOrderType,
-                  style: TextStyle(
-                    color: KdsConst.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: appSettingStateProvider.fontSize,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  screenName,
-                  style: TextStyle(
-                    color: KdsConst.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: appSettingStateProvider.fontSize - 2,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      '$filterName - ',
-                      style: TextStyle(
-                        color: KdsConst.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: appSettingStateProvider.fontSize - 2,
-                      ),
-                    ),
-                    Text(
-                      orderLength.toString(),
-                      style: TextStyle(
-                        color: KdsConst.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: appSettingStateProvider.fontSize - 4,
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Image.asset(
-                'assets/images/honest-logo.png',
-                height: 50,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.settings, color: KdsConst.black),
-                  onPressed: () => navigateToSettingPage(context),
-                  tooltip: 'Settings',
-                ),
-                PopupMenuButton<String>(
-                  color: KdsConst.white,
-                  icon:
-                      const Icon(Icons.filter_list_alt, color: KdsConst.black),
-                  tooltip: 'Filter',
-                  onSelected: onFilterSelected,
-                  itemBuilder: (context) => buildFilterMenu,
-                ),
-              ],
-            ),
-          ),
-        ],
+      centerTitle: true,
+      title: Image.asset(
+        'assets/images/honest-logo.png',
+        height: appSettingStateProvider.appBarLogoSize,
+        fit: BoxFit.contain,
       ),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //   children: [
+      // Expanded(
+      //   flex: 1,
+      //   child: Column(
+      //     crossAxisAlignment: CrossAxisAlignment.start,
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       Text(
+      //         appSettingStateProvider.selectedOrderType,
+      //         style: TextStyle(
+      //           color: KdsConst.black,
+      //           fontWeight: FontWeight.bold,
+      //           fontSize: appSettingStateProvider.fontSize,
+      //         ),
+      //       ),
+      //       const SizedBox(height: 4),
+      //       Text(
+      //         screenName,
+      //         style: TextStyle(
+      //           color: KdsConst.black,
+      //           fontWeight: FontWeight.w600,
+      //           fontSize: appSettingStateProvider.fontSize - 2,
+      //         ),
+      //       ),
+      //       const SizedBox(height: 4),
+      //       Row(
+      //         children: [
+      //           Text(
+      //             '$filterName - ',
+      //             style: TextStyle(
+      //               color: KdsConst.black,
+      //               fontWeight: FontWeight.w500,
+      //               fontSize: appSettingStateProvider.fontSize - 2,
+      //             ),
+      //           ),
+      //           Text(
+      //             orderLength.toString(),
+      //             style: TextStyle(
+      //               color: KdsConst.black,
+      //               fontWeight: FontWeight.bold,
+      //               fontSize: appSettingStateProvider.fontSize - 4,
+      //             ),
+      //           ),
+      //         ],
+      //       )
+      //     ],
+      //   ),
+      // ),
+      // Expanded(
+      //   flex: 2,
+      //   child: Center(
+      //     child: Image.asset(
+      //       'assets/images/honest-logo.png',
+      //       height: 80,
+      //       fit: BoxFit.contain,
+      //     ),
+      //   ),
+      // ),
+      // Expanded(
+      //   flex: 1,
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.end,
+      //     children: [
+      //       IconButton(
+      //         icon: const Icon(Icons.settings, color: KdsConst.black),
+      //         onPressed: () => navigateToSettingPage(context),
+      //         tooltip: 'Settings',
+      //       ),
+      //       PopupMenuButton<String>(
+      //         color: KdsConst.white,
+      //         icon:
+      //             const Icon(Icons.filter_list_alt, color: KdsConst.black),
+      //         tooltip: 'Filter',
+      //         onSelected: onFilterSelected,
+      //         itemBuilder: (context) => buildFilterMenu,
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      //   ],
+      // ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings, color: KdsConst.black),
+          onPressed: () => navigateToSettingPage(context),
+          tooltip: 'Settings',
+        ),
+        PopupMenuButton<String>(
+          color: KdsConst.white,
+          icon: const Icon(Icons.filter_list_alt, color: KdsConst.black),
+          tooltip: 'Filter',
+          onSelected: onFilterSelected,
+          itemBuilder: (context) => buildFilterMenu,
+        ),
+      ],
     );
   }
 

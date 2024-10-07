@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,18 +11,19 @@ import '../models/groupedorder_model.dart';
 import '../models/iItems_details_model.dart';
 import '../models/stations_details_model.dart';
 
-enum FilterType {
-  isQueue,
-  isInProgress,
-  isDone,
-  isCancel,
-  orderType,
-  createdOn,
-  kdsId,
-  isCompleted
-}
+// enum FilterType {
+//   isQueue,
+//   isInProgress,
+//   isDone,
+//   isCancel,
+//   orderType,
+//   createdOn,
+//   kdsId,
+//   isCompleted
+// }
 
 class KDSItemsProvider with ChangeNotifier {
+  // KDSItemsProvider();
   List<ItemsDetails> _items = [];
   List<GroupedOrder> _groupedItems = [];
   List<StationsDetails> _stations = [];
@@ -35,7 +37,7 @@ class KDSItemsProvider with ChangeNotifier {
 
   List<ItemsDetails> _filteredItems = [];
 
-  final Map<FilterType, dynamic> _filters = {};
+  // final Map<FilterType, dynamic> _filters = {};
 
   // Getters
   List<ItemsDetails> get items => _items;
@@ -48,17 +50,43 @@ class KDSItemsProvider with ChangeNotifier {
   String get updateItemError => _updateItemError;
   List<ItemsDetails> get filteredItems => _filteredItems;
 
+  late StreamSubscription<List<GroupedOrder>> itemSubscription;
+  StreamController<List<GroupedOrder>>? itemListStream;
+
+  void test() {
+    itemListStream = StreamController<List<GroupedOrder>>.broadcast();
+    itemSubscription =
+        itemListStream!.stream.listen((List<GroupedOrder> resource) {
+      log('resource==>Does me');
+      // updateOffset(resource.data!.length);
+      // print(resource.data!.length);
+      _groupedItems = resource;
+
+      // if (resource.status != PsStatus.BLOCK_LOADING &&
+      //     resource.status != PsStatus.PROGRESS_LOADING) {
+      //   isLoading = false;
+      // }
+
+      // if (!isDispose) {
+      notifyListeners();
+      // }
+    });
+  }
+
   // Fetch ItemsDetails data
   Future<void> fetchKDSItems({required int storeId}) async {
-    final url = Uri.parse('${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId');
+    final String url = '${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId';
+
     if (kDebugMode) {
       print('Fetching KDS Items...');
     }
+
     try {
-      final response = await http.get(url).timeout(const Duration(seconds: 10));
+      Dio dio = Dio();
+      final response = await dio.get(url);
 
       if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
+        List<dynamic> data = response.data;
 
         // Group items by orderId
         Map<String, List<Map<String, dynamic>>> grouped = {};
@@ -80,7 +108,7 @@ class KDSItemsProvider with ChangeNotifier {
           }).toList();
 
           // Check statuses
-          bool allInProgress = items.every((item) => item.isInprogress);
+          bool allInProgress = items.every((item) => item.isInProgress);
           bool allDone = items.every((item) => item.isDone);
           bool allCancel = items.every((item) => item.isCancel);
 
@@ -101,9 +129,9 @@ class KDSItemsProvider with ChangeNotifier {
             isAllInProgress: allInProgress,
             isAllDone: allDone,
             isAllCancel: allCancel,
-            isAnyInProgress: items.any((item) => item.isInprogress),
+            isAnyInProgress: items.any((item) => item.isInProgress),
             isAnyDone: items.any((item) => item.isDone),
-            isNewOrder: items.every((item) => item.isInprogress == false &&
+            isNewOrder: items.every((item) => item.isInProgress == false &&
                     item.isDone == false &&
                     firstOrder['ordertype'] == KdsConst.dineIn
                 ? item.isDelivered == false
@@ -119,23 +147,25 @@ class KDSItemsProvider with ChangeNotifier {
         }).toList();
 
         _groupedItems = groupedOrders;
+        itemListStream?.add(groupedOrders);
         _itemsError = '';
 
         // Reapply filters after fetching
-        _applyFilters();
+        // _applyFilters();
       } else {
         _itemsError = 'Failed to load items: ${response.statusCode}';
       }
-    } on SocketException {
-      _itemsError = 'No internet connection. Please check your connection.';
-    } on TimeoutException {
-      _itemsError = 'The request timed out. Please try again later.';
-    } on FormatException {
-      _itemsError = 'Received data is in an invalid format.';
-    } on HttpException {
-      _itemsError = 'HTTP error occurred. Please try again later.';
-    } on IOException {
-      _itemsError = 'An I/O error occurred. Please try again.';
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        _itemsError = 'The request timed out. Please try again later.';
+      } else if (e.type == DioExceptionType.unknown ||
+          e.error is SocketException) {
+        _itemsError = 'No internet connection. Please check your connection.';
+      } else if (e.type == DioExceptionType.badResponse) {
+        _itemsError = 'Failed to load items: ${e.response?.statusCode}';
+      } else {
+        _itemsError = 'An unexpected error occurred: ${e.message}';
+      }
     } catch (e) {
       log('Error fetching items: $e');
       _itemsError = 'An unexpected error occurred. Please try again later.';
@@ -152,7 +182,7 @@ class KDSItemsProvider with ChangeNotifier {
       print('Fetching KDS Stations...');
     }
     try {
-      final response = await http.get(url).timeout(const Duration(seconds: 10));
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -204,20 +234,19 @@ class KDSItemsProvider with ChangeNotifier {
     };
 
     try {
-      final response = await http
-          .post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(requestBody),
-          )
-          .timeout(const Duration(seconds: 10));
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
 
       if (response.statusCode == 200) {
         log('Update successful: ${response.body}');
+        await fetchKDSItems(storeId: storeId);
         _updateItemError = ''; // Clear any previous errors
         // startFetching(timerInterval: 10, storeId: storeId);
-        fetchKDSItems(storeId: storeId);
-        _applyFilters();
+
+        // _applyFilters();
       } else {
         log('Update failed: ${response.body}');
         _updateItemError =
@@ -271,77 +300,49 @@ class KDSItemsProvider with ChangeNotifier {
   // Set selected station and reapply filter
   void setSelectedStation(int index) {
     _selectedStation = index;
-    updateFilters(kdsId: _stations[index].kdsId);
+    // updateFilters(kdsId: _stations[index].kdsId);
   }
 
   // Update filter criteria and apply filters
-  void updateFilters({
-    bool? isQueue,
-    bool? isInProgress,
-    bool? isDone,
-    bool? isCancel,
-    String? orderType,
-    DateTime? createdOn,
-    int? kdsId,
-  }) {
-    if (isQueue != null) _filters[FilterType.isQueue] = isQueue;
-    if (isInProgress != null) _filters[FilterType.isInProgress] = isInProgress;
-    if (isDone != null) _filters[FilterType.isDone] = isDone;
-    if (isCancel != null) _filters[FilterType.isCancel] = isCancel;
-    if (orderType != null) {
-      _filters[FilterType.orderType] = orderType.toLowerCase();
-    }
-    if (createdOn != null) _filters[FilterType.createdOn] = createdOn;
-    if (kdsId != null) _filters[FilterType.kdsId] = kdsId;
+  // void updateFilters({
+  //   bool? isQueue,
+  //   bool? isInProgress,
+  //   bool? isDone,
+  //   bool? isCancel,
+  //   String? orderType,
+  //   DateTime? createdOn,
+  //   int? kdsId,
+  // }) {
+  //   if (isQueue != null) _filters[FilterType.isQueue] = isQueue;
+  //   if (isInProgress != null) _filters[FilterType.isInProgress] = isInProgress;
+  //   if (isDone != null) _filters[FilterType.isDone] = isDone;
+  //   if (isCancel != null) _filters[FilterType.isCancel] = isCancel;
+  //   if (orderType != null) {
+  //     _filters[FilterType.orderType] = orderType.toLowerCase();
+  //   }
+  //   if (createdOn != null) _filters[FilterType.createdOn] = createdOn;
+  //   if (kdsId != null) _filters[FilterType.kdsId] = kdsId;
 
-    _applyFilters();
-  }
-
-  // Apply filters to create the filtered list based on current criteria
-  void _applyFilters() {
-    _filteredItems = _items.where((item) {
-      return _filters.entries.every((filter) {
-        switch (filter.key) {
-          case FilterType.isQueue:
-            return item.isQueue == filter.value;
-          case FilterType.isInProgress:
-            return item.isInprogress == filter.value;
-          case FilterType.isDone:
-            return item.isDone == filter.value;
-          case FilterType.isCancel:
-            return item.isCancel == filter.value;
-          case FilterType.orderType:
-            return item.ordertype?.toLowerCase() == filter.value;
-          case FilterType.createdOn:
-            return item.createdOn == filter.value.toString();
-          case FilterType.kdsId:
-            return item.kdsId == filter.value;
-          case FilterType.isCompleted:
-            return item.isComplete == filter.value;
-        }
-      });
-    }).toList();
-
-    notifyListeners();
-  }
+  //   // _applyFilters();
+  // }
 
   // Method to clear all filters
-  void clearFilters() {
-    _filters.clear();
-    _applyFilters();
-  }
+  // void clearFilters() {
+  //   _filters.clear();
+  //   // _applyFilters();
+  // }
 
   // Method to remove a specific filter
-  void removeFilter(FilterType filterType) {
-    _filters.remove(filterType);
-    _applyFilters();
-  }
+  // void removeFilter(FilterType filterType) {
+  //   _filters.remove(filterType);
+  //   // _applyFilters();
+  // }
 
   // Method to add a new filter
-  void changeStationFilter(String value) {
-    _stationFilter = value;
-    notifyListeners();
-  }
+  // void changeStationFilter(String value) {
+  //   _stationFilter = value;
+  //   notifyListeners();
+  // }
 
   void changeExpoFilter(String value) {
     _expoFilter = value;

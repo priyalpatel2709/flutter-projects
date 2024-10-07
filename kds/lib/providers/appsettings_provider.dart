@@ -20,6 +20,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   static const int defaultSelectedIndexPage = 0;
   static const int defaultSelectedStation = 1;
   static const bool defaultIsBigButton = true;
+  static const double defaultAppBarLogoSize = 80;
 
   // Settings
   bool _isHorizontal = defaultIsHorizontal;
@@ -33,6 +34,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int _selectedIndexPage = defaultSelectedIndexPage;
   int _selectedStation = defaultSelectedStation;
   bool _isBigButton = defaultIsBigButton;
+  double _appBarLogoSize = defaultAppBarLogoSize;
 
   AppSettingStateProvider() {
     _initHive();
@@ -68,6 +70,8 @@ class AppSettingStateProvider extends ChangeNotifier {
     _selectedStation =
         _box.get('selectedStation', defaultValue: defaultSelectedStation);
     _isBigButton = _box.get('isBigButton', defaultValue: isBigButton);
+    _appBarLogoSize =
+        _box.get('appBarLogoSize', defaultValue: defaultAppBarLogoSize);
   }
 
   // Getters
@@ -82,6 +86,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int get selectedIndexPage => _selectedIndexPage;
   int get selectedStation => _selectedStation;
   bool get isBigButton => _isBigButton;
+  double get appBarLogoSize => _appBarLogoSize;
 
   Future<void> ensureInitialized() async {
     if (!_isInitialized) {
@@ -140,6 +145,7 @@ class AppSettingStateProvider extends ChangeNotifier {
         'selectedIndexPage': _selectedIndexPage,
         'selectedStation': _selectedStation,
         'isBigButton': _isBigButton,
+        'appBarLogoSize': _appBarLogoSize,
       });
     } catch (e) {
       debugPrint('Error saving settings: $e');
@@ -184,6 +190,9 @@ class AppSettingStateProvider extends ChangeNotifier {
         case 'isBigButton':
           _isBigButton = value as bool;
           break;
+        case 'appBarLogoSize':
+          _appBarLogoSize = value as double;
+          break;
         default:
           throw ArgumentError('Invalid setting key: $key');
       }
@@ -215,4 +224,6 @@ class AppSettingStateProvider extends ChangeNotifier {
       updateSetting('selectedStation', selectedStation);
   Future<void> changeButtonStyle(bool buttonStyle) =>
       updateSetting('isBigButton', buttonStyle);
+  Future<void> changeAppBarLogoSize(double logoSize) =>
+      updateSetting('appBarLogoSize', logoSize);
 }

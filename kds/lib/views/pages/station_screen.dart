@@ -49,8 +49,8 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       selectedKdsId = widget.appSettingStateProvider.selectedStation;
       if (widget.kdsProvider.stations.isNotEmpty) {
-        widget.kdsProvider.updateFilters(
-            kdsId: widget.appSettingStateProvider.selectedStation);
+        // widget.kdsProvider.updateFilters(
+        //     kdsId: widget.appSettingStateProvider.selectedStation);
 
         setState(() {
           _activeFilter = widget.kdsProvider.stationFilter;
@@ -64,7 +64,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
     return Scaffold(
       appBar: AppBarWidget(
         filterName: _activeFilter,
-        screenName: 'Chef Station',
+        screenName: KdsConst.singleStationScreen,
         orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);
@@ -222,11 +222,11 @@ class _StationScreenContentState extends State<_StationScreenContent> {
   }
 
   void _updateFilters() {
-    widget.kdsProvider.updateFilters(
-      isInProgress: _activeFilter == KdsConst.defaultFilter,
-      isDone: _activeFilter == KdsConst.doneFilter,
-      kdsId: selectedKdsId,
-    );
+    // widget.kdsProvider.updateFilters(
+    //   isInProgress: _activeFilter == KdsConst.defaultFilter,
+    //   isDone: _activeFilter == KdsConst.doneFilter,
+    //   kdsId: selectedKdsId,
+    // );
   }
 
   List<PopupMenuEntry<String>> _buildFilterMenu() {

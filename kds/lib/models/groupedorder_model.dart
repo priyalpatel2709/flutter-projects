@@ -124,7 +124,7 @@ class OrderItemModel {
   final String itemName;
   final int qty;
   final String modifiers;
-  final bool isInprogress;
+  final bool isInProgress;
   final bool isDone;
   final bool isCancel;
   // final bool isComplete;
@@ -139,7 +139,7 @@ class OrderItemModel {
     required this.itemName,
     required this.qty,
     required this.modifiers,
-    required this.isInprogress,
+    required this.isInProgress,
     required this.isDone,
     required this.isCancel,
     required this.kdsId,
@@ -156,7 +156,7 @@ class OrderItemModel {
       itemName: json['itemName'],
       qty: json['quantity'],
       modifiers: json['modifiers'],
-      isInprogress: json['isInprogress'],
+      isInProgress: json['isInprogress'],
       isDone: json['isDone'],
       isCancel: json['isCancelled'],
       kdsId: json['kdsId'],
@@ -174,7 +174,7 @@ class OrderItemModel {
       'itemName': itemName,
       'quantity': qty,
       'modifiers': modifiers,
-      'isInprogress': isInprogress,
+      'isInprogress': isInProgress,
       'isDone': isDone,
       'isCancelled': isCancel,
       'kdsId': kdsId,

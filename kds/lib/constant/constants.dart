@@ -43,15 +43,21 @@ class KdsConst {
   static const Color red = Color.fromARGB(255, 239, 90, 111); //Undo
   static const Color darkGreen = Color.fromARGB(255, 133, 230, 197); // All Done
   static const Color grey = Color.fromARGB(255, 148, 181, 199); //Start
-  static const Color green = Color.fromARGB(255, 127, 165, 153); //complete state 
+  static const Color green =
+      Color.fromARGB(255, 127, 165, 153); //complete state
 
   //Label Text Colors
   static const Color orange = Color.fromARGB(255, 255, 131, 67); // In Progress
   static const Color completedTextGreen =
       Color.fromARGB(255, 79, 175, 80); //Completed
-      
+
   //Order Type Colors
   static const Color dineInColor = Color.fromARGB(255, 182, 207, 182);
   static const Color pickUpColor = Color.fromARGB(255, 255, 175, 165);
   static const Color deliveryColor = Color.fromARGB(255, 212, 240, 240);
+
+  //screen names
+  static const String multiStationScreen = 'Chef MultiStation Screen';
+  static const String singleStationScreen = 'Chef Station Screen';
+  static const String expoScreen = 'Expo Screen';
 }

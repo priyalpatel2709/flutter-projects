@@ -112,11 +112,19 @@ class ItemCart extends StatelessWidget {
       ),
       padding: EdgeInsets.all(1 + padding),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                '#${items.orderTitle}',
+                style: TextStyle(
+                  color: KdsConst.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                ),
+              ),
               Text(
                 items.orderType,
                 style: TextStyle(
@@ -126,33 +134,17 @@ class ItemCart extends StatelessWidget {
                 ),
               ),
               Text(
-                '#${items.orderTitle}',
+                formattedCreatedOn,
                 style: TextStyle(
-                  color: KdsConst.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
+                  fontSize: fontSize * 0.8,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  formattedCreatedOn,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize * 0.8,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              _buildActionButton(context, stateProvider),
-            ],
-          ),
+          _buildActionButton(context, stateProvider),
         ],
       ),
     );
@@ -303,9 +295,9 @@ class OrderItem extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            item.itemName,
+                            '  ${item.itemName}',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.normal,
                               fontSize: fontSize * 0.8,
                             ),
                             maxLines: 2,
@@ -352,7 +344,7 @@ class OrderItem extends StatelessWidget {
               color: KdsConst.completedTextGreen,
               fontSize: fontSize * .8,
               fontWeight: FontWeight.bold));
-    } else if (item.isInprogress) {
+    } else if (item.isInProgress) {
       return Text(
         'In Progress',
         style: TextStyle(
@@ -378,7 +370,7 @@ class OrderItem extends StatelessWidget {
               color: KdsConst.completedTextGreen,
               fontSize: fontSize * .8,
               fontWeight: FontWeight.bold));
-    } else if (item.isInprogress) {
+    } else if (item.isInProgress) {
       return ElevatedButton(
         style: _smallButtonStyle(KdsConst.green),
         onPressed: () => _handleInProcess(itemState, stateProvider),

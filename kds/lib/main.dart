@@ -34,8 +34,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'KDS App',
         theme: ThemeData(
-          colorScheme:
-              ColorScheme.fromSeed(seedColor: KdsConst.mainColor),
+          colorScheme: ColorScheme.fromSeed(seedColor: KdsConst.mainColor),
           useMaterial3: true,
         ),
         home: const MainScreen(), // Entry point to main screen
@@ -78,6 +77,7 @@ class _MainScreenState extends State<MainScreen> {
       kdsProvider.startFetching(
           timerInterval: KdsConst.timerInterval, storeId: KdsConst.storeId);
       kdsProvider.fetchKDSStations(storeId: KdsConst.storeId);
+      kdsProvider.test();
     });
   }
 
