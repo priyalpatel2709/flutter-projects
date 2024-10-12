@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../constant/constants.dart';
@@ -10,6 +11,8 @@ class FilteredOrdersList extends StatefulWidget {
   final List<GroupedOrder> filteredOrders;
   final int selectedKdsId;
   final bool isExpoScree;
+  final bool isFrontDesk;
+  final bool isScheduleScreen;
   final AppSettingStateProvider appSettingStateProvider;
   final String error;
 
@@ -18,8 +21,10 @@ class FilteredOrdersList extends StatefulWidget {
     required this.filteredOrders,
     required this.selectedKdsId,
     this.isExpoScree = false,
+    this.isFrontDesk = false,
     required this.appSettingStateProvider,
     required this.error,
+    this.isScheduleScreen = false,
   }) : super(key: key);
 
   @override
@@ -36,16 +41,26 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
         .ceil();
 
     return widget.error == ''
-        ? Column(
-            children: [
-              Expanded(
-                child: _buildPagedContent(),
-              ),
-              if (totalPages > 1 &&
-                  widget.appSettingStateProvider.showPagination)
-                _buildPaginationControls(totalPages),
-            ],
-          )
+        ? widget.filteredOrders.isEmpty
+            ? Center(
+                child: Text(
+                  'There are no orders.',
+                  style: TextStyle(
+                    color: KdsConst.black,
+                    fontSize: widget.appSettingStateProvider.fontSize + 6,
+                  ),
+                ),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: _buildPagedContent(),
+                  ),
+                  if (totalPages > 1 &&
+                      widget.appSettingStateProvider.showPagination)
+                    _buildPaginationControls(totalPages),
+                ],
+              )
         : Center(
             child: Text(
               widget.error,
@@ -84,6 +99,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
 
   Widget _buildHorizontalList(List<GroupedOrder> orders) {
     return ListView.builder(
+      reverse: true,
       itemCount: orders.length,
       itemBuilder: (_, index) => _buildItemCart(orders[index]),
     );
@@ -91,6 +107,7 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
 
   Widget _buildMasonryGrid(List<GroupedOrder> orders) {
     return MasonryGridView.count(
+      reverse: true,
       crossAxisCount: widget.appSettingStateProvider.crossAxisCount,
       itemCount: orders.length,
       itemBuilder: (_, index) => _buildItemCart(orders[index]),
@@ -105,17 +122,20 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
         final columnCount = widget.appSettingStateProvider.crossAxisCount;
         final columnWidth = constraints.maxWidth / columnCount;
 
+        final reversedOrders = orders.reversed.toList();
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: List.generate(
-              (orders.length / columnCount).ceil(),
+              (reversedOrders.length / columnCount).ceil(),
               (rowIndex) {
                 final start = rowIndex * columnCount;
-                final end = (start + columnCount).clamp(0, orders.length);
-                final rowOrders = orders.sublist(start, end);
+                final end =
+                    (start + columnCount).clamp(0, reversedOrders.length);
+                final rowOrders = reversedOrders.sublist(start, end);
 
                 return Padding(
                   padding: EdgeInsets.only(
@@ -153,6 +173,9 @@ class _FilteredOrdersListState extends State<FilteredOrdersList> {
       padding: widget.appSettingStateProvider.padding,
       isExpoScreen: widget.isExpoScree,
       selectedView: widget.appSettingStateProvider.selectedView,
+      storeId: widget.appSettingStateProvider.storeId,
+      isFrontDesk: widget.isFrontDesk,
+      isScheduleScreen: widget.isScheduleScreen,
     );
   }
 

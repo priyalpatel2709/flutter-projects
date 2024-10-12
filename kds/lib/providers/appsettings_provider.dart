@@ -21,6 +21,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   static const int defaultSelectedStation = 1;
   static const bool defaultIsBigButton = true;
   static const double defaultAppBarLogoSize = 80;
+  static const int defaultStoreId = 1;
 
   // Settings
   bool _isHorizontal = defaultIsHorizontal;
@@ -35,6 +36,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int _selectedStation = defaultSelectedStation;
   bool _isBigButton = defaultIsBigButton;
   double _appBarLogoSize = defaultAppBarLogoSize;
+  int _storeId = defaultStoreId;
 
   AppSettingStateProvider() {
     _initHive();
@@ -72,6 +74,7 @@ class AppSettingStateProvider extends ChangeNotifier {
     _isBigButton = _box.get('isBigButton', defaultValue: isBigButton);
     _appBarLogoSize =
         _box.get('appBarLogoSize', defaultValue: defaultAppBarLogoSize);
+    _storeId = _box.get('storeId', defaultValue: defaultStoreId);
   }
 
   // Getters
@@ -87,6 +90,7 @@ class AppSettingStateProvider extends ChangeNotifier {
   int get selectedStation => _selectedStation;
   bool get isBigButton => _isBigButton;
   double get appBarLogoSize => _appBarLogoSize;
+  int get storeId => _storeId;
 
   Future<void> ensureInitialized() async {
     if (!_isInitialized) {
@@ -146,6 +150,7 @@ class AppSettingStateProvider extends ChangeNotifier {
         'selectedStation': _selectedStation,
         'isBigButton': _isBigButton,
         'appBarLogoSize': _appBarLogoSize,
+        'storeId': _storeId,
       });
     } catch (e) {
       debugPrint('Error saving settings: $e');
@@ -193,6 +198,9 @@ class AppSettingStateProvider extends ChangeNotifier {
         case 'appBarLogoSize':
           _appBarLogoSize = value as double;
           break;
+        case 'storeId':
+          _storeId = value as int;
+          break;
         default:
           throw ArgumentError('Invalid setting key: $key');
       }
@@ -226,4 +234,5 @@ class AppSettingStateProvider extends ChangeNotifier {
       updateSetting('isBigButton', buttonStyle);
   Future<void> changeAppBarLogoSize(double logoSize) =>
       updateSetting('appBarLogoSize', logoSize);
+  Future<void> changeStoreId(int storeId) => updateSetting('storeId', storeId);
 }

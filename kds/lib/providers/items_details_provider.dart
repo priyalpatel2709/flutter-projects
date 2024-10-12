@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:signalr_netcore/signalr_client.dart';
 
 import '../constant/constants.dart';
 import '../models/groupedorder_model.dart';
@@ -26,14 +27,20 @@ class KDSItemsProvider with ChangeNotifier {
   // KDSItemsProvider();
   List<ItemsDetails> _items = [];
   List<GroupedOrder> _groupedItems = [];
+  List<GroupedOrder> _scheduleGroupedItems = [];
   List<StationsDetails> _stations = [];
   String _itemsError = '';
   String _stationsError = '';
   String _updateItemError = '';
   Timer? _timer;
   int _selectedStation = 0;
+  // HubConnection? _hubConnection;
   String _stationFilter = KdsConst.defaultFilter;
   String _expoFilter = KdsConst.defaultFilter;
+
+  bool _isConnected = false;
+
+  bool get isConnected => _isConnected;
 
   List<ItemsDetails> _filteredItems = [];
 
@@ -42,12 +49,14 @@ class KDSItemsProvider with ChangeNotifier {
   // Getters
   List<ItemsDetails> get items => _items;
   List<GroupedOrder> get groupedItems => _groupedItems;
+  List<GroupedOrder> get scheduleGroupedItems => _scheduleGroupedItems;
   List<StationsDetails> get stations => _stations;
   String get itemsError => _itemsError;
   String get stationsError => _stationsError;
   String get stationFilter => _stationFilter;
   String get expoFilter => _expoFilter;
   String get updateItemError => _updateItemError;
+  // HubConnection? get hubConnection => _hubConnection;
   List<ItemsDetails> get filteredItems => _filteredItems;
 
   late StreamSubscription<List<GroupedOrder>> itemSubscription;
@@ -57,121 +66,271 @@ class KDSItemsProvider with ChangeNotifier {
     itemListStream = StreamController<List<GroupedOrder>>.broadcast();
     itemSubscription =
         itemListStream!.stream.listen((List<GroupedOrder> resource) {
-      log('resource==>Does me');
-      // updateOffset(resource.data!.length);
-      // print(resource.data!.length);
       _groupedItems = resource;
-
-      // if (resource.status != PsStatus.BLOCK_LOADING &&
-      //     resource.status != PsStatus.PROGRESS_LOADING) {
-      //   isLoading = false;
-      // }
-
-      // if (!isDispose) {
       notifyListeners();
-      // }
     });
   }
 
-  // Fetch ItemsDetails data
-  Future<void> fetchKDSItems({required int storeId}) async {
-    final String url = '${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId';
+  // Future<void> connectSignalR(HubConnection connection) async {
+  //   _hubConnection = connection;
+  //   _isConnected = true;
+  //   notifyListeners();
+  // }
+  // Future<void> ensureConnected() async {
+  //   if (_hubConnection == null ||
+  //       _hubConnection!.state != HubConnectionState.Connected) {
+  //     await _reconnect();
+  //   }
+  // }
+  // Future<void> _reconnect() async {
+  //   log('Attempting to reconnect to SignalR...');
+  //   try {
+  //     // await _hubConnection?.start();
+  //     _isConnected = true;
+  //     log('Successfully reconnected to SignalR');
+  //   } catch (e) {
+  //     _isConnected = false;
+  //     log('Failed to reconnect to SignalR: $e');
+  //   }
+  //   notifyListeners();
+  // }
+  // Future<void> invokeSignalR(String methodName, List<Object> args) async {
+  //   log('_hubConnection.state ==>${_hubConnection?.state}');
+  //   await ensureConnected();
+  //   if (_isConnected) {
+  //     try {
+  //       // await _hubConnection?.invoke(KdsConst.joinGroup, args: ['1']);
+  //       log('_hubConnection.state 2==>${_hubConnection?.state}');
+  //       _hubConnection?.invoke(KdsConst.joinGroup, args: ['1']);
+  //       final result = await _hubConnection?.invoke(methodName, args: args);
+  //       log('Invoked SignalR method: $methodName $result');
+  //     } catch (e) {
+  //       log('Error invoking SignalR method: $e');
+  //       rethrow;
+  //     }
+  //   } else {
+  //     throw Exception('SignalR connection is not available');
+  //   }
+  // }
+  // void setConnectionStatus(bool status) {
+  //   _isConnected = status;
+  //   notifyListeners();
+  // }
 
+  // Fetch ItemsDetails data
+  final Dio _dio = Dio();
+
+  Future<void> fetchKDSItems({required int storeId}) async {
+    await _fetchData(
+      '${KdsConst.apiUrl}${KdsConst.getKDSItems}/$storeId',
+      (data) => _processKDSItems(data as List<dynamic>),
+      'Fetching KDS Items...',
+    );
+  }
+
+  Future<void> getNewItem({required String orderId}) async {
+    await _fetchData(
+      '${KdsConst.apiUrl}${KdsConst.getKDSOrder}/$orderId',
+      (data) => _processNewItem(data as Map<String, dynamic>),
+      'Fetching KDS Items... $orderId',
+    );
+  }
+
+  Future<void> getScheduleOrder({required String storeId}) async {
+    await _fetchData(
+      '${KdsConst.apiUrl}${KdsConst.getKDSItemsSchedule}/$storeId',
+      (data) {
+        // Assuming the data is a List and can be mapped to GroupedOrder
+        // log('scheduleOrders ${jsonEncode(data)}');
+        List<GroupedOrder> scheduleOrders =
+            (data as List).map((item) => GroupedOrder.fromJson(item)).toList();
+
+        // Add the scheduleOrders to your order list
+        scheduleGroupedItems
+            .addAll(scheduleOrders); // Assuming `order` is a List<GroupedOrder>
+
+        return scheduleOrders;
+      },
+      'Fetching Schedule KDS Items... $storeId',
+    );
+  }
+
+  Future<void> _fetchData(
+      String url, Function(dynamic) processData, String debugMessage) async {
     if (kDebugMode) {
-      print('Fetching KDS Items...');
+      print(debugMessage);
+      print('URL ... $url');
     }
 
     try {
-      Dio dio = Dio();
-      final response = await dio.get(url);
-
+      final response = await _dio.get(url);
       if (response.statusCode == 200) {
-        List<dynamic> data = response.data;
-
-        // Group items by orderId
-        Map<String, List<Map<String, dynamic>>> grouped = {};
-        for (var item in data) {
-          String orderId = item['orderId'];
-          if (!grouped.containsKey(orderId)) {
-            grouped[orderId] = [];
-          }
-          grouped[orderId]!.add(item);
-        }
-
-        // Convert the grouped data to GroupedOrder
-        List<GroupedOrder> groupedOrders = grouped.entries.map((entry) {
-          var orderItems = entry.value;
-
-          // Create the list of OrderItemV2
-          List<OrderItemModel> items = orderItems.map((item) {
-            return OrderItemModel.fromJson(item);
-          }).toList();
-
-          // Check statuses
-          bool allInProgress = items.every((item) => item.isInProgress);
-          bool allDone = items.every((item) => item.isDone);
-          bool allCancel = items.every((item) => item.isCancel);
-
-          var firstOrder = orderItems.first;
-          return GroupedOrder(
-            id: firstOrder['id'],
-            kdsId: firstOrder['kdsId'],
-            orderId: firstOrder['orderId'],
-            orderTitle: firstOrder['ordertitle'],
-            orderType: firstOrder['ordertype'],
-            orderNote: firstOrder['orderNote'],
-            createdOn: firstOrder['createdOn'],
-            storeId: firstOrder['storeId'],
-            tableName: firstOrder['tableName'],
-            dPartner: firstOrder['dPartner'],
-            displayOrderType: firstOrder['displayOrdertype'],
-            items: items,
-            isAllInProgress: allInProgress,
-            isAllDone: allDone,
-            isAllCancel: allCancel,
-            isAnyInProgress: items.any((item) => item.isInProgress),
-            isAnyDone: items.any((item) => item.isDone),
-            isNewOrder: items.every((item) => item.isInProgress == false &&
-                    item.isDone == false &&
-                    firstOrder['ordertype'] == KdsConst.dineIn
-                ? item.isDelivered == false
-                : item.isReadyToPickup == false),
-            deliveredOn: firstOrder['deliveredOn'],
-            isAllDelivered: items.every((item) => item.isDelivered),
-            isAnyDelivered: items.any((item) => item.isDelivered),
-            isDelivered: firstOrder['isDelivered'],
-            isReadyToPickup: firstOrder['isReadyToPickup'],
-            readyToPickupOn: firstOrder['readyToPickupOn'],
-            isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
-          );
-        }).toList();
-
-        _groupedItems = groupedOrders;
-        itemListStream?.add(groupedOrders);
+        processData(response.data);
         _itemsError = '';
-
-        // Reapply filters after fetching
-        // _applyFilters();
       } else {
-        _itemsError = 'Failed to load items: ${response.statusCode}';
+        _handleErrorResponse(response.statusCode ?? 400);
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout) {
-        _itemsError = 'The request timed out. Please try again later.';
-      } else if (e.type == DioExceptionType.unknown ||
-          e.error is SocketException) {
-        _itemsError = 'No internet connection. Please check your connection.';
-      } else if (e.type == DioExceptionType.badResponse) {
-        _itemsError = 'Failed to load items: ${e.response?.statusCode}';
-      } else {
-        _itemsError = 'An unexpected error occurred: ${e.message}';
-      }
+      _handleDioException(e);
     } catch (e) {
-      log('Error fetching items: $e');
-      _itemsError = 'An unexpected error occurred. Please try again later.';
+      _handleGeneralException(e);
     }
 
     notifyListeners();
+  }
+
+  void _processKDSItems(List<dynamic> data) {
+    Map<String, List<Map<String, dynamic>>> grouped =
+        _groupItemsByOrderId(data);
+    _groupedItems = _convertToGroupedOrders(grouped);
+    addItemsToListStream(_groupedItems);
+  }
+
+  void _processNewItem(Map<String, dynamic> data) {
+    GroupedOrder newOrder = _createGroupedOrder(data);
+    _updateGroupedItems(newOrder);
+    addItemsToListStream(_groupedItems);
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupItemsByOrderId(
+      List<dynamic> data) {
+    Map<String, List<Map<String, dynamic>>> grouped = {};
+    for (var item in data) {
+      String orderId = item['orderId'];
+      grouped.putIfAbsent(orderId, () => []).add(item);
+    }
+    return grouped;
+  }
+
+  List<GroupedOrder> _convertToGroupedOrders(
+      Map<String, List<Map<String, dynamic>>> grouped) {
+    return grouped.entries.map((entry) {
+      var orderItems = entry.value;
+      var firstOrder = orderItems.first;
+      List<OrderItemModel> items =
+          orderItems.map((item) => OrderItemModel.fromJson(item)).toList();
+
+      return GroupedOrder(
+        id: firstOrder['id'],
+        kdsId: firstOrder['kdsId'],
+        orderId: firstOrder['orderId'],
+        orderTitle: firstOrder['ordertitle'],
+        orderType: firstOrder['ordertype'],
+        orderNote: firstOrder['orderNote'],
+        createdOn: firstOrder['createdOn'],
+        storeId: firstOrder['storeId'],
+        tableName: firstOrder['tableName'],
+        dPartner: firstOrder['dPartner'],
+        displayOrderType: firstOrder['displayOrdertype'],
+        items: items,
+        isAllInProgress: items.every((item) => item.isInProgress),
+        isAllDone: items.every((item) => item.isDone),
+        isAllCancel: items.every((item) => item.isCancel),
+        isAnyInProgress: items.any((item) => item.isInProgress),
+        isAnyDone: items.any((item) => item.isDone),
+        isNewOrder: _checkNewOrder(items, firstOrder['ordertype']),
+        deliveredOn: firstOrder['deliveredOn'],
+        isAllDelivered: items.every((item) => item.isDelivered),
+        isAnyDelivered: items.any((item) => item.isDelivered),
+        isDelivered: firstOrder['isDelivered'],
+        isReadyToPickup: firstOrder['isReadyToPickup'],
+        readyToPickupOn: firstOrder['readyToPickupOn'],
+        isDineIn: firstOrder['ordertype'] == KdsConst.dineIn,
+      );
+    }).toList();
+  }
+
+  bool _checkNewOrder(List<OrderItemModel> items, String orderType) {
+    return items.every((item) =>
+        !item.isInProgress &&
+        !item.isDone &&
+        (orderType == KdsConst.dineIn
+            ? !item.isDelivered
+            : !item.isReadyToPickup));
+  }
+
+  GroupedOrder _createGroupedOrder(Map<String, dynamic> data) {
+    List<OrderItemModel> items = (data['items'] as List<dynamic>)
+        .map((item) => OrderItemModel(
+              itemId: item['itemId'] ?? '',
+              itemName: item['itemName'] ?? '',
+              qty: item['quantity'] ?? 0,
+              modifiers: item['modifiers'] ?? '',
+              isInProgress: item['isInprogress'] ?? false,
+              isDone: item['isDone'] ?? false,
+              isCancel: item['isCancelled'] ?? false,
+              kdsId: item['kdsId'] ?? 0,
+              isReadyToPickup: item['isReadyToPickup'] ?? false,
+              readyToPickupOn: item['readyToPickupOn'] ?? '',
+              isDelivered: item['isDelivered'] ?? false,
+              deliveredOn: item['deliveredOn'] ?? '',
+            ))
+        .toList();
+
+    return GroupedOrder(
+      id: data['id'] ?? 0,
+      kdsId: 1,
+      orderId: data['orderId'] ?? '',
+      orderTitle: data['orderTitle'] ?? '',
+      orderType: data['orderType'] ?? '',
+      orderNote: data['orderNote'] ?? '',
+      createdOn: data['createdOn'] ?? '',
+      storeId: data['storeId'] ?? 0,
+      tableName: '',
+      dPartner: data['deliveryPartner'] ?? '',
+      displayOrderType: data['displayOrderType'] ?? '',
+      items: items,
+      isAllInProgress: items.every((item) => item.isInProgress),
+      isAllDone: items.every((item) => item.isDone),
+      isAllCancel: items.every((item) => item.isCancel),
+      isAnyInProgress: items.any((item) => item.isInProgress),
+      isAnyDone: items.any((item) => item.isDone),
+      isNewOrder: _checkNewOrder(items, data['orderType'] ?? ''),
+      deliveredOn: data['deliveredOn'] ?? '',
+      isAllDelivered: items.every((item) => item.isDelivered),
+      isAnyDelivered: items.any((item) => item.isDelivered),
+      isDelivered: data['isDelivered'] ?? false,
+      isReadyToPickup: data['isReadyToPickup'] ?? false,
+      readyToPickupOn: data['readyToPickupOn'] ?? '',
+      isDineIn: data['orderType'] == KdsConst.dineIn,
+    );
+  }
+
+  void _updateGroupedItems(GroupedOrder newOrder) {
+    int existingOrderIndex =
+        _groupedItems.indexWhere((order) => order.orderId == newOrder.orderId);
+    if (existingOrderIndex != -1) {
+      _groupedItems[existingOrderIndex] = newOrder;
+    } else {
+      _groupedItems.add(newOrder);
+    }
+  }
+
+  void _handleErrorResponse(int statusCode) {
+    _itemsError = 'Failed to load items: $statusCode';
+    log(_itemsError);
+  }
+
+  void _handleDioException(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout) {
+      _itemsError = 'The request timed out. Please try again later.';
+    } else if (e.type == DioExceptionType.unknown &&
+        e.error is SocketException) {
+      _itemsError = 'No internet connection. Please check your connection.';
+    } else if (e.type == DioExceptionType.badResponse) {
+      _itemsError = 'Failed to load items: ${e.response?.statusCode}';
+    } else {
+      _itemsError = 'An unexpected error occurred: ${e.message}';
+    }
+  }
+
+  void _handleGeneralException(dynamic e) {
+    _itemsError = 'An unexpected error occurred. Please try again later.';
+    log('Error: $e');
+  }
+
+  void addItemsToListStream(List<GroupedOrder> groupedOrders) {
+    itemListStream?.add(groupedOrders);
   }
 
   // Fetch StationsDetails data
@@ -240,9 +399,14 @@ class KDSItemsProvider with ChangeNotifier {
         body: jsonEncode(requestBody),
       );
 
+      log('Update Body: ${jsonEncode(requestBody)}');
+
       if (response.statusCode == 200) {
         log('Update successful: ${response.body}');
-        await fetchKDSItems(storeId: storeId);
+        // fetchKDSItems(storeId: storeId).then((_) {
+        //   // This will run after fetchKDSItems completes'
+        //   notifyListeners();
+        // });
         _updateItemError = ''; // Clear any previous errors
         // startFetching(timerInterval: 10, storeId: storeId);
 
@@ -274,12 +438,12 @@ class KDSItemsProvider with ChangeNotifier {
 
   // Start a timer to fetch both items and stations periodically
   void startFetching({required int timerInterval, required int storeId}) {
-    _timer = Timer.periodic(Duration(seconds: timerInterval), (timer) async {
-      await Future.wait([
-        fetchKDSItems(storeId: storeId),
-        // fetchKDSStations(storeId: storeId),
-      ]);
-    });
+    // _timer = Timer.periodic(Duration(seconds: timerInterval), (timer) async {
+    //   await Future.wait([
+    //     fetchKDSItems(storeId: storeId),
+    //     // fetchKDSStations(storeId: storeId),
+    //   ]);
+    // });
 
     // Fetch immediately
     fetchKDSItems(storeId: storeId);
@@ -294,6 +458,8 @@ class KDSItemsProvider with ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    itemListStream?.close();
+    itemSubscription.cancel();
     super.dispose();
   }
 

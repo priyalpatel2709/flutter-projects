@@ -1,16 +1,46 @@
-# kds
+# KDS
 
-A new Flutter project.
 
-## Getting Started
+## Prerequisites
 
-This project is a starting point for a Flutter application.
+Before you can run this project locally, make sure your development environment meets the following requirements:
 
-A few resources to get you started if this is your first Flutter project:
+- **Flutter:** Version 3.19.6
+- **Java:** Version 18.0.2.1
+- **Gradle:** Version 7.5
+- **iOS Development:** Xcode 13
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Run Locally
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Go to the project directory
+
+```bash
+  cd Flutter_KDS
+```
+
+Connect Simulator for run the app
+
+#For Android
+
+```bash
+  flutter clean
+  flutter pub get
+  flutter run
+```
+
+#For IOS
+
+```bash
+  flutter clean
+  flutter pub get
+  cd ios
+  pod install
+  cd ..
+  flutter run
+```
+
+## Tech Stack
+
+**Client:** Flutter
+
+**Server:** c#

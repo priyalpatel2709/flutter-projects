@@ -40,6 +40,8 @@ class SettingsScreen extends StatelessWidget {
                     'App Settings',
                     Column(
                       children: [
+                        _selectStoreDropDown(appSettings),
+
                         _buildSliderSetting(
                           'Font Size',
                           appSettings.fontSize,
@@ -122,6 +124,8 @@ class SettingsScreen extends StatelessWidget {
                             PageOption(0, KdsConst.multiStationScreen),
                             PageOption(1, KdsConst.singleStationScreen),
                             PageOption(2, KdsConst.expoScreen),
+                            PageOption(3, KdsConst.fontDeskScreen),
+                            PageOption(4, KdsConst.scheduleScreen),
                           ],
                         ),
                       ],
@@ -140,6 +144,29 @@ class SettingsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _selectStoreDropDown(AppSettingStateProvider appSettings) {
+    return Row(
+      children: [
+        Text('Select Store:', style: TextStyle(fontSize: appSettings.fontSize)),
+        const SizedBox(
+          width: 10.0,
+        ),
+        DropdownButton<int>(
+          value: appSettings.storeId,
+          items: List.generate(10, (index) {
+            return DropdownMenuItem(
+              value: index + 1,
+              child: Text('${index + 1}'),
+            );
+          }),
+          onChanged: (int? newValue) {
+            appSettings.changeStoreId(newValue ?? 1);
+          },
+        ),
+      ],
     );
   }
 

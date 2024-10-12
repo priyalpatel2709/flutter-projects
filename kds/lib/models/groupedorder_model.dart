@@ -7,13 +7,13 @@ class GroupedOrder {
   final String orderNote;
   final String createdOn;
   final int storeId;
-  final String tableName;
+  String? tableName;
   String? dPartner;
   final String displayOrderType;
   final bool isDelivered;
-  final String deliveredOn;
+  final String? deliveredOn;
   final bool isReadyToPickup;
-  final String readyToPickupOn;
+  String? readyToPickupOn;
   late final List<OrderItemModel> items;
 
   // New fields
@@ -31,14 +31,14 @@ class GroupedOrder {
 
   GroupedOrder({
     required this.id,
-    required this.kdsId,
+    this.kdsId = 0,
     required this.orderId,
     required this.orderTitle,
     required this.orderType,
     required this.orderNote,
     required this.createdOn,
     required this.storeId,
-    required this.tableName,
+    this.tableName,
     this.dPartner,
     required this.displayOrderType,
     required this.items,
@@ -51,45 +51,45 @@ class GroupedOrder {
     // required this.isAllComplete,
     required this.isNewOrder,
     required this.isDineIn,
-    required this.deliveredOn,
+    this.deliveredOn,
     required this.isAllDelivered,
     required this.isAnyDelivered,
     required this.isDelivered,
     required this.isReadyToPickup,
-    required this.readyToPickupOn,
+    this.readyToPickupOn,
   });
 
   factory GroupedOrder.fromJson(Map<String, dynamic> json) {
     return GroupedOrder(
       id: json['id'],
-      kdsId: json['kdsId'],
+      // kdsId: json['kdsId'] ?? 0,
       orderId: json['orderId'],
-      orderTitle: json['ordertitle'],
-      orderType: json['ordertype'],
+      orderTitle: json['orderTitle'],
+      orderType: json['orderType'],
       orderNote: json['orderNote'],
       createdOn: json['createdOn'],
       storeId: json['storeId'],
-      tableName: json['tableName'],
-      dPartner: json['deliveryPartner'],
-      displayOrderType: json['displayOrdertype'],
+      tableName: json['tableName'] ?? '',
+      dPartner: json['deliveryPartner'] ?? '',
+      displayOrderType: json['displayOrderType'],
       items: (json['items'] as List)
           .map((item) => OrderItemModel.fromJson(item))
           .toList(),
-      isAllInProgress: json['isAllInProgress'],
-      isAllDone: json['isAllDone'],
-      isAllCancel: json['isAllCancel'],
-      isAnyInProgress: json['isAnyInProgress'],
-      isAnyDone: json['isAnyDone'],
+      isAllInProgress: json['isAllInProgress'] ?? false,
+      isAllDone: json['isAllDone'] ?? false,
+      isAllCancel: json['isAllCancel'] ?? false,
+      isAnyInProgress: json['isAnyInProgress'] ?? false,
+      isAnyDone: json['isAnyDone'] ?? false,
       // isAnyComplete: json['isAllComplete'],
       // isAllComplete: json['isAnyComplete'],
-      isNewOrder: json['isNewOrder'],
-      isDineIn: json['isDineIn'],
-      deliveredOn: json['deliveredOn'],
-      isAllDelivered: json['isAllDelivered'],
-      isAnyDelivered: json['isAnyDelivered'],
-      isDelivered: json['isDelivered'],
-      isReadyToPickup: json['isReadyToPickup'],
-      readyToPickupOn: json['readyToPickupOn'],
+      isNewOrder: json['isNewOrder'] ?? false,
+      isDineIn: json['isDineIn'] ?? false,
+      deliveredOn: json['deliveredOn'] ?? '',
+      isAllDelivered: json['isAllDelivered'] ?? false,
+      isAnyDelivered: json['isAnyDelivered'] ?? false,
+      isDelivered: json['isDelivered'] ?? false,
+      isReadyToPickup: json['isReadyToPickup'] ?? false,
+      readyToPickupOn: json['readyToPickupOn'] ?? '',
     );
   }
 
@@ -98,23 +98,28 @@ class GroupedOrder {
       'id': id,
       'kdsId': kdsId,
       'orderId': orderId,
-      'ordertitle': orderTitle,
-      'ordertype': orderType,
+      'orderTitle': orderTitle,
+      'orderType': orderType,
       'orderNote': orderNote,
       'createdOn': createdOn,
       'storeId': storeId,
       'tableName': tableName,
       'deliveryPartner': dPartner,
-      'displayOrdertype': displayOrderType,
+      'displayOrderType': displayOrderType,
       'items': items.map((item) => item.toJson()).toList(),
       'isAllInProgress': isAllInProgress,
       'isAllDone': isAllDone,
       'isAllCancel': isAllCancel,
       'isAnyInProgress': isAnyInProgress,
       'isAnyDone': isAnyDone,
-      // 'isAllComplete': isAllComplete,
-      // 'isAnyComplete': isAnyComplete,
+      'isNewOrder': isNewOrder,
       'isDineIn': isDineIn,
+      'deliveredOn': deliveredOn,
+      'isAllDelivered': isAllDelivered,
+      'isAnyDelivered': isAnyDelivered,
+      'isDelivered': isDelivered,
+      'isReadyToPickup': isReadyToPickup,
+      'readyToPickupOn': readyToPickupOn,
     };
   }
 }
@@ -147,7 +152,7 @@ class OrderItemModel {
     required this.isDelivered,
     required this.deliveredOn,
     required this.isReadyToPickup,
-    required this.readyToPickupOn,
+    this.readyToPickupOn = '',
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -162,9 +167,9 @@ class OrderItemModel {
       kdsId: json['kdsId'],
       // isComplete: json['isCompleted'],
       isDelivered: json['isDelivered'],
-      deliveredOn: json['deliveredOn'],
+      deliveredOn: json['deliveredOn'] ?? '',
       isReadyToPickup: json['isReadyToPickup'],
-      readyToPickupOn: json['readyToPickupOn'],
+      readyToPickupOn: json['readyToPickupOn'] ?? '',
     );
   }
 

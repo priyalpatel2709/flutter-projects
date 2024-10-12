@@ -6,6 +6,7 @@ import '../../constant/constants.dart';
 import '../../models/groupedorder_model.dart';
 import '../../providers/appsettings_provider.dart';
 import '../../providers/items_details_provider.dart';
+import '../../providers/order_item_state_provider.dart';
 import '../widgets/appBar_widget.dart';
 import '../widgets/filteredlist_widget.dart';
 
@@ -14,12 +15,17 @@ class StationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
-      builder: (BuildContext context, KDSItemsProvider kdsProvider,
-              AppSettingStateProvider appSettingStateProvider, _) =>
+    return Consumer3<KDSItemsProvider, AppSettingStateProvider,
+        OrderItemStateProvider>(
+      builder: (BuildContext context,
+              KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider,
+              OrderItemStateProvider orderItemStateProvider,
+              _) =>
           _StationScreenContent(
         kdsProvider: kdsProvider,
         appSettingStateProvider: appSettingStateProvider,
+        orderItemStateProvider: orderItemStateProvider,
       ),
     );
   }
@@ -28,11 +34,13 @@ class StationScreen extends StatelessWidget {
 class _StationScreenContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
   final AppSettingStateProvider appSettingStateProvider;
+  final OrderItemStateProvider orderItemStateProvider;
 
   const _StationScreenContent({
     Key? key,
     required this.kdsProvider,
     required this.appSettingStateProvider,
+    required this.orderItemStateProvider,
   }) : super(key: key);
 
   @override
@@ -72,6 +80,7 @@ class _StationScreenContentState extends State<_StationScreenContent> {
         },
         buildFilterMenu: _buildFilterMenu(),
         appSettingStateProvider: widget.appSettingStateProvider,
+        hubConnectionState: widget.orderItemStateProvider.hubState,
       ),
       body: Padding(
         padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
@@ -191,7 +200,10 @@ class _StationScreenContentState extends State<_StationScreenContent> {
       child: DropdownButton<int>(
         isExpanded: true,
         hint: const Text('Select Station'),
-        value: selectedKdsId,
+        value: widget.kdsProvider.stations
+                .any((station) => station.kdsId == selectedKdsId)
+            ? selectedKdsId
+            : null, // Ensure value exists in the list
         onChanged: _updateSelectedStation,
         items: widget.kdsProvider.stations
             .map(

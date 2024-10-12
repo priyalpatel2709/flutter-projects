@@ -1,8 +1,8 @@
-import 'dart:developer';
+// import 'dart:ffi';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../constant/constants.dart';
 import '../../models/groupedorder_model.dart';
 import '../../providers/appsettings_provider.dart';
@@ -11,8 +11,8 @@ import '../../providers/order_item_state_provider.dart';
 import '../widgets/appBar_widget.dart';
 import '../widgets/filteredlist_widget.dart';
 
-class MultiStationView extends StatelessWidget {
-  const MultiStationView({super.key});
+class FrontDeskView extends StatelessWidget {
+  const FrontDeskView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class MultiStationView extends StatelessWidget {
               AppSettingStateProvider appSettingStateProvider,
               OrderItemStateProvider orderItemStateProvider,
               _) =>
-          _MultiStationViewContent(
+          _FrontDeskViewContent(
         kdsProvider: kdsProvider,
         appSettingStateProvider: appSettingStateProvider,
         orderItemStateProvider: orderItemStateProvider,
@@ -32,24 +32,23 @@ class MultiStationView extends StatelessWidget {
   }
 }
 
-class _MultiStationViewContent extends StatefulWidget {
+class _FrontDeskViewContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
   final AppSettingStateProvider appSettingStateProvider;
   final OrderItemStateProvider orderItemStateProvider;
 
-  const _MultiStationViewContent({
-    Key? key,
+  const _FrontDeskViewContent({
+    super.key,
     required this.kdsProvider,
     required this.appSettingStateProvider,
     required this.orderItemStateProvider,
-  }) : super(key: key);
+  });
 
   @override
-  _MultiStationViewContentState createState() =>
-      _MultiStationViewContentState();
+  _FrontDeskViewState createState() => _FrontDeskViewState();
 }
 
-class _MultiStationViewContentState extends State<_MultiStationViewContent> {
+class _FrontDeskViewState extends State<_FrontDeskViewContent> {
   String _activeFilter = KdsConst.defaultFilter;
 
   @override
@@ -58,54 +57,29 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
     _activeFilter = widget.kdsProvider.expoFilter;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget(
-        filterName: _activeFilter,
-        screenName: KdsConst.multiStationScreen,
-        orderLength: _getFilteredOrders().length,
-        onFilterSelected: (String value) {
-          _setFilter(value);
-          widget.kdsProvider.changeExpoFilter(value);
-        },
-        buildFilterMenu: _buildFilterMenu(),
-        appSettingStateProvider: widget.appSettingStateProvider,
-        hubConnectionState: widget.orderItemStateProvider.hubState,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
-        child: FilteredOrdersList(
-          filteredOrders: _getFilteredOrders(),
-          selectedKdsId: 0,
-          appSettingStateProvider: widget.appSettingStateProvider,
-          error: widget.kdsProvider.itemsError,
-        ),
-      ),
-    );
-  }
-
   void _setFilter(String filter) {
-    setState(() => _activeFilter = filter);
+    setState(() {
+      _activeFilter = filter;
+    });
   }
 
   List<PopupMenuItem<String>> _buildFilterMenu() {
     return [KdsConst.defaultFilter, KdsConst.doneFilter, KdsConst.allFilter]
-        .map((filter) => PopupMenuItem<String>(
-              value: filter,
-              child: Text(filter),
-            ))
+        .map(
+          (filter) => PopupMenuItem<String>(
+            value: filter,
+            child: Text(filter),
+          ),
+        )
         .toList();
   }
 
   List<GroupedOrder> _getFilteredOrders() {
     return widget.kdsProvider.groupedItems.map((order) {
+      // Map items by unique id and name combination
       final uniqueItems = <String, OrderItemModel>{};
-
-      // Ensure uniqueness based on itemId and itemName
       for (var item in order.items) {
-        uniqueItems.putIfAbsent(
-            '${item.itemId}_${item.itemName}_${order.orderId}', () => item);
+        uniqueItems['${item.itemId}_${item.itemName}'] = item;
       }
 
       return GroupedOrder(
@@ -135,30 +109,56 @@ class _MultiStationViewContentState extends State<_MultiStationViewContent> {
         readyToPickupOn: order.readyToPickupOn,
       );
     }).where((order) {
-      // Check order type filter
-      bool passesOrderTypeFilter = true;
+      // Filter based on selected order type
       if (widget.appSettingStateProvider.selectedOrderType == KdsConst.dineIn) {
-        passesOrderTypeFilter = order.orderType == KdsConst.dineIn;
+        return order.orderType == KdsConst.dineIn && _applyActiveFilter(order);
       } else if (widget.appSettingStateProvider.selectedOrderType ==
           KdsConst.pickup) {
-        passesOrderTypeFilter = order.orderType != KdsConst.dineIn;
+        return order.orderType != KdsConst.dineIn && _applyActiveFilter(order);
       }
 
-      // Check active filter
-      bool passesActiveFilter = switch (_activeFilter) {
-        KdsConst.defaultFilter => (order.isNewOrder ||
-                order.isAnyInProgress ||
-                order.isAllInProgress ||
-                order.isAnyDone) &&
-            (!order.isAllDone),
-        KdsConst.doneFilter =>
-          order.isAllDone || order.isAllDelivered || order.isReadyToPickup,
-        KdsConst.allFilter => true,
-        _ => true,
-      };
-
-      // Return true only if both filters pass
-      return passesOrderTypeFilter && passesActiveFilter;
+      // If no specific order type is selected, just apply the active filter
+      return _applyActiveFilter(order);
     }).toList();
+  }
+
+  bool _applyActiveFilter(GroupedOrder order) {
+    return switch (_activeFilter) {
+      KdsConst.defaultFilter =>
+        order.isDineIn ? !order.isAllDelivered : !order.isReadyToPickup,
+      KdsConst.doneFilter =>
+        order.isDineIn ? order.isAllDelivered : order.isReadyToPickup,
+      KdsConst.allFilter => true,
+      _ => true
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarWidget(
+        filterName: _activeFilter,
+        screenName: KdsConst.fontDeskScreen,
+        orderLength: _getFilteredOrders().length,
+        onFilterSelected: (String value) {
+          _setFilter(value);
+          widget.kdsProvider.changeExpoFilter(value);
+        },
+        buildFilterMenu: _buildFilterMenu(),
+        appSettingStateProvider: widget.appSettingStateProvider,
+        hubConnectionState: widget.orderItemStateProvider.hubState,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(widget.appSettingStateProvider.padding),
+        child: FilteredOrdersList(
+          filteredOrders: _getFilteredOrders(),
+          selectedKdsId: 0,
+          isExpoScree: true,
+          isFrontDesk: true,
+          appSettingStateProvider: widget.appSettingStateProvider,
+          error: widget.kdsProvider.itemsError,
+        ),
+      ),
+    );
   }
 }
