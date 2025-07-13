@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "505705960497",
+    "project_id": "school-bf32a",
+    "storage_bucket": "school-bf32a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505705960497:android:6aefb75e24fc607e5ef110",
+        "android_client_info": {
+          "package_name": "com.example.school_pdf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwJRFGBIxBMdBk2EHG0mvIHMn_j3WERjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

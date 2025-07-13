@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Imp Questions",
+    "medium": "Gujarati",
+    "description": "Important questions and solutions for exam preparation",
+    "icon": "question_answer_outlined",
+    "color": "primary",
+    "backgroundColor": "primaryShade50",
+    "isActive": true,
+    "order": 1,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "name": "Self Practice",
+    "medium": "Gujarati",
+    "description": "Practice exercises and worksheets for self-study",
+    "icon": "home_work_outlined",
+    "color": "secondary",
+    "backgroundColor": "premiumLight",
+    "isActive": true,
+    "order": 2,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "name": "Paper Seat",
+    "medium": "Gujarati",
+    "description": "Previous year papers and mock tests",
+    "icon": "quiz_sharp",
+    "color": "success",
+    "backgroundColor": "successLight",
+    "isActive": true,
+    "order": 3,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "name": "Imp Questions",
+    "medium": "English",
+    "description": "Important questions and solutions for exam preparation",
+    "icon": "question_answer_outlined",
+    "color": "primary",
+    "backgroundColor": "primaryShade50",
+    "isActive": true,
+    "order": 1,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "name": "Self Practice",
+    "medium": "English",
+    "description": "Practice exercises and worksheets for self-study",
+    "icon": "home_work_outlined",
+    "color": "secondary",
+    "backgroundColor": "premiumLight",
+    "isActive": true,
+    "order": 2,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "name": "Paper Seat",
+    "medium": "English",
+    "description": "Previous year papers and mock tests",
+    "icon": "quiz_sharp",
+    "color": "success",
+    "backgroundColor": "successLight",
+    "isActive": true,
+    "order": 3,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  }
+] 
