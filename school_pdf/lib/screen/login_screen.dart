@@ -98,10 +98,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } on FirebaseAuthException catch (e) {
         if (!mounted) return; // Check if widget is still mounted
-        
+
         String errorMessage = 'Login failed';
         if (e.code == 'user-not-found') {
-          errorMessage = 'No account found with this email. Please sign up first.';
+          errorMessage =
+              'No account found with this email. Please sign up first.';
         } else if (e.code == 'wrong-password') {
           errorMessage = 'Incorrect password. Please try again.';
         } else if (e.code == 'invalid-email') {
@@ -114,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showErrorDialog(errorMessage);
       } catch (e) {
         if (!mounted) return; // Check if widget is still mounted
-        
+
         _showErrorDialog('Something went wrong. Please try again.');
         debugPrint('Sign in error: $e');
       } finally {
@@ -178,6 +179,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Send email verification
       final user = userCredential.user!;
+
+      log('message: Sending verification email to ${user.email}');
       await user.sendEmailVerification();
 
       // Update Firebase user profile
@@ -202,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return; // Check if widget is still mounted
-      
+
       String errorMessage = 'An error occurred during sign up.';
       if (e.code == 'email-already-in-use') {
         errorMessage = 'An account with this email already exists.';
@@ -214,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _showErrorDialog(errorMessage);
     } catch (e) {
       if (!mounted) return; // Check if widget is still mounted
-      
+
       _showErrorDialog('Something went wrong. Please try again.');
       debugPrint('Sign up error: $e');
     } finally {
@@ -255,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showVerificationDialog() {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -264,7 +267,10 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Icon(Icons.email, color: AppColors.primary),
             SizedBox(width: 8),
-            Text('Email Verification', style: TextStyle(color: AppColors.primary)),
+            Text(
+              'Email Verification',
+              style: TextStyle(color: AppColors.primary),
+            ),
           ],
         ),
         content: Column(
@@ -283,7 +289,10 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 16),
             Text(
               'Didn\'t receive the email?',
-              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -310,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showErrorDialog(String message) {
     if (!mounted) return; // Check if widget is still mounted
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -329,7 +338,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showSuccessDialog(String message) {
     if (!mounted) return; // Check if widget is still mounted
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
