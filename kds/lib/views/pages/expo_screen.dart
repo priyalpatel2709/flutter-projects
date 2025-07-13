@@ -7,6 +7,7 @@ import '../../constant/constants.dart';
 import '../../models/groupedorder_model.dart';
 import '../../providers/appsettings_provider.dart';
 import '../../providers/items_details_provider.dart';
+import '../../providers/order_item_state_provider.dart';
 import '../widgets/appBar_widget.dart';
 import '../widgets/filteredlist_widget.dart';
 
@@ -15,12 +16,17 @@ class ExpoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<KDSItemsProvider, AppSettingStateProvider>(
-      builder: (BuildContext context, KDSItemsProvider kdsProvider,
-              AppSettingStateProvider appSettingStateProvider, _) =>
+    return Consumer3<KDSItemsProvider, AppSettingStateProvider,
+        OrderItemStateProvider>(
+      builder: (BuildContext context,
+              KDSItemsProvider kdsProvider,
+              AppSettingStateProvider appSettingStateProvider,
+              OrderItemStateProvider orderItemStateProvider,
+              _) =>
           _ExpoViewContent(
         kdsProvider: kdsProvider,
         appSettingStateProvider: appSettingStateProvider,
+        orderItemStateProvider: orderItemStateProvider,
       ),
     );
   }
@@ -29,11 +35,13 @@ class ExpoView extends StatelessWidget {
 class _ExpoViewContent extends StatefulWidget {
   final KDSItemsProvider kdsProvider;
   final AppSettingStateProvider appSettingStateProvider;
+  final OrderItemStateProvider orderItemStateProvider;
 
   const _ExpoViewContent({
     super.key,
     required this.kdsProvider,
     required this.appSettingStateProvider,
+    required this.orderItemStateProvider,
   });
 
   @override
@@ -130,7 +138,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
     return Scaffold(
       appBar: AppBarWidget(
         filterName: _activeFilter,
-        screenName: 'Expo View',
+        screenName: KdsConst.expoScreen,
         orderLength: _getFilteredOrders().length,
         onFilterSelected: (String value) {
           _setFilter(value);
@@ -138,6 +146,7 @@ class _ExpoViewState extends State<_ExpoViewContent> {
         },
         buildFilterMenu: _buildFilterMenu(),
         appSettingStateProvider: widget.appSettingStateProvider,
+        hubConnectionState: widget.orderItemStateProvider.hubState,
       ),
       body: Padding(
         padding: EdgeInsets.all(widget.appSettingStateProvider.padding),

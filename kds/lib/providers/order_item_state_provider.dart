@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kds/providers/items_details_provider.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 import '../constant/constants.dart';
 
@@ -11,17 +12,58 @@ class OrderItemStateProvider extends ChangeNotifier {
   final Map<String, OrderItemState> _states = {};
   final KDSItemsProvider kdsItemsProvider;
   String _updateError = '';
+  HubConnectionState _hubState = HubConnectionState.Disconnected;
 
   OrderItemStateProvider({required this.kdsItemsProvider});
+  HubConnection? _hubConnection;
+  HubConnection? get hubConnection => _hubConnection;
+  String get updateError => _updateError;
+  HubConnectionState get hubState => _hubState;
 
   // Get state for a particular itemId, create a new state if it doesn't exist
-  OrderItemState getState(String itemId) {
-    return _states[itemId] ?? OrderItemState();
+  OrderItemState getState({
+    required String itemId,
+    required bool isInProgress,
+    required bool isDone,
+    required bool isReadyToPickup,
+    required bool isDelivered,
+    // required bool isCompleted,
+  }) {
+    return _states[itemId] ??
+        OrderItemState(
+          isInProgress: isInProgress,
+          isDone: isDone,
+          isReadyToPickup: isReadyToPickup,
+          isDelivered: isDelivered,
+          // isCompleted: isCompleted
+        );
+  }
+
+  Map<String, bool> _isButtonDisabled = {};
+
+  bool isButtonDisabled(String itemId) {
+    return _isButtonDisabled[itemId] ?? false;
+  }
+
+  Future<void> connectSignalR(HubConnection connection) async {
+    _hubConnection = connection;
+    notifyListeners();
+  }
+
+  void setButtonDisabled(String itemId, bool disabled) {
+    _isButtonDisabled[itemId] = disabled;
+    notifyListeners();
   }
 
   void resetState(String itemId) {
     if (_states.containsKey(itemId)) {
-      _states[itemId] = OrderItemState(); // Reset to default state
+      _states[itemId] = OrderItemState(
+        isInProgress: false,
+        isDone: false,
+        isReadyToPickup: false,
+        isDelivered: false,
+        // isCompleted: false
+      ); // Reset to default state
       notifyListeners(); // Notify listeners to update the UI
     }
   }
@@ -31,8 +73,6 @@ class OrderItemStateProvider extends ChangeNotifier {
     _states[itemId] = state;
     notifyListeners();
   }
-
-  String get updateError => _updateError;
 
   // Trigger `updateItemsInfo` when the countdown or process is done
   Future<void> handleUpdateItemsInfo({
@@ -46,6 +86,7 @@ class OrderItemStateProvider extends ChangeNotifier {
     required bool isDelivered,
   }) async {
     try {
+      setButtonDisabled('$itemId-$orderId', true);
       await kdsItemsProvider.updateItemsInfo(
         storeId: storeId,
         orderId: orderId,
@@ -56,7 +97,12 @@ class OrderItemStateProvider extends ChangeNotifier {
         isDelivered: isDelivered,
         isReadyToPickup: isReadyToPickup,
       );
+
       _updateError = kdsItemsProvider.updateItemError;
+
+      setButtonDisabled('$itemId-$orderId', false);
+      checkForHubConnection();
+      _hubConnection?.invoke(KdsConst.updateOrderEvent, args: ['1', orderId]);
 
       notifyListeners();
     } catch (e) {
@@ -65,13 +111,43 @@ class OrderItemStateProvider extends ChangeNotifier {
     }
   }
 
+  void checkForHubConnection() {
+    // kdsItemsProvider.emptyUpdateItem();
+    _hubState = _hubConnection?.state ?? HubConnectionState.Disconnected;
+    notifyListeners();
+  }
+
+  void addHubConnection(HubConnectionState hubConnectionState) {
+    // kdsItemsProvider.emptyUpdateItem();
+    _hubState = hubConnectionState;
+    notifyListeners();
+  }
+
   void emptyUpdateErrorMassage() {
     kdsItemsProvider.emptyUpdateItemError();
     notifyListeners();
   }
+
+  Future<void> sandInjury(
+      {required String orderId, required String orderTitle}) async {
+    try {
+      checkForHubConnection();
+      _hubConnection
+          ?.invoke(KdsConst.inquireOrder, args: ['1', orderId, orderTitle]);
+    } catch (e) {
+      debugPrint('Failed to send inqury: $e');
+    }
+  }
 }
 
 class OrderItemState {
+  OrderItemState({
+    required this.isInProgress,
+    required this.isDone,
+    required this.isReadyToPickup,
+    required this.isDelivered,
+    // required this.isCompleted,
+  });
   String buttonText = 'Start';
   String completeButtonText = 'Not Started';
   bool isButtonVisible = true;
@@ -80,6 +156,13 @@ class OrderItemState {
 
   Color buttonColor = KdsConst.grey;
   Color completeButtonColor = KdsConst.black;
+
+  //item State
+  bool isInProgress;
+  bool isDone;
+  bool isReadyToPickup;
+  bool isDelivered;
+  // bool isCompleted;
 
   // Method to handle process start and switch button text
   Future<void> handleStartProcess({
@@ -93,6 +176,11 @@ class OrderItemState {
       completeButtonText = 'In Progress';
       buttonColor = KdsConst.green;
       completeButtonColor = KdsConst.orange;
+      isInProgress = true;
+      isDone = false;
+      isReadyToPickup = false;
+      isDelivered = false;
+      // isCompleted = false;
 
       // Call the async method to update items info and wait for completion
       await _updateItemInfoAndNotify(
@@ -131,6 +219,11 @@ class OrderItemState {
     //   _completeCountdown(provider, itemId, storeId, orderId);
     // }
     completeButtonText = 'Completed';
+    isInProgress = false;
+    isDone = false;
+    isReadyToPickup = false;
+    isDelivered = false;
+    // isCompleted = true;
     await _updateItemInfoAndNotify(
       provider: provider,
       itemId: itemId,
@@ -150,6 +243,11 @@ class OrderItemState {
     required int storeId,
     required String orderId,
   }) async {
+    isInProgress = false;
+    isDone = false;
+    isReadyToPickup = false;
+    isDelivered = false;
+    // isCompleted = false;
     await _updateItemInfoAndNotify(
       provider: provider,
       itemId: itemId,
@@ -171,6 +269,11 @@ class OrderItemState {
     required int storeId,
     required String orderId,
   }) async {
+    isInProgress = false;
+    isDone = false;
+    isReadyToPickup = false;
+    isDelivered = true;
+    // isCompleted = false;
     await _updateItemInfoAndNotify(
       provider: provider,
       itemId: itemId,
@@ -246,5 +349,10 @@ class OrderItemState {
       isReadyToPickup: false,
       isDelivered: false,
     );
+    isInProgress = false;
+    isDone = true;
+    isReadyToPickup = false;
+    isDelivered = false;
+    // isCompleted = false;
   }
 }

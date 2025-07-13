@@ -40,6 +40,8 @@ class SettingsScreen extends StatelessWidget {
                     'App Settings',
                     Column(
                       children: [
+                        _selectStoreDropDown(appSettings),
+
                         _buildSliderSetting(
                           'Font Size',
                           appSettings.fontSize,
@@ -65,6 +67,14 @@ class SettingsScreen extends StatelessWidget {
                               appSettings.changeCrossAxisCount(value.toInt()),
                           appSettings,
                           divisions: 7,
+                        ),
+                        _buildSliderSetting(
+                          'App Bar Logo Size',
+                          appSettings.appBarLogoSize,
+                          60.0,
+                          100.0,
+                          appSettings.changeAppBarLogoSize,
+                          appSettings,
                         ),
                         _buildPaginationToggle(appSettings),
                         Visibility(
@@ -111,9 +121,11 @@ class SettingsScreen extends StatelessWidget {
                         _buildRadioGroup(
                           appSettings,
                           pageOptions: [
-                            PageOption(0, 'Multi Station'),
-                            PageOption(1, 'Single Station'),
-                            PageOption(2, 'Expo Screen'),
+                            PageOption(0, KdsConst.multiStationScreen),
+                            PageOption(1, KdsConst.singleStationScreen),
+                            PageOption(2, KdsConst.expoScreen),
+                            PageOption(3, KdsConst.fontDeskScreen),
+                            PageOption(4, KdsConst.scheduleScreen),
                           ],
                         ),
                       ],
@@ -132,6 +144,29 @@ class SettingsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _selectStoreDropDown(AppSettingStateProvider appSettings) {
+    return Row(
+      children: [
+        Text('Select Store:', style: TextStyle(fontSize: appSettings.fontSize)),
+        const SizedBox(
+          width: 10.0,
+        ),
+        DropdownButton<int>(
+          value: appSettings.storeId,
+          items: List.generate(10, (index) {
+            return DropdownMenuItem(
+              value: index + 1,
+              child: Text('${index + 1}'),
+            );
+          }),
+          onChanged: (int? newValue) {
+            appSettings.changeStoreId(newValue ?? 1);
+          },
+        ),
+      ],
     );
   }
 
