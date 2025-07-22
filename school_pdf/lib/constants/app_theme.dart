@@ -5,9 +5,18 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
+      colorScheme: ColorScheme(
         brightness: Brightness.light,
+        primary: AppColors.primary,
+        onPrimary: AppColors.textInverse,
+        secondary: AppColors.secondary,
+        onSecondary: AppColors.textInverse,
+        error: AppColors.error,
+        onError: AppColors.textInverse,
+        background: AppColors.background,
+        onBackground: AppColors.textPrimary,
+        surface: AppColors.surface,
+        onSurface: AppColors.textPrimary,
       ),
       
       // Scaffold

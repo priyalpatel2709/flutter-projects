@@ -1,8 +1,17 @@
 import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../constants/app_colors.dart';
 import '../models/module.dart';
+import 'package:flutter/services.dart';
+import 'package:excel/excel.dart';
+import 'package:file_saver/file_saver.dart';
+import 'dart:typed_data';
+import 'package:media_store_plus/media_store_plus.dart';
 
 class AdminAddFileScreen extends StatefulWidget {
   @override
@@ -62,10 +71,16 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
     'library_books',
   ];
 
+  // Promo Code Tab
+  final _promoCodeFormKey = GlobalKey<FormState>();
+  final _promoCodeController = TextEditingController();
+  final _promoDescriptionController = TextEditingController();
+  bool _isPromoLoading = false;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadModulesForMedium(_selectedMedium);
   }
 
@@ -254,13 +269,18 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
           unselectedLabelColor: AppColors.white.withOpacity(0.7),
           tabs: [
             Tab(text: 'Add File'),
-            Tab(text: 'Add Module'),
+            Tab(text: 'Users'),
+            Tab(text: 'Add Promo Code'),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_buildAddFileTab(theme), _buildAddModuleTab(theme)],
+        children: [
+          _buildAddFileTab(theme),
+          _buildUsersTab(theme),
+          _buildAddPromoCodeTab(theme),
+        ],
       ),
     );
   }
@@ -301,7 +321,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                helperText: 'Get this from the Google Drive URL',
+                helperText: 'Get this from the Google Drive URL12',
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -337,29 +357,29 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
             SizedBox(height: 16),
 
             // Medium
-            DropdownButtonFormField<String>(
-              value: _selectedMedium,
-              decoration: InputDecoration(
-                labelText: 'Medium *',
-                labelStyle: TextStyle(color: AppColors.primary),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              items: _mediums.map((String medium) {
-                return DropdownMenuItem<String>(
-                  value: medium,
-                  child: Text(medium),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedMedium = newValue!;
-                });
-                _loadModulesForMedium(newValue!);
-              },
-            ),
-            SizedBox(height: 16),
+            // DropdownButtonFormField<String>(
+            //   value: _selectedMedium,
+            //   decoration: InputDecoration(
+            //     labelText: 'Medium *',
+            //     labelStyle: TextStyle(color: AppColors.primary),
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //   ),
+            //   items: _mediums.map((String medium) {
+            //     return DropdownMenuItem<String>(
+            //       value: medium,
+            //       child: Text(medium),
+            //     );
+            //   }).toList(),
+            //   onChanged: (String? newValue) {
+            //     setState(() {
+            //       _selectedMedium = newValue!;
+            //     });
+            //     _loadModulesForMedium(newValue!);
+            //   },
+            // ),
+            // SizedBox(height: 16),
 
             // Module
             DropdownButtonFormField<String>(
@@ -651,6 +671,358 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildUsersTab(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Users',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _downloadUsersCsv,
+                // onPressed: () => _downloadUsersExcel(context),
+                icon: Icon(Icons.download),
+                label: Text('Download CSV'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Expanded(
+            child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance.collection('users').get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No users found.'));
+                }
+                final users = snapshot.data!.docs;
+                return ListView.separated(
+                  itemCount: users.length,
+                  separatorBuilder: (_, __) => Divider(),
+                  itemBuilder: (context, index) {
+                    final user = users[index].data() as Map<String, dynamic>;
+                    return ListTile(
+                      leading: Icon(Icons.person),
+                      title: Text(user['name'] ?? 'No Name'),
+                      subtitle: Text(user['email'] ?? ''),
+                      trailing: Text(
+                        user['subscription']?.toString()?.toUpperCase() ??
+                            'FREE',
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Promo Code Tab
+  Widget _buildAddPromoCodeTab(ThemeData theme) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Form(
+        key: _promoCodeFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Promo Code',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _downloadPromodoesCsv,
+                  // onPressed: () => _downloadUsersExcel(context),
+                  icon: Icon(Icons.download),
+                  label: Text('Download CSV'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _promoCodeController,
+              decoration: InputDecoration(
+                labelText: 'Promo Code *',
+                labelStyle: TextStyle(color: AppColors.primary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter promo code';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: _promoDescriptionController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: AppColors.primary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isPromoLoading ? null : _addPromoCode,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isPromoLoading
+                    ? CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.white,
+                        ),
+                      )
+                    : Text(
+                        'Add Promo Code',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _downloadUsersExcel(BuildContext context) async {
+    try {
+      // Request permissions
+      if (Platform.isAndroid) {
+        final storagePermission = await Permission.storage.request();
+        if (!storagePermission.isGranted) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Storage permission is required')),
+            );
+          }
+          return;
+        }
+      }
+
+      // Fetch user data
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .get();
+      final users = snapshot.docs.map((doc) => doc.data()).toList();
+      if (users.isEmpty) return;
+
+      log('Downloading users to Excel', name: 'AdminAddFileScreen');
+
+      // Create Excel
+      final excel = Excel.createExcel();
+      final sheet = excel['Users'];
+
+      // Add headers
+      sheet.appendRow([
+        TextCellValue('Name'),
+        TextCellValue('Email'),
+        TextCellValue('Subscription'),
+        TextCellValue('Referral Code'),
+        TextCellValue('Created At'),
+      ]);
+
+      // Fill data
+      for (final user in users) {
+        sheet.appendRow([
+          TextCellValue(user['name']?.toString() ?? ''),
+          TextCellValue(user['email']?.toString() ?? ''),
+          TextCellValue(user['subscription']?.toString() ?? ''),
+          TextCellValue(user['referralCode']?.toString() ?? ''),
+          TextCellValue(
+            user['createdAt'] != null
+                ? (user['createdAt'] as Timestamp).toDate().toIso8601String()
+                : '',
+          ),
+        ]);
+      }
+
+      final excelBytes = excel.encode();
+      if (excelBytes == null) throw Exception('Failed to encode Excel');
+
+      // Write to temp file
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'users_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      final tempFilePath = '${tempDir.path}/$fileName';
+      final file = File(tempFilePath);
+      await file.writeAsBytes(excelBytes);
+
+      // Save to Downloads using media_store_plus
+      final mediaStore = MediaStore();
+      final result = await mediaStore.saveFile(
+        tempFilePath: tempFilePath,
+        dirType: DirType.download,
+        // fileName: fileName, // Fixed: Added missing fileName parameter
+        dirName: DirName.download, // Fixed: Use DirName enum instead of string
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Excel saved to Downloads: $fileName'),
+          ), // Fixed: Added fileName to message
+        );
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save Excel file.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _downloadUsersCsv() async {
+    final snapshot = await FirebaseFirestore.instance.collection('users').get();
+    final users = snapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+    if (users.isEmpty) return;
+
+    final headers = [
+      'Name',
+      'Email',
+      'Subscription',
+      'Referral Code',
+      'Created At',
+    ];
+    final rows = [
+      headers.join(','),
+      ...users.map(
+        (u) => [
+          '"${u['name'] ?? ''}"',
+          '"${u['email'] ?? ''}"',
+          '"${u['subscription'] ?? ''}"',
+          '"${u['referralCode'] ?? ''}"',
+          '"${u['createdAt']?.toDate()?.toString() ?? ''}"',
+        ].join(','),
+      ),
+    ];
+    final csv = rows.join('\n');
+
+    // For web, trigger download. For mobile, share/save file (not implemented here)
+    // This example uses clipboard for simplicity
+    await Clipboard.setData(ClipboardData(text: csv));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('CSV copied to clipboard! Paste into Excel.')),
+    );
+  }
+
+  Future<void> _downloadPromodoesCsv() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('promocodes')
+        .get();
+    final users = snapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+    if (users.isEmpty) return;
+
+    final headers = ['code', 'createdAt', 'description'];
+    final rows = [
+      headers.join(','),
+      ...users.map(
+        (u) => [
+          '"${u['code'] ?? ''}"',
+          '"${u['description'] ?? ''}"',
+          '"${u['createdAt']?.toDate()?.toString() ?? ''}"',
+        ].join(','),
+      ),
+    ];
+    final csv = rows.join('\n');
+
+    // For web, trigger download. For mobile, share/save file (not implemented here)
+    // This example uses clipboard for simplicity
+    await Clipboard.setData(ClipboardData(text: csv));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('CSV copied to clipboard! Paste into Excel.')),
+    );
+  }
+
+  Future<void> _addPromoCode() async {
+    if (!_promoCodeFormKey.currentState!.validate()) return;
+    setState(() {
+      _isPromoLoading = true;
+    });
+    try {
+      final promoData = {
+        'code': _promoCodeController.text.trim(),
+        'description': _promoDescriptionController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+      await FirebaseFirestore.instance.collection('promocodes').add(promoData);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Promo code added!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+      _promoCodeFormKey.currentState!.reset();
+      _promoCodeController.clear();
+      _promoDescriptionController.clear();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding promo code: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isPromoLoading = false;
+      });
+    }
   }
 
   IconData _getModuleIcon(String iconName) {

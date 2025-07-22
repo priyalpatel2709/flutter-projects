@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:school_pdf/screen/admin_add_file_screen.dart';
 
 import 'constants/app_theme.dart';
@@ -9,10 +10,10 @@ import 'screen/home_screen.dart';
 import 'screen/profile_screen.dart';
 import 'screen/referral_screen.dart';
 import 'screen/selection_screen.dart';
-import 'screen/email_link_input_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp();
   runApp(MyApp());
 }
@@ -39,9 +40,6 @@ class MyApp extends StatelessWidget {
           case '/admin':
             return MaterialPageRoute(builder: (_) => AdminAddFileScreen());
 
-          case '/email-link-input':
-            return MaterialPageRoute(builder: (_) => EmailLinkInputScreen());
-
           case '/driveFiles':
             final args = settings.arguments as Map<String, dynamic>?;
             final medium = args?['medium'] ?? 'Option 2 Files';
@@ -56,11 +54,9 @@ class MyApp extends StatelessWidget {
             );
 
           case '/selection':
-            final args = settings.arguments as Map<String, dynamic>?;
-            final medium = args?['medium'] ?? 'Option 2 Files';
-            return MaterialPageRoute(
-              builder: (_) => SelectionScreen(medium: medium),
-            );
+            // final args = settings.arguments as Map<String, dynamic>?;
+            // final medium = args?['medium'] ?? 'Option 2 Files';
+            return MaterialPageRoute(builder: (_) => SelectionScreen());
 
           default:
             return MaterialPageRoute(

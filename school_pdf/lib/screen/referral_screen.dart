@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
@@ -305,7 +303,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
-                                onPressed: _redeemRewards,
+                                onPressed: null,
+                                // onPressed: _redeemRewards,
                                 icon: Icon(Icons.redeem),
                                 label: Text('Redeem 1 Reward Point'),
                                 style: ElevatedButton.styleFrom(

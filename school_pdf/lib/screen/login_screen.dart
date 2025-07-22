@@ -128,6 +128,44 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _forgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      _showErrorDialog('Please enter your email to reset password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (mounted) {
+        _showSuccessDialog(
+          'Password reset email sent! Please check your inbox.',
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return; // Check if widget is still mounted
+
+      String errorMessage = 'Failed to send password reset email.';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No account found with this email.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      _showErrorDialog(errorMessage);
+    } catch (e) {
+      if (!mounted) return; // Check if widget is still mounted
+
+      _showErrorDialog('Something went wrong. Please try again.');
+      debugPrint('Forgot password error: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -391,7 +429,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Logo Section
                     Container(
-                      padding: EdgeInsets.all(20),
+                      padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: AppColors.primaryShade50,
                         shape: BoxShape.circle,
@@ -403,15 +441,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      child: Icon(
-                        Icons.cloud_download,
-                        size: 60,
-                        color: AppColors.primary,
+                      child: Image.asset(
+                        'assets/images/logo_bg.png',
+                        height: 100,
+                        scale: 1.5,
+                        // color: Color.fromARGB(255, 15, 147, 59),
+                        // opacity: const AlwaysStoppedAnimation<double>(0.5),
                       ),
+                      // Image(
+                      //   image:
+                      //   AssetImage(
+                      //     'assets/images/logo_bg.png',
+                      //     height: 100,
+                      //     width: 100,
+                      //     fit: BoxFit.cover,
+                      //   ),
+                      // ),
                     ),
                     SizedBox(height: 24),
                     Text(
-                      'Drive File App',
+                      'Student Friend',
                       style: theme.textTheme.headlineLarge?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -590,6 +639,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         _isSignUp
                             ? 'Already have an account? Sign In'
                             : 'Don\'t have an account? Sign Up',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    // SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _forgotPassword,
+                      child: Text(
+                        'Forgot Password?',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,

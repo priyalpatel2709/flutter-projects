@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Colors
-  static const Color primary = Color(0xFF2563EB);
-  static const Color primaryLight = Color(0xFF3B82F6);
-  static const Color primaryDark = Color(0xFF1D4ED8);
+  // Primary Colors (Navy Blue from logo)
+  static const Color primary = Color(0xFF1A3557); // Navy Blue
+  static const Color primaryLight = Color(0xFF274472); // Slightly lighter navy
+  static const Color primaryDark = Color(0xFF10213A); // Darker navy
   static const Color primaryShade50 = Color(0xFFEFF6FF);
   static const Color primaryShade100 = Color(0xFFDBEAFE);
   static const Color primaryShade200 = Color(0xFFBFDBFE);
@@ -17,22 +17,22 @@ class AppColors {
   static const Color primaryShade900 = Color(0xFF1E3A8A);
 
   // Secondary Colors
-  static const Color secondary = Color(0xFFF59E0B);
-  static const Color secondaryLight = Color(0xFFFBBF24);
-  static const Color secondaryDark = Color(0xFFD97706);
+  static const Color secondary = Color(0xFF2EAD6B); // Green
+  static const Color secondaryLight = Color(0xFF5EDC8C); // Lighter green
+  static const Color secondaryDark = Color(0xFF21794B); // Darker green
 
   // Success Colors
-  static const Color success = Color(0xFF10B981);
+  static const Color success = Color(0xFF2EAD6B); // Green
   static const Color successLight = Color(0xFF34D399);
   static const Color successDark = Color(0xFF059669);
 
   // Error Colors
-  static const Color error = Color(0xFFEF4444);
+  static const Color error = Color(0xFFEF4444); // Red
   static const Color errorLight = Color(0xFFF87171);
   static const Color errorDark = Color(0xFFDC2626);
 
   // Warning Colors
-  static const Color warning = Color(0xFFF59E0B);
+  static const Color warning = Color(0xFFF59E0B); // Amber
   static const Color warningLight = Color(0xFFFBBF24);
   static const Color warningDark = Color(0xFFD97706);
 
@@ -50,26 +50,26 @@ class AppColors {
   static const Color grey800 = Color(0xFF1F2937);
   static const Color grey900 = Color(0xFF111827);
 
-  // Background Colors
-  static const Color background = Color(0xFFF8FAFC);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF1F5F9);
+  // Background Colors (Off-white/Cream from logo)
+  static const Color background = Color(0xFFFFFDF6); // Off-white/cream
+  static const Color surface = Color(0xFFFFFFFF); // White for cards, dialogs
+  static const Color surfaceVariant = Color(0xFFF6F8FA); // Slightly greyed white
 
   // Text Colors
-  static const Color textPrimary = Color(0xFF1F2937);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textTertiary = Color(0xFF9CA3AF);
-  static const Color textInverse = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF1A3557); // Navy Blue
+  static const Color textSecondary = Color(0xFF21794B); // Dark Green
+  static const Color textTertiary = Color(0xFF6CB6D9); // Muted Blue
+  static const Color textInverse = Color(0xFFFFFFFF); // White
 
   // Border Colors
-  static const Color border = Color(0xFFE5E7EB);
-  static const Color borderLight = Color(0xFFF3F4F6);
-  static const Color borderDark = Color(0xFFD1D5DB);
+  static const Color border = Color(0xFFE0E3E7); // Light border
+  static const Color borderLight = Color(0xFFF6F8FA);
+  static const Color borderDark = Color(0xFFB0B8C1);
 
   // Shadow Colors
-  static const Color shadowLight = Color(0x0A000000);
-  static const Color shadowMedium = Color(0x1A000000);
-  static const Color shadowDark = Color(0x33000000);
+  static const Color shadowLight = Color(0x0A1A3557); // Navy with opacity
+  static const Color shadowMedium = Color(0x1A1A3557);
+  static const Color shadowDark = Color(0x331A3557);
 
   // Premium Colors
   static const Color premium = Color(0xFFF59E0B);
@@ -99,6 +99,15 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [secondary, secondaryLight],
+  );
+
+  static const Color accentBlue = Color(0xFFA3D8F4); // Light Blue
+  static const Color accentBlueLight = Color(0xFFD2F1FB); // Lighter blue
+
+  static const LinearGradient accentBlueGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [accentBlue, accentBlueLight],
   );
 
   static const LinearGradient cardGradient = LinearGradient(

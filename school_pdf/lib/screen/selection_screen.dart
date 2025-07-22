@@ -4,12 +4,15 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 import '../constants/app_colors.dart';
 import '../models/module.dart';
+import '../constants/ad_unit.dart';
 
 class SelectionScreen extends StatefulWidget {
-  final String medium;
-  const SelectionScreen({super.key, required this.medium});
+  // final String medium;
+  const SelectionScreen({super.key});
 
   @override
   State<SelectionScreen> createState() => _SelectionScreenState();
@@ -18,11 +21,62 @@ class SelectionScreen extends StatefulWidget {
 class _SelectionScreenState extends State<SelectionScreen> {
   List<Module> modules = [];
   bool isLoading = true;
+  BannerAd? _bannerAd;
+  bool _isBannerAdLoaded = false;
+  RewardedAd? _rewardedAd;
+  bool _isRewardedAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadModulesFromDatabase();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AdUnit.rewardedAdUnitId, // Use test ad unit for development
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          setState(() {
+            _rewardedAd = ad;
+            _isRewardedAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (error) {
+          setState(() {
+            _rewardedAd = null;
+            _isRewardedAdLoaded = false;
+          });
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    _rewardedAd?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadModulesFromDatabase() async {
@@ -34,7 +88,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
       // Query modules from the modules collection
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('modules')
-          .where('medium', isEqualTo: widget.medium)
+          .where('medium', isEqualTo: 'Gujarati')
           .where('isActive', isEqualTo: true)
           .orderBy('order')
           .get();
@@ -49,6 +103,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
         isLoading = false;
       });
     } catch (e) {
+      log('message: Error loading modules: $e');
       setState(() {
         isLoading = false;
         modules = [];
@@ -94,63 +149,64 @@ class _SelectionScreenState extends State<SelectionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.shadowLight,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.folder,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.medium,
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Select a module to continue',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            // Container(
+            //   width: double.infinity,
+            //   padding: EdgeInsets.all(20),
+            //   decoration: BoxDecoration(
+            //     color: AppColors.surface,
+            //     borderRadius: BorderRadius.circular(16),
+            //     boxShadow: [
+            //       BoxShadow(
+            //         color: AppColors.shadowLight,
+            //         blurRadius: 8,
+            //         offset: Offset(0, 2),
+            //       ),
+            //     ],
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Row(
+            //         children: [
+            //           Container(
+            //             padding: EdgeInsets.all(8),
+            //             decoration: BoxDecoration(
+            //               color: AppColors.primary.withOpacity(0.1),
+            //               borderRadius: BorderRadius.circular(8),
+            //             ),
+            //             child: Icon(
+            //               Icons.folder,
+            //               color: AppColors.primary,
+            //               size: 20,
+            //             ),
+            //           ),
+            //           // SizedBox(width: 12),
+            //           // Expanded(
+            //           //   child: Column(
+            //           //     crossAxisAlignment: CrossAxisAlignment.start,
+            //           //     children: [
+            //           //       Text(
+            //           //         widget.medium,
+            //           //         style: theme.textTheme.headlineSmall?.copyWith(
+            //           //           color: AppColors.textPrimary,
+            //           //           fontWeight: FontWeight.bold,
+            //           //         ),
+            //           //       ),
+            //           //       Text(
+            //           //         'Select a module to continue',
+            //           //         style: theme.textTheme.bodyMedium?.copyWith(
+            //           //           color: AppColors.textSecondary,
+            //           //         ),
+            //           //       ),
+            //           //     ],
+            //           //   ),
+            //           // ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Title and Subtitle
             SizedBox(height: 24),
             Text(
               'Available Modules',
@@ -202,7 +258,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'No files found for ${widget.medium}',
+                            'No files found.',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.textTertiary,
                             ),
@@ -232,6 +288,12 @@ class _SelectionScreenState extends State<SelectionScreen> {
                       },
                     ),
             ),
+            if (_isBannerAdLoaded)
+              SizedBox(
+                height: _bannerAd!.size.height.toDouble(),
+                width: _bannerAd!.size.width.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
           ],
         ),
       ),
@@ -297,12 +359,42 @@ class _SelectionScreenState extends State<SelectionScreen> {
       shadowColor: AppColors.shadowMedium,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            route,
-            arguments: {'medium': widget.medium, 'module': title},
-          );
+        // onTap: () {
+        //   Navigator.pushNamed(
+        //     context,
+        //     route,
+        //     arguments: {'medium': 'Gujarati', 'module': title},
+        //   );
+        // },
+        onTap: () async {
+          if (_isRewardedAdLoaded && _rewardedAd != null) {
+            _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (ad) {
+                _loadRewardedAd(); // Preload next ad
+              },
+              onAdFailedToShowFullScreenContent: (ad, error) {
+                _loadRewardedAd();
+              },
+            );
+            _rewardedAd!.show(
+              onUserEarnedReward: (ad, reward) {
+                Navigator.pushNamed(
+                  context,
+                  route,
+                  arguments: {'medium': 'Gujarati', 'module': title},
+                );
+              },
+            );
+            setState(() {
+              _rewardedAd = null;
+              _isRewardedAdLoaded = false;
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Ad not loaded yet, please try again.')),
+            );
+            _loadRewardedAd();
+          }
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(

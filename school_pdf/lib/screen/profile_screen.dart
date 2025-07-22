@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,11 +16,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userProfile;
   Map<String, dynamic>? referralStats;
   bool isLoading = true;
+  final TextEditingController _promoCodeController = TextEditingController();
+  final TextEditingController _referralCodeController = TextEditingController();
+  String? _promoCodeError;
+  String? _referralCodeError;
+  int _subscriptionPrice = 150;
+  bool _isCheckingPromo = false;
+  bool _isCheckingReferral = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
+  }
+
+  @override
+  void dispose() {
+    _promoCodeController.dispose();
+    _referralCodeController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserProfile() async {
@@ -104,10 +120,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (context) =>
-              PaymentSimulationDialog(subscriptionType: subscriptionType),
+          builder: (context) => PaymentSimulationDialog(
+            subscriptionType: subscriptionType,
+            price: _subscriptionPrice,
+          ),
         ) ??
         false;
+  }
+
+  Future<void> _checkPromoCode(String code) async {
+    setState(() {
+      _isCheckingPromo = true;
+      _promoCodeError = null;
+    });
+
+    final promoSnap = await FirebaseFirestore.instance
+        .collection('promocodes')
+        .where('code', isEqualTo: code)
+        .limit(1)
+        .get();
+    // log('message ${promoSnap.data}');
+    if (promoSnap.docs.isNotEmpty) {
+      setState(() {
+        _subscriptionPrice = 50;
+      });
+    } else {
+      setState(() {
+        _promoCodeError = 'Invalid promo code';
+        _subscriptionPrice = 150;
+      });
+    }
+    setState(() {
+      _isCheckingPromo = false;
+    });
+  }
+
+  Future<void> _checkReferralCode(String code) async {
+    setState(() {
+      _isCheckingReferral = true;
+      _referralCodeError = null;
+    });
+    final isValid = await ReferralService.isValidReferralCode(code);
+    if (isValid) {
+      setState(() {
+        if (_subscriptionPrice > 100) _subscriptionPrice = 100;
+      });
+    } else {
+      setState(() {
+        _referralCodeError = 'Invalid referral code';
+        _subscriptionPrice = 150;
+      });
+    }
+    setState(() {
+      _isCheckingReferral = false;
+    });
   }
 
   @override
@@ -411,6 +477,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                               SizedBox(height: 20),
+                              Text(
+                                'Apply Referral or Promo Code for Discount',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              SizedBox(height: 8),
+                              TextField(
+                                controller: _promoCodeController,
+
+                                decoration: InputDecoration(
+                                  labelText: 'Promo Code',
+                                  errorText: _promoCodeError,
+                                  suffixIcon: _isCheckingPromo
+                                      ? SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : IconButton(
+                                          icon: Icon(Icons.check),
+                                          onPressed: () => _checkPromoCode(
+                                            _promoCodeController.text.trim(),
+                                          ),
+                                        ),
+                                ),
+                                onChanged: (v) {
+                                  if (v.isEmpty) {
+                                    setState(() {
+                                      _promoCodeError = null;
+                                      _subscriptionPrice = 150;
+                                    });
+                                  } else {
+                                    _checkPromoCode(v.trim());
+                                  }
+                                },
+                              ),
+                              SizedBox(height: 8),
+                              TextField(
+                                controller: _referralCodeController,
+                                decoration: InputDecoration(
+                                  labelText: 'Referral Code',
+                                  errorText: _referralCodeError,
+                                  suffixIcon: _isCheckingReferral
+                                      ? SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : IconButton(
+                                          icon: Icon(Icons.check),
+                                          onPressed: () => _checkReferralCode(
+                                            _referralCodeController.text.trim(),
+                                          ),
+                                        ),
+                                ),
+                                onChanged: (v) {
+                                  if (v.isEmpty) {
+                                    setState(() {
+                                      _referralCodeError = null;
+                                      _subscriptionPrice = 150;
+                                    });
+                                  } else {
+                                    _checkReferralCode(
+                                      _referralCodeController.text.trim(),
+                                    );
+                                  }
+                                },
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Subscription Price: ₹$_subscriptionPrice (lifetime)',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              SizedBox(height: 12),
 
                               _buildSubscriptionOption(
                                 'Free',
@@ -544,7 +690,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           color: AppColors.error.withOpacity(
                                             0.05,
                                           ),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                           border: Border.all(
                                             color: AppColors.error.withOpacity(
                                               0.2,
@@ -554,7 +702,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         child: Row(
                                           children: [
                                             Icon(
-                                              Icons.admin_panel_settings_outlined,
+                                              Icons
+                                                  .admin_panel_settings_outlined,
                                               color: AppColors.primary,
                                             ),
                                             SizedBox(width: 12),
@@ -724,9 +873,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class PaymentSimulationDialog extends StatefulWidget {
   final String subscriptionType;
+  final int price; // Add this
 
-  const PaymentSimulationDialog({Key? key, required this.subscriptionType})
-    : super(key: key);
+  const PaymentSimulationDialog({
+    Key? key,
+    required this.subscriptionType,
+    required this.price,
+  }) : super(key: key);
 
   @override
   State<PaymentSimulationDialog> createState() =>
@@ -911,7 +1064,7 @@ class _PaymentSimulationDialogState extends State<PaymentSimulationDialog> {
                           ),
                         ),
                         Text(
-                          '30 days access to all premium content',
+                          'Life Time access to all premium content',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -920,7 +1073,7 @@ class _PaymentSimulationDialogState extends State<PaymentSimulationDialog> {
                     ),
                   ),
                   Text(
-                    '\$9.99',
+                    '₹${widget.price}',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,

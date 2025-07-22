@@ -32,75 +32,6 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Header Section
-          // Container(
-          //   width: double.infinity,
-          //   padding: EdgeInsets.all(24.0),
-          //   decoration: BoxDecoration(
-          //     gradient: AppColors.primaryGradient,
-          //     borderRadius: BorderRadius.only(
-          //       bottomLeft: Radius.circular(30),
-          //       bottomRight: Radius.circular(30),
-          //     ),
-          //     boxShadow: [
-          //       BoxShadow(
-          //         color: AppColors.shadowMedium,
-          //         blurRadius: 10,
-          //         offset: Offset(0, 4),
-          //       ),
-          //     ],
-          //   ),
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       Row(
-          //         children: [
-          //           Container(
-          //             padding: EdgeInsets.all(12),
-          //             decoration: BoxDecoration(
-          //               color: AppColors.white.withOpacity(0.2),
-          //               borderRadius: BorderRadius.circular(12),
-          //             ),
-          //             child: Icon(
-          //               Icons.cloud_download,
-          //               color: AppColors.white,
-          //               size: 24,
-          //             ),
-          //           ),
-          //           SizedBox(width: 12),
-          //           // Expanded(
-          //           //   child: Column(
-          //           //     crossAxisAlignment: CrossAxisAlignment.start,
-          //           //     children: [
-          //           //       Text(
-          //           //         'Welcome back,',
-          //           //         style: theme.textTheme.bodyMedium?.copyWith(
-          //           //           color: AppColors.white.withOpacity(0.8),
-          //           //         ),
-          //           //       ),
-          //           //       Text(
-          //           //         '${user?.displayName ?? 'User'}!',
-          //           //         style: theme.textTheme.headlineLarge?.copyWith(
-          //           //           color: AppColors.white,
-          //           //           fontWeight: FontWeight.bold,
-          //           //         ),
-          //           //       ),
-          //           //     ],
-          //           //   ),
-          //           // ),
-          //         ],
-          //       ),
-          //       SizedBox(height: 16),
-          //       Text(
-          //         'Choose an option to access your files',
-          //         style: theme.textTheme.bodyMedium?.copyWith(
-          //           color: AppColors.white.withOpacity(0.8),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-
           // Options Section
           Expanded(
             child: Padding(
@@ -171,7 +102,7 @@ class HomeScreen extends StatelessWidget {
     String route,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 4,
       shadowColor: AppColors.shadowMedium,

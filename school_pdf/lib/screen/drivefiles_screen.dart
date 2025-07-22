@@ -1,10 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/app_colors.dart';
+import '../constants/ad_unit.dart';
 
 class DriveFilesScreen extends StatefulWidget {
   final String title;
@@ -27,12 +29,56 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   bool isLoading = true;
   List<DriveFile> files = [];
   bool isLoadingFiles = true;
+  BannerAd? _bannerAd;
+  bool _isBannerAdLoaded = false;
+  RewardedAd? _rewardedAd;
+  bool _isRewardedAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
     _loadFilesFromDatabase();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: AdUnit.rewardedAdUnitId, // Use test ad unit for development
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          setState(() {
+            _rewardedAd = ad;
+            _isRewardedAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (error) {
+          setState(() {
+            _rewardedAd = null;
+            _isRewardedAdLoaded = false;
+          });
+        },
+      ),
+    );
   }
 
   Future<void> _loadUserProfile() async {
@@ -138,7 +184,30 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     if (!file.isFree && !_canAccessPaidContent()) {
       _showSubscriptionDialog();
     } else {
-      _openDriveFile(file.id);
+      if (_isRewardedAdLoaded && _rewardedAd != null) {
+        _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            _loadRewardedAd(); // Preload next ad
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            _loadRewardedAd();
+          },
+        );
+        _rewardedAd!.show(
+          onUserEarnedReward: (ad, reward) {
+            _openDriveFile(file.id);
+          },
+        );
+        setState(() {
+          _rewardedAd = null;
+          _isRewardedAdLoaded = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ad not loaded yet, please try again.')),
+        );
+        _loadRewardedAd();
+      }
     }
   }
 
@@ -261,7 +330,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${widget.medium} - ${widget.module}',
+                                    widget.module,
                                     style: theme.textTheme.headlineSmall
                                         ?.copyWith(
                                           color: AppColors.textPrimary,
@@ -448,6 +517,12 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                           );
                         },
                       ),
+                    ),
+                  if (_isBannerAdLoaded)
+                    SizedBox(
+                      height: _bannerAd!.size.height.toDouble(),
+                      width: _bannerAd!.size.width.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
                     ),
                 ],
               ),

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
+import 'selection_screen.dart';
 import 'verify_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -30,7 +31,7 @@ class AuthWrapper extends StatelessWidget {
 
         if (user == null) return LoginScreen();
         if (!user.emailVerified) return const VerifyScreen();
-        return HomeScreen();
+        return SelectionScreen();
 
         // if (user != null) {
         //   // Check if user data exists in Firestore before redirecting
