@@ -30,7 +30,7 @@ class AuthWrapper extends StatelessWidget {
         final user = snapshot.data;
 
         if (user == null) return LoginScreen();
-        if (!user.emailVerified) return const VerifyScreen();
+        // if (!user.emailVerified) return const VerifyScreen();
         return SelectionScreen();
 
         // if (user != null) {

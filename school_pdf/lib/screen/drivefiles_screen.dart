@@ -40,6 +40,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     _loadUserProfile();
     _loadFilesFromDatabase();
     _loadBannerAd();
+    _loadRewardedAd();
   }
 
   void _loadBannerAd() {
@@ -79,6 +80,14 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
         },
       ),
     );
+  }
+
+  // Helper to wait for rewarded ad to load
+  Future<void> _waitForRewardedAd() async {
+    if (_isRewardedAdLoaded) return;
+    while (!_isRewardedAdLoaded) {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
   }
 
   Future<void> _loadUserProfile() async {
@@ -184,30 +193,48 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     if (!file.isFree && !_canAccessPaidContent()) {
       _showSubscriptionDialog();
     } else {
-      if (_isRewardedAdLoaded && _rewardedAd != null) {
-        _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-          onAdDismissedFullScreenContent: (ad) {
-            _loadRewardedAd(); // Preload next ad
-          },
-          onAdFailedToShowFullScreenContent: (ad, error) {
-            _loadRewardedAd();
-          },
-        );
-        _rewardedAd!.show(
-          onUserEarnedReward: (ad, reward) {
-            _openDriveFile(file.id);
-          },
-        );
-        setState(() {
-          _rewardedAd = null;
-          _isRewardedAdLoaded = false;
-        });
+      if (userProfile?['adFree'] == true) {
+        _openDriveFile(file.id);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ad not loaded yet, please try again.')),
-        );
-        _loadRewardedAd();
+        _showAdAndOpenFile(file);
       }
+    }
+  }
+
+  Future<void> _showAdAndOpenFile(DriveFile file) async {
+    if (userProfile?['adFree'] == true) {
+      _openDriveFile(file.id);
+      return;
+    }
+    if (!_isRewardedAdLoaded || _rewardedAd == null) {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => Center(child: CircularProgressIndicator()),
+      );
+      // Wait for ad to load
+      await _waitForRewardedAd();
+      Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
+    }
+    if (_isRewardedAdLoaded && _rewardedAd != null) {
+      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          _loadRewardedAd(); // Preload next ad
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          _loadRewardedAd();
+        },
+      );
+      _rewardedAd!.show(
+        onUserEarnedReward: (ad, reward) {
+          _openDriveFile(file.id);
+        },
+      );
+      setState(() {
+        _rewardedAd = null;
+        _isRewardedAdLoaded = false;
+      });
     }
   }
 

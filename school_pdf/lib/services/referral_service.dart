@@ -114,6 +114,7 @@ class ReferralService {
       await _firestore.collection('users').doc(referrerUserId).update({
         'referralCount': FieldValue.increment(1),
         'referralRewards': FieldValue.increment(1), // Give 1 reward point
+        'referralUserList': FieldValue.arrayUnion([newUserId]),
       });
 
       // Create referral record
@@ -146,6 +147,7 @@ class ReferralService {
           'referralRewards': data['referralRewards'] ?? 0,
           'referredBy': data['referredBy'] ?? null,
           'referredByCode': data['referredByCode'] ?? null,
+          'activeReferredUserList': data['activeReferredUserList'] ?? [],
         };
       }
 
@@ -155,6 +157,7 @@ class ReferralService {
         'referralRewards': 0,
         'referredBy': null,
         'referredByCode': null,
+        'activeReferredUserList': [],
       };
     } catch (e) {
       throw Exception('Failed to get referral stats: $e');
@@ -163,41 +166,37 @@ class ReferralService {
 
   // Get list of users referred by current user
   static Future<List<Map<String, dynamic>>> getReferredUsers() async {
-    final user = _auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return [];
 
-    try {
-      final referrals = await _firestore
-          .collection('referrals')
-          .where('referrerId', isEqualTo: user.uid)
-          // .orderBy('createdAt', descending: true)
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    final data = userDoc.data() ?? {};
+
+    final List<dynamic> referralUserList = data['referralUserList'] ?? [];
+    final List<dynamic> activeReferredUserList =
+        data['activeReferredUserList'] ?? [];
+
+    List<Map<String, dynamic>> referredUsers = [];
+
+    for (String uid in referralUserList) {
+      final referredUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
           .get();
+      final referredUserData = referredUserDoc.data() ?? {};
 
-      List<Map<String, dynamic>> referredUsers = [];
-
-      for (var doc in referrals.docs) {
-        final referralData = doc.data();
-        final referredUserDoc = await _firestore
-            .collection('users')
-            .doc(referralData['referredUserId'])
-            .get();
-
-        if (referredUserDoc.exists) {
-          final userData = referredUserDoc.data() as Map<String, dynamic>;
-          referredUsers.add({
-            'userId': referredUserDoc.id,
-            'name': userData['name'] ?? 'Unknown User',
-            'email': userData['email'] ?? '',
-            'referredAt': referralData['createdAt'],
-            'status': referralData['status'],
-          });
-        }
-      }
-
-      return referredUsers;
-    } catch (e) {
-      throw Exception('Failed to get referred users: $e');
+      referredUsers.add({
+        'uid': uid,
+        'name': referredUserData['name'] ?? 'Unknown',
+        'email': referredUserData['email'] ?? '',
+        'active': activeReferredUserList.contains(uid),
+      });
     }
+
+    return referredUsers;
   }
 
   // Redeem referral rewards

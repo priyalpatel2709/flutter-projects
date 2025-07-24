@@ -80,7 +80,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadModulesForMedium(_selectedMedium);
   }
 
@@ -268,6 +268,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
           labelColor: AppColors.white,
           unselectedLabelColor: AppColors.white.withOpacity(0.7),
           tabs: [
+            Tab(text: 'Add Module'),
             Tab(text: 'Add File'),
             Tab(text: 'Users'),
             Tab(text: 'Add Promo Code'),
@@ -277,6 +278,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
+          _buildAddModuleTab(theme),
           _buildAddFileTab(theme),
           _buildUsersTab(theme),
           _buildAddPromoCodeTab(theme),
@@ -527,29 +529,29 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
             ),
             SizedBox(height: 16),
 
-            // Medium
-            DropdownButtonFormField<String>(
-              value: _selectedModuleMedium,
-              decoration: InputDecoration(
-                labelText: 'Medium *',
-                labelStyle: TextStyle(color: AppColors.primary),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              items: _mediums.map((String medium) {
-                return DropdownMenuItem<String>(
-                  value: medium,
-                  child: Text(medium),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedModuleMedium = newValue!;
-                });
-              },
-            ),
-            SizedBox(height: 16),
+            // // Medium
+            // DropdownButtonFormField<String>(
+            //   value: _selectedModuleMedium,
+            //   decoration: InputDecoration(
+            //     labelText: 'Medium *',
+            //     labelStyle: TextStyle(color: AppColors.primary),
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //   ),
+            //   items: _mediums.map((String medium) {
+            //     return DropdownMenuItem<String>(
+            //       value: medium,
+            //       child: Text(medium),
+            //     );
+            //   }).toList(),
+            //   onChanged: (String? newValue) {
+            //     setState(() {
+            //       _selectedModuleMedium = newValue!;
+            //     });
+            //   },
+            // ),
+            // SizedBox(height: 16),
 
             // Description
             TextFormField(

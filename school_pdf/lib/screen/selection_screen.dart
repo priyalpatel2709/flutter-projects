@@ -25,12 +25,16 @@ class _SelectionScreenState extends State<SelectionScreen> {
   bool _isBannerAdLoaded = false;
   RewardedAd? _rewardedAd;
   bool _isRewardedAdLoaded = false;
+  Map<String, dynamic>? userProfile;
+  bool isLoadingProfile = true;
 
   @override
   void initState() {
     super.initState();
     _loadModulesFromDatabase();
     _loadBannerAd();
+    _loadRewardedAd(); // Preload rewarded ad on screen load
+    _loadUserProfile();
   }
 
   void _loadBannerAd() {
@@ -72,6 +76,14 @@ class _SelectionScreenState extends State<SelectionScreen> {
     );
   }
 
+  // Helper to wait for rewarded ad to load
+  Future<void> _waitForRewardedAd() async {
+    if (_isRewardedAdLoaded) return;
+    while (!_isRewardedAdLoaded) {
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+  }
+
   @override
   void dispose() {
     _bannerAd?.dispose();
@@ -103,10 +115,40 @@ class _SelectionScreenState extends State<SelectionScreen> {
         isLoading = false;
       });
     } catch (e) {
-      log('message: Error loading modules: $e');
+      // log('message: Error loading modules: $e');
       setState(() {
         isLoading = false;
         modules = [];
+      });
+    }
+  }
+
+  Future<void> _loadUserProfile() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (doc.exists) {
+          setState(() {
+            userProfile = doc.data() as Map<String, dynamic>;
+            isLoadingProfile = false;
+          });
+        } else {
+          setState(() {
+            isLoadingProfile = false;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          isLoadingProfile = false;
+        });
+      }
+    } else {
+      setState(() {
+        isLoadingProfile = false;
       });
     }
   }
@@ -266,26 +308,39 @@ class _SelectionScreenState extends State<SelectionScreen> {
                         ],
                       ),
                     )
-                  : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1.1,
-                      ),
+                  : ListView.builder(
                       itemCount: modules.length,
                       itemBuilder: (context, index) {
-                        final module = modules[index];
-                        return _buildOptionCard(
-                          context: context,
-                          title: module.name,
-                          subtitle: module.description,
-                          icon: _getModuleIcon(module.icon),
-                          // iconColor: _getModuleColor(module.color),
-                          // backgroundColor: _getModuleBackgroundColor(module.backgroundColor),
-                          route: '/driveFiles',
-                        );
+                        try {
+                          final module = modules[index];
+                          return _buildOptionCard(
+                            context: context,
+                            title: module.name,
+                            subtitle: module.description,
+                            icon: _getModuleIcon(module.icon),
+                            route: '/driveFiles',
+                          );
+                        } catch (e, stack) {
+                          log('Error in itemBuilder: $e\n$stack');
+                          return ListTile(
+                            title: Text('Error loading module'),
+                            subtitle: Text('$e'),
+                          );
+                        }
                       },
+
+                      // itemBuilder: (context, index) {
+                      //   final module = modules[index];
+                      //   return _buildOptionCard(
+                      //     context: context,
+                      //     title: module.name,
+                      //     subtitle: module.description,
+                      //     icon: _getModuleIcon(module.icon),
+                      //     // iconColor: _getModuleColor(module.color),
+                      //     // backgroundColor: _getModuleBackgroundColor(module.backgroundColor),
+                      //     route: '/driveFiles',
+                      //   );
+                      // },
                     ),
             ),
             if (_isBannerAdLoaded)
@@ -359,14 +414,26 @@ class _SelectionScreenState extends State<SelectionScreen> {
       shadowColor: AppColors.shadowMedium,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        // onTap: () {
-        //   Navigator.pushNamed(
-        //     context,
-        //     route,
-        //     arguments: {'medium': 'Gujarati', 'module': title},
-        //   );
-        // },
         onTap: () async {
+          if (userProfile?['adFree'] == true) {
+            Navigator.pushNamed(
+              context,
+              route,
+              arguments: {'medium': 'Gujarati', 'module': title},
+            );
+            return;
+          }
+          if (!_isRewardedAdLoaded || _rewardedAd == null) {
+            // Show loading dialog
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => Center(child: CircularProgressIndicator()),
+            );
+            // Wait for ad to load
+            await _waitForRewardedAd();
+            Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
+          }
           if (_isRewardedAdLoaded && _rewardedAd != null) {
             _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (ad) {
@@ -389,24 +456,18 @@ class _SelectionScreenState extends State<SelectionScreen> {
               _rewardedAd = null;
               _isRewardedAdLoaded = false;
             });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Ad not loaded yet, please try again.')),
-            );
-            _loadRewardedAd();
           }
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          height: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: AppColors.cardGradient,
           ),
           child: Padding(
             padding: EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
                   padding: EdgeInsets.all(16),
@@ -423,7 +484,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                   ),
                   child: Icon(icon, size: 32, color: AppColors.primary),
                 ),
-                SizedBox(height: 16),
+                SizedBox(width: 16),
                 Text(
                   title,
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -432,7 +493,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 8),
+                // SizedBox(height: 8),
                 // Text(
                 //   subtitle,
                 //   textAlign: TextAlign.center,

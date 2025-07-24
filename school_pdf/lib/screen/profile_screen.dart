@@ -3,8 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'dart:async';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -23,17 +26,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _subscriptionPrice = 150;
   bool _isCheckingPromo = false;
   bool _isCheckingReferral = false;
+  final int eligibleCount = 2;
+
+  // In-App Purchase variables
+  final String _premiumProductId =
+      'premium_subscription'; // Replace with your real product ID
+  List<ProductDetails> _products = [];
+  StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
+  bool _iapAvailable = false;
+  bool _iapLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
+    _initInAppPurchase();
   }
 
   @override
   void dispose() {
     _promoCodeController.dispose();
     _referralCodeController.dispose();
+    _iapSubscription?.cancel();
     super.dispose();
   }
 
@@ -73,21 +87,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _updateSubscription(String subscriptionType) async {
+  Future<void> _updateSubscription(
+    String subscriptionType,
+    bool isClaim,
+  ) async {
     if (user == null) return;
 
+    // Prevent paid subscription if eligible for free
+    final activeList = referralStats?['activeReferredUserList'] as List?;
+
     // Show payment simulation for non-free subscriptions
-    if (subscriptionType != 'free') {
+    if (subscriptionType != AdUnit.freeSubscriptionType &&
+        activeList != null &&
+        activeList.length >= eligibleCount &&
+        subscriptionType != AdUnit.freeSubscriptionType) {
       bool paymentSuccess = await _showPaymentSimulation(subscriptionType);
       if (!paymentSuccess) {
         return; // User cancelled or payment failed
       }
     }
-
     try {
       DateTime? expiryDate;
-      if (subscriptionType != 'free') {
-        expiryDate = DateTime.now().add(Duration(days: 30));
+      if (subscriptionType != AdUnit.freeSubscriptionType) {
+        expiryDate = DateTime.now().add(Duration(days: 730)); // 2 years
       }
 
       await FirebaseFirestore.instance
@@ -97,6 +119,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'subscription': subscriptionType,
             'subscriptionExpiry': expiryDate?.toIso8601String(),
           });
+
+      if (subscriptionType != AdUnit.freeSubscriptionType && !isClaim) {
+        if (userProfile?['referredBy'] != null) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userProfile?['referredBy'])
+              .update({
+                'activeReferredUserList': FieldValue.arrayUnion([user!.uid]),
+              });
+        }
+      }
 
       _loadUserProfile();
 
@@ -176,9 +209,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<void> _initInAppPurchase() async {
+    setState(() {
+      _iapLoading = true;
+    });
+    final bool available = await InAppPurchase.instance.isAvailable();
+    setState(() {
+      _iapAvailable = available;
+    });
+    if (!available) {
+      setState(() {
+        _iapLoading = false;
+      });
+      return;
+    }
+    final ProductDetailsResponse response = await InAppPurchase.instance
+        .queryProductDetails({_premiumProductId});
+    if (response.notFoundIDs.isEmpty) {
+      setState(() {
+        _products = response.productDetails;
+      });
+    }
+    _iapSubscription = InAppPurchase.instance.purchaseStream.listen(
+      _onPurchaseUpdated,
+    );
+    setState(() {
+      _iapLoading = false;
+    });
+  }
+
+  void _onPurchaseUpdated(List<PurchaseDetails> purchases) async {
+    for (var purchase in purchases) {
+      if (purchase.status == PurchaseStatus.purchased) {
+        // Optionally verify purchase here
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .update({
+              'subscription': AdUnit.premiumSubscriptionType,
+              'subscriptionExpiry': DateTime.now()
+                  .add(Duration(days: 30))
+                  .toIso8601String(),
+            });
+        _loadUserProfile();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Premium unlocked!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        InAppPurchase.instance.completePurchase(purchase);
+      } else if (purchase.status == PurchaseStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Purchase failed'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _buyPremium() async {
+    if (!_iapAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('In-app purchases not available'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    if (_products.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Premium product not available'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final product = _products.firstWhere((p) => p.id == _premiumProductId);
+    final purchaseParam = PurchaseParam(productDetails: product);
+    InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final eligibleForFree =
+        (referralStats?['activeReferredUserList'] as List?)?.length != null &&
+        (referralStats?['activeReferredUserList'] as List).length >=
+            eligibleCount;
+    final isFree = userProfile?['subscription'] == AdUnit.freeSubscriptionType;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -318,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Expanded(
                                     child: _buildReferralStat(
                                       'Rewards',
-                                      '${referralStats?['referralRewards'] ?? 0}',
+                                      '${referralStats?['activeReferredUserList'].length ?? 0}',
                                       AppColors.premium,
                                     ),
                                   ),
@@ -406,7 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  '${userProfile?['subscription']?.toUpperCase() ?? 'FREE'}',
+                                  '${userProfile?['subscription']?.toUpperCase() ?? AdUnit.freeSubscriptionType}',
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: _getSubscriptionColor(
@@ -559,21 +682,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               SizedBox(height: 12),
 
                               _buildSubscriptionOption(
-                                'Free',
-                                'Basic access to files',
+                                AdUnit.freeSubscriptionType,
+                                eligibleForFree
+                                    ? 'Unlocked! You have more than 5 active referrals.'
+                                    : 'Basic access to files',
                                 Icons.info_outline,
                                 AppColors.grey600,
-                                () => _updateSubscription('free'),
+                                () => _updateSubscription(
+                                  AdUnit.freeSubscriptionType,
+                                  false,
+                                ),
                               ),
+
+                              if (eligibleForFree &&
+                                  userProfile?['subscription'] !=
+                                      AdUnit.premiumSubscriptionType) ...[
+                                SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => _updateSubscription(
+                                      AdUnit.premiumSubscriptionType,
+                                      true,
+                                    ),
+                                    icon: Icon(Icons.card_giftcard),
+                                    label: Text('Claim Free Subscription'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.success,
+                                      foregroundColor: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
 
                               SizedBox(height: 12),
 
                               _buildSubscriptionOption(
-                                'Premium',
+                                AdUnit.premiumSubscriptionType,
                                 'Full access + priority support',
                                 Icons.star_outline,
                                 AppColors.premium,
-                                () => _updateSubscription('premium'),
+
+                                !isFree
+                                    ? null
+                                    : () =>
+                                          _updateSubscription(AdUnit.premiumSubscriptionType, false),
                               ),
 
                               SizedBox(height: 12),
@@ -641,6 +794,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   InkWell(
                                     onTap: () async {
                                       await FirebaseAuth.instance.signOut();
+                                      Navigator.pushNamed(context, '/');
                                     },
                                     borderRadius: BorderRadius.circular(12),
                                     child: Container(
@@ -768,7 +922,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Color _getSubscriptionColor(String? subscription) {
     switch (subscription) {
-      case 'premium':
+      case AdUnit.premiumSubscriptionType:
         return AppColors.premium;
       case 'pro':
         return AppColors.secondary;
@@ -782,14 +936,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String description,
     IconData icon,
     Color color,
-    VoidCallback onTap,
+    VoidCallback? onTap,
   ) {
     final theme = Theme.of(context);
-    bool isCurrentSubscription =
-        userProfile?['subscription'] == title.toLowerCase();
+    bool isCurrentSubscription = userProfile?['subscription'] == title;
+
+    log('asssss ${userProfile?['subscription']}');
 
     return InkWell(
-      onTap: isCurrentSubscription ? null : onTap,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: EdgeInsets.all(16),

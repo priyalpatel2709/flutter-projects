@@ -216,10 +216,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       // Send email verification
-      final user = userCredential.user!;
+      // final user = userCredential.user!;
 
-      log('message: Sending verification email to ${user.email}');
-      await user.sendEmailVerification();
+      // log('message: Sending verification email to ${user.email}');
+      // await user.sendEmailVerification();
 
       // Update Firebase user profile
       await userCredential.user!.updateDisplayName(displayName);
@@ -646,13 +646,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     // SizedBox(height: 8),
-                    TextButton(
-                      onPressed: _forgotPassword,
-                      child: Text(
-                        'Forgot Password?',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
+                    Visibility(
+                      visible: !_isSignUp,
+                      child: TextButton(
+                        onPressed: _forgotPassword,
+                        child: Text(
+                          'Forgot Password?',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),

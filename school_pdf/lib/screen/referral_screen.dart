@@ -431,18 +431,15 @@ class _ReferralScreenState extends State<ReferralScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.success.withOpacity(
-                                          0.1,
-                                        ),
+                                        color: user['active'] ? AppColors.success.withOpacity(0.1) : AppColors.grey400.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        'Active',
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              color: AppColors.success,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                        user['active'] ? 'Active' : 'Inactive',
+                                        style: theme.textTheme.labelSmall?.copyWith(
+                                          color: user['active'] ? AppColors.success : AppColors.textSecondary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
