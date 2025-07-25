@@ -308,8 +308,10 @@ class _SelectionScreenState extends State<SelectionScreen> {
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : ListView.separated(
                       itemCount: modules.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         try {
                           final module = modules[index];
@@ -328,19 +330,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           );
                         }
                       },
-
-                      // itemBuilder: (context, index) {
-                      //   final module = modules[index];
-                      //   return _buildOptionCard(
-                      //     context: context,
-                      //     title: module.name,
-                      //     subtitle: module.description,
-                      //     icon: _getModuleIcon(module.icon),
-                      //     // iconColor: _getModuleColor(module.color),
-                      //     // backgroundColor: _getModuleBackgroundColor(module.backgroundColor),
-                      //     route: '/driveFiles',
-                      //   );
-                      // },
                     ),
             ),
             if (_isBannerAdLoaded)
