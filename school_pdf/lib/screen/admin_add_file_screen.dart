@@ -850,8 +850,6 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
       final users = snapshot.docs.map((doc) => doc.data()).toList();
       if (users.isEmpty) return;
 
-      log('Downloading users to Excel', name: 'AdminAddFileScreen');
-
       // Create Excel
       final excel = Excel.createExcel();
       final sheet = excel['Users'];

@@ -115,7 +115,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
         isLoading = false;
       });
     } catch (e) {
-      // log('message: Error loading modules: $e');
       setState(() {
         isLoading = false;
         modules = [];
@@ -322,8 +321,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
                             icon: _getModuleIcon(module.icon),
                             route: '/driveFiles',
                           );
-                        } catch (e, stack) {
-                          log('Error in itemBuilder: $e\n$stack');
+                        } catch (e) {
+                    
                           return ListTile(
                             title: Text('Error loading module'),
                             subtitle: Text('$e'),

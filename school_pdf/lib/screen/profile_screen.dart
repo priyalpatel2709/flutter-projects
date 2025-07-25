@@ -168,7 +168,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .where('code', isEqualTo: code)
         .limit(1)
         .get();
-    // log('message ${promoSnap.data}');
     if (promoSnap.docs.isNotEmpty) {
       setState(() {
         _subscriptionPrice = AdUnit.promoSubscriptionPrice;

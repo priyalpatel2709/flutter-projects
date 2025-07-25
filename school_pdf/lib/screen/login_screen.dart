@@ -221,7 +221,6 @@ class _LoginScreenState extends State<LoginScreen> {
       // Send email verification
       // final user = userCredential.user!;
 
-      // log('message: Sending verification email to ${user.email}');
       // await user.sendEmailVerification();
 
       // Update Firebase user profile

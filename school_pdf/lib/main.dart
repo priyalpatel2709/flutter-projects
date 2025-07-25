@@ -54,8 +54,6 @@ class MyApp extends StatelessWidget {
             );
 
           case '/selection':
-            // final args = settings.arguments as Map<String, dynamic>?;
-            // final medium = args?['medium'] ?? 'Option 2 Files';
             return MaterialPageRoute(builder: (_) => SelectionScreen());
 
           default:
