@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 
 class ProfileScreen extends StatefulWidget {
@@ -29,25 +28,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isCheckingReferral = false;
   final int _eligibleCount = AdUnit.eligibleCount;
 
-  // In-App Purchase variables
-  final String _premiumProductId = AdUnit.premiumProductId;
-  List<ProductDetails> _products = [];
-  StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
-  bool _iapAvailable = false;
-  bool _iapLoading = false;
+  bool _isReferralCodeValid = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
-    _initInAppPurchase();
   }
 
   @override
   void dispose() {
     _promoCodeController.dispose();
     _referralCodeController.dispose();
-    _iapSubscription?.cancel();
     super.dispose();
   }
 
@@ -116,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'subscriptionExpiry': expiryDate?.toIso8601String(),
           });
 
-      if (subscriptionType != AdUnit.freeSubscriptionType && !isClaim) {
+      if (subscriptionType != AdUnit.freeSubscriptionType) {
         if (userProfile?['referredBy'] != null) {
           await FirebaseFirestore.instance
               .collection('users')
@@ -124,6 +116,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               .update({
                 'activeReferredUserList': FieldValue.arrayUnion([user!.uid]),
               });
+        }
+        if (_isCheckingPromo && _referralCodeController.text.trim() != '') {
+          await ReferralService.applyReferralCode(
+            _referralCodeController.text,
+            user!.uid,
+          );
         }
       }
 
@@ -193,102 +191,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         if (_subscriptionPrice > AdUnit.referralSubscriptionPrice) {
           _subscriptionPrice = AdUnit.referralSubscriptionPrice;
+          _isReferralCodeValid = true;
         }
       });
     } else {
       setState(() {
         _referralCodeError = 'Invalid referral code';
         _subscriptionPrice = AdUnit.subscriptionPrice;
+        _isReferralCodeValid = false;
       });
     }
     setState(() {
       _isCheckingReferral = false;
     });
-  }
-
-  Future<void> _initInAppPurchase() async {
-    setState(() {
-      _iapLoading = true;
-    });
-    final bool available = await InAppPurchase.instance.isAvailable();
-    setState(() {
-      _iapAvailable = available;
-    });
-    if (!available) {
-      setState(() {
-        _iapLoading = false;
-      });
-      return;
-    }
-    final ProductDetailsResponse response = await InAppPurchase.instance
-        .queryProductDetails({_premiumProductId});
-    if (response.notFoundIDs.isEmpty) {
-      setState(() {
-        _products = response.productDetails;
-      });
-    }
-    _iapSubscription = InAppPurchase.instance.purchaseStream.listen(
-      _onPurchaseUpdated,
-    );
-    setState(() {
-      _iapLoading = false;
-    });
-  }
-
-  void _onPurchaseUpdated(List<PurchaseDetails> purchases) async {
-    for (var purchase in purchases) {
-      if (purchase.status == PurchaseStatus.purchased) {
-        // Optionally verify purchase here
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .update({
-              'subscription': AdUnit.premiumSubscriptionType,
-              'subscriptionExpiry': DateTime.now()
-                  .add(Duration(days: AdUnit.eligibleCount))
-                  .toIso8601String(),
-            });
-        _loadUserProfile();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Premium unlocked!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        InAppPurchase.instance.completePurchase(purchase);
-      } else if (purchase.status == PurchaseStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Purchase failed'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _buyPremium() async {
-    if (!_iapAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('In-app purchases not available'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-    if (_products.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Premium product not available'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-    final product = _products.firstWhere((p) => p.id == _premiumProductId);
-    final purchaseParam = PurchaseParam(productDetails: product);
-    InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
   @override

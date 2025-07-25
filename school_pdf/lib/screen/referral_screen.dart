@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
 
@@ -291,29 +293,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   'Reward Points',
-                                  '${_referralStats['referralRewards'] ?? 0}',
+                                  '${_referralStats['activeReferredUserList'].length ?? 0}',
                                   Icons.stars,
                                   AppColors.premium,
                                 ),
                               ),
                             ],
                           ),
-                          if ((_referralStats['referralRewards'] ?? 0) > 0) ...[
-                            SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: null,
-                                // onPressed: _redeemRewards,
-                                icon: Icon(Icons.redeem),
-                                label: Text('Redeem 1 Reward Point'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.premium,
-                                  foregroundColor: AppColors.white,
-                                ),
-                              ),
-                            ),
-                          ],
                         ],
                       ),
                     ),
@@ -431,15 +417,24 @@ class _ReferralScreenState extends State<ReferralScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: user['active'] ? AppColors.success.withOpacity(0.1) : AppColors.grey400.withOpacity(0.1),
+                                        color: user['active']
+                                            ? AppColors.success.withOpacity(0.1)
+                                            : AppColors.grey400.withOpacity(
+                                                0.1,
+                                              ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        user['active'] ? 'Active' : 'Inactive',
-                                        style: theme.textTheme.labelSmall?.copyWith(
-                                          color: user['active'] ? AppColors.success : AppColors.textSecondary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        user['active']
+                                            ? AdUnit.premiumSubscriptionType
+                                            : AdUnit.freeSubscriptionType,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: user['active']
+                                                  ? AppColors.premium
+                                                  : AppColors.textSecondary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -496,23 +491,45 @@ class _ReferralScreenState extends State<ReferralScreen> {
                           SizedBox(height: 16),
                           _buildHowItWorksStep(
                             1,
-                            'Share your referral code with friends',
+                            'Share your referral code with your friends.',
                             Icons.share,
                           ),
                           _buildHowItWorksStep(
                             2,
-                            'Friends sign up using your code',
+                            'Your friends use the referral code to purchase Premium features.',
                             Icons.person_add,
                           ),
                           _buildHowItWorksStep(
                             3,
-                            'Both you and your friend earn 1 reward point',
+                            'Your friends get ₹50 off, and you earn ₹30 as a reward.',
                             Icons.stars,
                           ),
                           _buildHowItWorksStep(
                             4,
-                            'Redeem points for premium features',
+                            'To claim your reward, send us a screenshot of your friend’s purchase.',
                             Icons.redeem,
+                          ),
+                          _buildHowItWorksStep(
+                            5,
+                            'Send the screenshot via WhatsApp at +91 1234567890.',
+                            Icons.telegram_outlined,
+                          ),
+                          SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              launchUrl(
+                                Uri.parse(
+                                  "https://wa.me/911234567890?text=Hi%2C%20I%20want%20to%20claim%20my%20referral%20reward.",
+                                ),
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                            icon: Icon(Icons.telegram_outlined),
+                            label: Text('Send on WhatsApp'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green.shade700,
+                              foregroundColor: Colors.white,
+                            ),
                           ),
                         ],
                       ),

@@ -204,19 +204,19 @@ class _LoginScreenState extends State<LoginScreen> {
           .set(userData);
 
       // Apply referral code if provided
-      final referralInput = _referralCodeController.text.trim();
-      if (referralInput.isNotEmpty && _isValidReferralCode) {
-        try {
-          await ReferralService.applyReferralCode(referralInput, uid);
-          if (mounted) {
-            _showSuccessDialog(
-              'Referral code applied successfully! You earned 1 reward point.',
-            );
-          }
-        } catch (e) {
-          debugPrint('Referral application failed: $e');
-        }
-      }
+      // final referralInput = _referralCodeController.text.trim();
+      // if (referralInput.isNotEmpty && _isValidReferralCode) {
+      //   try {
+      //     await ReferralService.applyReferralCode(referralInput, uid);
+      //     if (mounted) {
+      //       _showSuccessDialog(
+      //         'Referral code applied successfully! You earned 1 reward point.',
+      //       );
+      //     }
+      //   } catch (e) {
+      //     debugPrint('Referral application failed: $e');
+      //   }
+      // }
 
       // Send email verification
       // final user = userCredential.user!;
@@ -532,71 +532,71 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    if (_isSignUp) ...[
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _referralCodeController,
-                        decoration: InputDecoration(
-                          labelText: 'Referral Code (Optional)',
-                          labelStyle: TextStyle(color: AppColors.primary),
-                          prefixIcon: Icon(
-                            Icons.card_giftcard,
-                            color: AppColors.primary,
-                          ),
-                          suffixIcon: _isValidatingReferral
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primary,
-                                    ),
-                                  ),
-                                )
-                              : _referralCodeController.text.isNotEmpty
-                              ? Icon(
-                                  _isValidReferralCode
-                                      ? Icons.check_circle
-                                      : Icons.error,
-                                  color: _isValidReferralCode
-                                      ? AppColors.success
-                                      : AppColors.error,
-                                )
-                              : null,
-                          helperText:
-                              'Enter a friend\'s referral code to earn rewards',
-                          helperStyle: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            _validateReferralCode(value);
-                          } else {
-                            setState(() {
-                              _isValidReferralCode = false;
-                            });
-                          }
-                        },
-                      ),
-                      if (_referralCodeController.text.isNotEmpty &&
-                          !_isValidatingReferral) ...[
-                        SizedBox(height: 8),
-                        Text(
-                          _isValidReferralCode
-                              ? '✓ Valid referral code! You\'ll earn 1 reward point.'
-                              : '✗ Invalid referral code',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: _isValidReferralCode
-                                ? AppColors.success
-                                : AppColors.error,
-                          ),
-                        ),
-                      ],
-                    ],
-                    SizedBox(height: 32),
+                    // if (_isSignUp) ...[
+                    //   SizedBox(height: 16),
+                    //   TextFormField(
+                    //     controller: _referralCodeController,
+                    //     decoration: InputDecoration(
+                    //       labelText: 'Referral Code (Optional)',
+                    //       labelStyle: TextStyle(color: AppColors.primary),
+                    //       prefixIcon: Icon(
+                    //         Icons.card_giftcard,
+                    //         color: AppColors.primary,
+                    //       ),
+                    //       suffixIcon: _isValidatingReferral
+                    //           ? SizedBox(
+                    //               width: 20,
+                    //               height: 20,
+                    //               child: CircularProgressIndicator(
+                    //                 strokeWidth: 2,
+                    //                 valueColor: AlwaysStoppedAnimation<Color>(
+                    //                   AppColors.primary,
+                    //                 ),
+                    //               ),
+                    //             )
+                    //           : _referralCodeController.text.isNotEmpty
+                    //           ? Icon(
+                    //               _isValidReferralCode
+                    //                   ? Icons.check_circle
+                    //                   : Icons.error,
+                    //               color: _isValidReferralCode
+                    //                   ? AppColors.success
+                    //                   : AppColors.error,
+                    //             )
+                    //           : null,
+                    //       helperText:
+                    //           'Enter a friend\'s referral code to earn rewards',
+                    //       helperStyle: TextStyle(
+                    //         color: AppColors.textSecondary,
+                    //         fontSize: 12,
+                    //       ),
+                    //     ),
+                    //     onChanged: (value) {
+                    //       if (value.isNotEmpty) {
+                    //         _validateReferralCode(value);
+                    //       } else {
+                    //         setState(() {
+                    //           _isValidReferralCode = false;
+                    //         });
+                    //       }
+                    //     },
+                    //   ),
+                    //   if (_referralCodeController.text.isNotEmpty &&
+                    //       !_isValidatingReferral) ...[
+                    //     SizedBox(height: 8),
+                    //     Text(
+                    //       _isValidReferralCode
+                    //           ? '✓ Valid referral code! You\'ll earn 1 reward point.'
+                    //           : '✗ Invalid referral code',
+                    //       style: theme.textTheme.bodySmall?.copyWith(
+                    //         color: _isValidReferralCode
+                    //             ? AppColors.success
+                    //             : AppColors.error,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ],
+                    // SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
