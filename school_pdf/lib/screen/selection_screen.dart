@@ -359,34 +359,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
     }
   }
 
-  Color _getModuleColor(String colorName) {
-    switch (colorName) {
-      case 'primary':
-        return AppColors.primary;
-      case 'secondary':
-        return AppColors.secondary;
-      case 'success':
-        return AppColors.success;
-      case 'premium':
-        return AppColors.premium;
-      default:
-        return AppColors.primary;
-    }
-  }
-
-  Color _getModuleBackgroundColor(String backgroundColorName) {
-    switch (backgroundColorName) {
-      case 'primaryShade50':
-        return AppColors.primaryShade50;
-      case 'premiumLight':
-        return AppColors.premiumLight;
-      case 'successLight':
-        return AppColors.success.withOpacity(0.1);
-      default:
-        return AppColors.primaryShade50;
-    }
-  }
-
   Widget _buildOptionCard({
     required BuildContext context,
     required String title,
@@ -482,14 +454,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                // SizedBox(height: 8),
-                // Text(
-                //   subtitle,
-                //   textAlign: TextAlign.center,
-                //   style: theme.textTheme.bodySmall?.copyWith(
-                //     color: AppColors.textSecondary,
-                //   ),
-                // ),
               ],
             ),
           ),

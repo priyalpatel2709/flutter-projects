@@ -4,10 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -187,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final userData = {
         'name': displayName,
         'email': _emailController.text.trim(),
-        'subscription': 'free',
+        'subscription': AdUnit.freeSubscriptionType,
         'subscriptionExpiry': null,
         'createdAt': FieldValue.serverTimestamp(),
         'referralCount': 0,
@@ -227,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Show success message
       if (mounted) {
         // Show verification dialog instead of simple success message
-        _showVerificationDialog();
+        // _showVerificationDialog();
 
         // Clear the form
         _emailController.clear();

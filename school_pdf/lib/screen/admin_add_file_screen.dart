@@ -1,17 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../constants/app_colors.dart';
-import '../models/module.dart';
 import 'package:flutter/services.dart';
 import 'package:excel/excel.dart';
-import 'package:file_saver/file_saver.dart';
-import 'dart:typed_data';
 import 'package:media_store_plus/media_store_plus.dart';
+
+import '../constants/app_colors.dart';
 
 class AdminAddFileScreen extends StatefulWidget {
   @override
@@ -55,7 +52,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
     'image',
     'document',
   ];
-  final List<String> _mediums = ['Gujarati', 'English'];
+  // final List<String> _mediums = ['Gujarati', 'English'];
   List<String> _modules = [];
   bool _isLoadingModules = false;
   final List<String> _moduleIcons = [

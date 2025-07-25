@@ -23,14 +23,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _referralCodeController = TextEditingController();
   String? _promoCodeError;
   String? _referralCodeError;
-  int _subscriptionPrice = 150;
+  int _subscriptionPrice = AdUnit.subscriptionPrice;
+
   bool _isCheckingPromo = false;
   bool _isCheckingReferral = false;
-  final int eligibleCount = 2;
+  final int _eligibleCount = AdUnit.eligibleCount;
 
   // In-App Purchase variables
-  final String _premiumProductId =
-      'premium_subscription'; // Replace with your real product ID
+  final String _premiumProductId = AdUnit.premiumProductId;
   List<ProductDetails> _products = [];
   StreamSubscription<List<PurchaseDetails>>? _iapSubscription;
   bool _iapAvailable = false;
@@ -93,14 +93,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) async {
     if (user == null) return;
 
-    // Prevent paid subscription if eligible for free
-    final activeList = referralStats?['activeReferredUserList'] as List?;
-
     // Show payment simulation for non-free subscriptions
-    if (subscriptionType != AdUnit.freeSubscriptionType &&
-        activeList != null &&
-        activeList.length >= eligibleCount &&
-        subscriptionType != AdUnit.freeSubscriptionType) {
+    if (subscriptionType != AdUnit.freeSubscriptionType && !isClaim) {
       bool paymentSuccess = await _showPaymentSimulation(subscriptionType);
       if (!paymentSuccess) {
         return; // User cancelled or payment failed
@@ -109,7 +103,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       DateTime? expiryDate;
       if (subscriptionType != AdUnit.freeSubscriptionType) {
-        expiryDate = DateTime.now().add(Duration(days: 730)); // 2 years
+        expiryDate = DateTime.now().add(
+          Duration(days: AdUnit.eligibleCount),
+        ); // 2 years
       }
 
       await FirebaseFirestore.instance
@@ -175,12 +171,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // log('message ${promoSnap.data}');
     if (promoSnap.docs.isNotEmpty) {
       setState(() {
-        _subscriptionPrice = 50;
+        _subscriptionPrice = AdUnit.promoSubscriptionPrice;
       });
     } else {
       setState(() {
         _promoCodeError = 'Invalid promo code';
-        _subscriptionPrice = 150;
+        _subscriptionPrice = AdUnit.subscriptionPrice;
       });
     }
     setState(() {
@@ -196,12 +192,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isValid = await ReferralService.isValidReferralCode(code);
     if (isValid) {
       setState(() {
-        if (_subscriptionPrice > 100) _subscriptionPrice = 100;
+        if (_subscriptionPrice > AdUnit.referralSubscriptionPrice) {
+          _subscriptionPrice = AdUnit.referralSubscriptionPrice;
+        }
       });
     } else {
       setState(() {
         _referralCodeError = 'Invalid referral code';
-        _subscriptionPrice = 150;
+        _subscriptionPrice = AdUnit.subscriptionPrice;
       });
     }
     setState(() {
@@ -248,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .update({
               'subscription': AdUnit.premiumSubscriptionType,
               'subscriptionExpiry': DateTime.now()
-                  .add(Duration(days: 30))
+                  .add(Duration(days: AdUnit.eligibleCount))
                   .toIso8601String(),
             });
         _loadUserProfile();
@@ -300,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final eligibleForFree =
         (referralStats?['activeReferredUserList'] as List?)?.length != null &&
         (referralStats?['activeReferredUserList'] as List).length >=
-            eligibleCount;
+            _eligibleCount;
     final isFree = userProfile?['subscription'] == AdUnit.freeSubscriptionType;
 
     return Scaffold(
@@ -541,12 +539,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               if (userProfile?['subscriptionExpiry'] !=
                                   null) ...[
                                 SizedBox(height: 12),
-                                Text(
-                                  'Expires: ${DateTime.parse(userProfile!['subscriptionExpiry']).toString().substring(0, 10)}',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
+                                // Text(
+                                //   'Expires: ${DateTime.parse(userProfile!.subscriptionExpiry).toString().substring(0, 10)}',
+                                //   style: theme.textTheme.bodyMedium?.copyWith(
+                                //     color: AppColors.textSecondary,
+                                //   ),
+                                // ),
                               ],
                             ],
                           ),
@@ -662,7 +660,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (v.isEmpty) {
                                     setState(() {
                                       _referralCodeError = null;
-                                      _subscriptionPrice = 150;
+                                      _subscriptionPrice =
+                                          AdUnit.subscriptionPrice;
                                     });
                                   } else {
                                     _checkReferralCode(
@@ -725,8 +724,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                 !isFree
                                     ? null
-                                    : () =>
-                                          _updateSubscription(AdUnit.premiumSubscriptionType, false),
+                                    : () => _updateSubscription(
+                                        AdUnit.premiumSubscriptionType,
+                                        false,
+                                      ),
                               ),
 
                               SizedBox(height: 12),
@@ -940,8 +941,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) {
     final theme = Theme.of(context);
     bool isCurrentSubscription = userProfile?['subscription'] == title;
-
-    log('asssss ${userProfile?['subscription']}');
 
     return InkWell(
       onTap: onTap,
