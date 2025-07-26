@@ -114,7 +114,9 @@ class ReferralService {
       await _firestore.collection('users').doc(referrerUserId).update({
         'referralCount': FieldValue.increment(1),
         'referralRewards': FieldValue.increment(1), // Give 1 reward point
-        'referralUserList': FieldValue.arrayUnion([newUserId]),
+        'referralUserList': FieldValue.arrayUnion([
+          {'userId': newUserId, 'isRewarded': false},
+        ]),
       });
 
       // Create referral record
@@ -147,7 +149,7 @@ class ReferralService {
           'referralRewards': data['referralRewards'] ?? 0,
           'referredBy': data['referredBy'] ?? null,
           'referredByCode': data['referredByCode'] ?? null,
-          'activeReferredUserList': data['activeReferredUserList'] ?? [],
+          'referralUserList': data['referralUserList'] ?? [],
         };
       }
 
@@ -157,7 +159,7 @@ class ReferralService {
         'referralRewards': 0,
         'referredBy': null,
         'referredByCode': null,
-        'activeReferredUserList': [],
+        'referralUserList': [],
       };
     } catch (e) {
       throw Exception('Failed to get referral stats: $e');
@@ -176,23 +178,27 @@ class ReferralService {
     final data = userDoc.data() ?? {};
 
     final List<dynamic> referralUserList = data['referralUserList'] ?? [];
-    final List<dynamic> activeReferredUserList =
-        data['activeReferredUserList'] ?? [];
 
     List<Map<String, dynamic>> referredUsers = [];
 
-    for (String uid in referralUserList) {
+    for (var referralEntry in referralUserList) {
+      final referredUserId = referralEntry['userId'];
+      final isRewarded = referralEntry['isRewarded'] ?? false;
+
+      if (referredUserId == null) continue;
+
       final referredUserDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(uid)
+          .doc(referredUserId)
           .get();
+
       final referredUserData = referredUserDoc.data() ?? {};
 
       referredUsers.add({
-        'uid': uid,
+        'uid': referredUserId,
         'name': referredUserData['name'] ?? 'Unknown',
         'email': referredUserData['email'] ?? '',
-        'active': activeReferredUserList.contains(uid),
+        'isRewarded': isRewarded,
       });
     }
 

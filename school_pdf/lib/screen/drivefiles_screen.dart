@@ -165,7 +165,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   // Check if user has premium subscription
   bool get _hasPremiumSubscription {
     final subscription = userProfile?['subscription'];
-    return subscription == AdUnit.premiumSubscriptionType || subscription == 'pro';
+    return subscription == AdUnit.premiumSubscriptionType ||
+        subscription == 'pro';
   }
 
   // Check if subscription is expired
@@ -183,7 +184,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
 
   // Check if user can access paid content
   bool _canAccessPaidContent() {
-    return _hasPremiumSubscription && !_isSubscriptionExpired;
+    return _hasPremiumSubscription;
   }
 
   // Get the files loaded from database

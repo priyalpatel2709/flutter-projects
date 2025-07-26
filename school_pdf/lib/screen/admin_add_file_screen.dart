@@ -25,7 +25,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
   final _fileIdController = TextEditingController();
   final _fileDescriptionController = TextEditingController();
   final _fileSizeController = TextEditingController();
-
+  final TextEditingController _controller = TextEditingController();
   // Module form controllers
   final _moduleFormKey = GlobalKey<FormState>();
   final _moduleNameController = TextEditingController();
@@ -687,16 +687,26 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              ElevatedButton.icon(
-                onPressed: _downloadUsersCsv,
-                // onPressed: () => _downloadUsersExcel(context),
-                icon: Icon(Icons.download),
-                label: Text('Download CSV'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                ),
-              ),
+
+              // TextField(
+              //   controller: _controller,
+              //   decoration: InputDecoration(
+              //     labelText: 'Enter text',
+              //     hintText: 'Type something...',
+              //     prefixIcon: Icon(Icons.text_fields),
+              //     border: OutlineInputBorder(),
+              //   ),
+              // ),
+              // ElevatedButton.icon(
+              //   onPressed: _downloadUsersCsv,
+              //   // onPressed: () => _downloadUsersExcel(context),
+              //   icon: Icon(Icons.download),
+              //   label: Text('Download CSV'),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: AppColors.primary,
+              //     foregroundColor: AppColors.white,
+              //   ),
+              // ),
             ],
           ),
           SizedBox(height: 16),
@@ -724,6 +734,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
                         user['subscription']?.toString()?.toUpperCase() ??
                             'FREE',
                       ),
+                      onTap: () => showReferralDialog(context, user),
                     );
                   },
                 );
@@ -826,95 +837,6 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
         ),
       ),
     );
-  }
-
-  Future<void> _downloadUsersExcel(BuildContext context) async {
-    try {
-      // Request permissions
-      if (Platform.isAndroid) {
-        final storagePermission = await Permission.storage.request();
-        if (!storagePermission.isGranted) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Storage permission is required')),
-            );
-          }
-          return;
-        }
-      }
-
-      // Fetch user data
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .get();
-      final users = snapshot.docs.map((doc) => doc.data()).toList();
-      if (users.isEmpty) return;
-
-      // Create Excel
-      final excel = Excel.createExcel();
-      final sheet = excel['Users'];
-
-      // Add headers
-      sheet.appendRow([
-        TextCellValue('Name'),
-        TextCellValue('Email'),
-        TextCellValue('Subscription'),
-        TextCellValue('Referral Code'),
-        TextCellValue('Created At'),
-      ]);
-
-      // Fill data
-      for (final user in users) {
-        sheet.appendRow([
-          TextCellValue(user['name']?.toString() ?? ''),
-          TextCellValue(user['email']?.toString() ?? ''),
-          TextCellValue(user['subscription']?.toString() ?? ''),
-          TextCellValue(user['referralCode']?.toString() ?? ''),
-          TextCellValue(
-            user['createdAt'] != null
-                ? (user['createdAt'] as Timestamp).toDate().toIso8601String()
-                : '',
-          ),
-        ]);
-      }
-
-      final excelBytes = excel.encode();
-      if (excelBytes == null) throw Exception('Failed to encode Excel');
-
-      // Write to temp file
-      final tempDir = await getTemporaryDirectory();
-      final fileName = 'users_${DateTime.now().millisecondsSinceEpoch}.xlsx';
-      final tempFilePath = '${tempDir.path}/$fileName';
-      final file = File(tempFilePath);
-      await file.writeAsBytes(excelBytes);
-
-      // Save to Downloads using media_store_plus
-      final mediaStore = MediaStore();
-      final result = await mediaStore.saveFile(
-        tempFilePath: tempFilePath,
-        dirType: DirType.download,
-        // fileName: fileName, // Fixed: Added missing fileName parameter
-        dirName: DirName.download, // Fixed: Use DirName enum instead of string
-      );
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Excel saved to Downloads: $fileName'),
-          ), // Fixed: Added fileName to message
-        );
-      } else if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save Excel file.')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    }
   }
 
   Future<void> _downloadUsersCsv() async {
@@ -1046,5 +968,121 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
       default:
         return Icons.folder;
     }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchReferralDetails(
+    List<dynamic> referralList,
+  ) async {
+    List<Map<String, dynamic>> result = [];
+
+    for (var item in referralList) {
+      final uid = item['userId'];
+      final isRewarded = item['isRewarded'] ?? false;
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      final data = userDoc.data() ?? {};
+
+      result.add({
+        'uid': uid,
+        'name': data['name'],
+        'email': data['email'],
+        'isRewarded': isRewarded,
+      });
+    }
+
+    return result;
+  }
+
+  Future<void> showReferralDialog(
+    BuildContext context,
+    Map<String, dynamic> user,
+  ) async {
+    final referralList = user['referralUserList'] ?? [];
+    final currentUserId = user['email'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _fetchReferralDetails(referralList),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return CircularProgressIndicator();
+            final referrals = snapshot.data!;
+
+            if (referrals.isEmpty) {
+              return Text('No referrals found.');
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: referrals.map((refUser) {
+                final isRewarded = refUser['isRewarded'] == true;
+                return ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text(refUser['name'] ?? 'Unknown'),
+                  subtitle: Text(refUser['email'] ?? ''),
+                  trailing: isRewarded
+                      ? const Text(
+                          'Rewarded',
+                          style: TextStyle(color: Colors.green),
+                        )
+                      : ElevatedButton(
+                          onPressed: () async {
+                            await _rewardUser(
+                              currentUserEmail: currentUserId,
+                              referralUserId: refUser['uid'],
+                            );
+                            Navigator.pop(context); // refresh after reward
+                          },
+                          child: const Text('Reward'),
+                        ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _rewardUser({
+    required String currentUserEmail,
+    required String referralUserId,
+  }) async {
+    final query = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: currentUserEmail)
+        .limit(1)
+        .get();
+
+    if (query.docs.isEmpty) {
+      log('No user found for email $currentUserEmail');
+      return;
+    }
+
+    final userDoc = query.docs.first;
+    final userRef = userDoc.reference;
+    final userData = userDoc.data();
+
+    List<dynamic> referralList = userData['referralUserList'] ?? [];
+
+    // Update isRewarded = true for the specific userId
+    final updatedList = referralList.map((entry) {
+      if (entry['userId'] == referralUserId) {
+        return {'userId': referralUserId, 'isRewarded': true};
+      }
+      return entry;
+    }).toList();
+
+    final updatedRewardCount = (userData['referralRewards'] ?? 0) - 1;
+
+    await userRef.update({
+      'referralUserList': updatedList,
+      'referralRewards': updatedRewardCount < 0 ? 0 : updatedRewardCount,
+    });
   }
 }

@@ -109,15 +109,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           });
 
       if (subscriptionType != AdUnit.freeSubscriptionType) {
-        if (userProfile?['referredBy'] != null) {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userProfile?['referredBy'])
-              .update({
-                'activeReferredUserList': FieldValue.arrayUnion([user!.uid]),
-              });
-        }
-        if (_isCheckingPromo && _referralCodeController.text.trim() != '') {
+        // if (userProfile?['referredBy'] != null) {
+        //   await FirebaseFirestore.instance
+        //       .collection('users')
+        //       .doc(userProfile?['referredBy'])
+        //       .update({
+        //         'activeReferredUserList': FieldValue.arrayUnion([user!.uid]),
+        //       });
+        // }
+        if (_isReferralCodeValid && _referralCodeController.text.trim() != '') {
           await ReferralService.applyReferralCode(
             _referralCodeController.text,
             user!.uid,
@@ -209,10 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final eligibleForFree =
-        (referralStats?['activeReferredUserList'] as List?)?.length != null &&
-        (referralStats?['activeReferredUserList'] as List).length >=
-            _eligibleCount;
+
     final isFree = userProfile?['subscription'] == AdUnit.freeSubscriptionType;
 
     return Scaffold(
@@ -353,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Expanded(
                                     child: _buildReferralStat(
                                       'Rewards',
-                                      '${referralStats?['activeReferredUserList'].length ?? 0}',
+                                      '${referralStats?['referralRewards'] ?? 0}',
                                       AppColors.premium,
                                     ),
                                   ),
@@ -450,16 +447,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
-                              if (userProfile?['subscriptionExpiry'] !=
-                                  null) ...[
-                                SizedBox(height: 12),
-                                // Text(
-                                //   'Expires: ${DateTime.parse(userProfile!.subscriptionExpiry).toString().substring(0, 10)}',
-                                //   style: theme.textTheme.bodyMedium?.copyWith(
-                                //     color: AppColors.textSecondary,
-                                //   ),
-                                // ),
-                              ],
+                              // if (userProfile?['subscriptionExpiry'] !=
+                              //     null) ...[
+                              // SizedBox(height: 12),
+                              // Text(
+                              //   'Expires: ${DateTime.parse(userProfile!.subscriptionExpiry).toString().substring(0, 10)}',
+                              //   style: theme.textTheme.bodyMedium?.copyWith(
+                              //     color: AppColors.textSecondary,
+                              //   ),
+                              // ),
+                              // ],
                             ],
                           ),
                         ),
@@ -596,37 +593,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                               _buildSubscriptionOption(
                                 AdUnit.freeSubscriptionType,
-                                eligibleForFree
-                                    ? 'Unlocked! You have more than 5 active referrals.'
-                                    : 'Basic access to files',
+                                'Basic access to files',
                                 Icons.info_outline,
                                 AppColors.grey600,
-                                () => _updateSubscription(
-                                  AdUnit.freeSubscriptionType,
-                                  false,
-                                ),
+                                () {},
                               ),
-
-                              if (eligibleForFree &&
-                                  userProfile?['subscription'] !=
-                                      AdUnit.premiumSubscriptionType) ...[
-                                SizedBox(height: 12),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () => _updateSubscription(
-                                      AdUnit.premiumSubscriptionType,
-                                      true,
-                                    ),
-                                    icon: Icon(Icons.card_giftcard),
-                                    label: Text('Claim Free Subscription'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.success,
-                                      foregroundColor: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
 
                               SizedBox(height: 12),
 
@@ -637,7 +608,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 AppColors.premium,
 
                                 !isFree
-                                    ? null
+                                    ? () {
+                                        log('message');
+                                      }
                                     : () => _updateSubscription(
                                         AdUnit.premiumSubscriptionType,
                                         false,

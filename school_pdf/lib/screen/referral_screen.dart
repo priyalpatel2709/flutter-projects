@@ -293,7 +293,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   'Reward Points',
-                                  '${_referralStats['activeReferredUserList'].length ?? 0}',
+                                  '${_referralStats['referralRewards'] ?? 0}',
                                   Icons.stars,
                                   AppColors.premium,
                                 ),
@@ -412,29 +412,51 @@ class _ReferralScreenState extends State<ReferralScreen> {
                                           ),
                                     ),
                                     trailing: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: user['active']
-                                            ? AppColors.success.withOpacity(0.1)
+                                        color: user['isRewarded']
+                                            ? AppColors.success.withOpacity(
+                                                0.15,
+                                              )
                                             : AppColors.grey400.withOpacity(
                                                 0.1,
                                               ),
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: user['isRewarded']
+                                              ? AppColors.success
+                                              : AppColors.grey400,
+                                        ),
                                       ),
-                                      child: Text(
-                                        user['active']
-                                            ? AdUnit.premiumSubscriptionType
-                                            : AdUnit.freeSubscriptionType,
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              color: user['active']
-                                                  ? AppColors.premium
-                                                  : AppColors.textSecondary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            user['isRewarded']
+                                                ? Icons.check_circle
+                                                : Icons.lock_outline,
+                                            size: 16,
+                                            color: user['isRewarded']
+                                                ? AppColors.success
+                                                : AppColors.textSecondary,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            user['isRewarded']
+                                                ? 'Rewarded'
+                                                : 'Not Rewarded',
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: user['isRewarded']
+                                                      ? AppColors.success
+                                                      : AppColors.textSecondary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
