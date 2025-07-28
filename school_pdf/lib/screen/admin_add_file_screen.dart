@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:excel/excel.dart';
 import 'package:media_store_plus/media_store_plus.dart';
 
+import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 
 class AdminAddFileScreen extends StatefulWidget {
@@ -729,10 +730,21 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
                     return ListTile(
                       leading: Icon(Icons.person),
                       title: Text(user['name'] ?? 'No Name'),
-                      subtitle: Text(user['email'] ?? ''),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user['email'] ?? ''),
+                          if (user['phoneNumber'] != null &&
+                              user['phoneNumber'].toString().isNotEmpty)
+                            Text('Phone: ${user['phoneNumber']}'),
+                          if (user['subscriptionPrice'] != null)
+                            Text('Price: ₹${user['subscriptionPrice']}'),
+                        ],
+                      ),
                       trailing: Text(
-                        user['subscription']?.toString()?.toUpperCase() ??
-                            'FREE',
+                        (user['subscription']?.toString() ??
+                            AdUnit.freeSubscriptionType),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onTap: () => showReferralDialog(context, user),
                     );

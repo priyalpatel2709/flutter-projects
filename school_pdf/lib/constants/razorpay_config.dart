@@ -10,7 +10,7 @@ class RazorpayConfig {
   static String liveKeySecret = dotenv.env['liveKeySecret'] ?? '';
 
   // Environment flag - Set to true for production
-  static const bool isProduction = false;
+  static const bool isProduction = true;
 
   // Get current key based on environment
   static String get keyId => isProduction ? liveKeyId : testKeyId;

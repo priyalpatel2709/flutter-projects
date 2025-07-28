@@ -113,6 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .update({
             'subscription': subscriptionType,
             'subscriptionExpiry': expiryDate?.toIso8601String(),
+            'subscriptionPrice': _subscriptionPrice,
           });
 
       if (subscriptionType != AdUnit.freeSubscriptionType) {
@@ -626,7 +627,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                 !isFree
                                     ? () {
-                                        log('message');
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Already subscribed'),
+                                            backgroundColor:
+                                                AppColors.secondary,
+                                          ),
+                                        );
                                       }
                                     : () => _updateSubscription(
                                         AdUnit.premiumSubscriptionType,
