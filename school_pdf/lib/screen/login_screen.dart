@@ -20,54 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
-  final _referralCodeController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   bool _isLoading = false;
   bool _isSignUp = false;
-  bool _isValidatingReferral = false;
-  bool _isValidReferralCode = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
-    _referralCodeController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
-  }
-
-  Future<void> _validateReferralCode(String code) async {
-    if (code.isEmpty) {
-      if (mounted) {
-        setState(() {
-          _isValidatingReferral = false;
-          _isValidReferralCode = false;
-        });
-      }
-      return;
-    }
-
-    if (mounted) {
-      setState(() {
-        _isValidatingReferral = true;
-      });
-    }
-
-    try {
-      final isValid = await ReferralService.isValidReferralCode(code);
-      if (mounted) {
-        setState(() {
-          _isValidatingReferral = false;
-          _isValidReferralCode = isValid;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isValidatingReferral = false;
-          _isValidReferralCode = false;
-        });
-      }
-    }
   }
 
   Future<void> _signIn() async {
@@ -196,6 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'referralCount': 0,
         'referralRewards': 0,
         'referralCode': referralCode,
+        'phoneNumber': _phoneNumberController.text.trim(),
       };
 
       await FirebaseFirestore.instance
@@ -235,12 +199,11 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.clear();
         _passwordController.clear();
         _nameController.clear();
-        _referralCodeController.clear();
+        _phoneNumberController.clear();
 
         // Switch back to sign in mode
         setState(() {
           _isSignUp = false;
-          _isValidReferralCode = false;
         });
       }
     } on FirebaseAuthException catch (e) {
@@ -513,7 +476,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 16),
+
+                    if (_isSignUp) ...[
+                      SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneNumberController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          labelStyle: TextStyle(color: AppColors.primary),
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value != null && value.isNotEmpty) {
+                            final phoneRegExp = RegExp(r'^[6-9]\d{9}$');
+                            if (!phoneRegExp.hasMatch(value)) {
+                              return 'Enter a valid 10-digit phone number';
+                            }
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                    SizedBox(height: 32),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
@@ -532,71 +520,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    // if (_isSignUp) ...[
-                    //   SizedBox(height: 16),
-                    //   TextFormField(
-                    //     controller: _referralCodeController,
-                    //     decoration: InputDecoration(
-                    //       labelText: 'Referral Code (Optional)',
-                    //       labelStyle: TextStyle(color: AppColors.primary),
-                    //       prefixIcon: Icon(
-                    //         Icons.card_giftcard,
-                    //         color: AppColors.primary,
-                    //       ),
-                    //       suffixIcon: _isValidatingReferral
-                    //           ? SizedBox(
-                    //               width: 20,
-                    //               height: 20,
-                    //               child: CircularProgressIndicator(
-                    //                 strokeWidth: 2,
-                    //                 valueColor: AlwaysStoppedAnimation<Color>(
-                    //                   AppColors.primary,
-                    //                 ),
-                    //               ),
-                    //             )
-                    //           : _referralCodeController.text.isNotEmpty
-                    //           ? Icon(
-                    //               _isValidReferralCode
-                    //                   ? Icons.check_circle
-                    //                   : Icons.error,
-                    //               color: _isValidReferralCode
-                    //                   ? AppColors.success
-                    //                   : AppColors.error,
-                    //             )
-                    //           : null,
-                    //       helperText:
-                    //           'Enter a friend\'s referral code to earn rewards',
-                    //       helperStyle: TextStyle(
-                    //         color: AppColors.textSecondary,
-                    //         fontSize: 12,
-                    //       ),
-                    //     ),
-                    //     onChanged: (value) {
-                    //       if (value.isNotEmpty) {
-                    //         _validateReferralCode(value);
-                    //       } else {
-                    //         setState(() {
-                    //           _isValidReferralCode = false;
-                    //         });
-                    //       }
-                    //     },
-                    //   ),
-                    //   if (_referralCodeController.text.isNotEmpty &&
-                    //       !_isValidatingReferral) ...[
-                    //     SizedBox(height: 8),
-                    //     Text(
-                    //       _isValidReferralCode
-                    //           ? '✓ Valid referral code! You\'ll earn 1 reward point.'
-                    //           : '✗ Invalid referral code',
-                    //       style: theme.textTheme.bodySmall?.copyWith(
-                    //         color: _isValidReferralCode
-                    //             ? AppColors.success
-                    //             : AppColors.error,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ],
                     SizedBox(height: 32),
+
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -633,8 +558,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         setState(() {
                           _isSignUp = !_isSignUp;
-                          _referralCodeController.clear();
-                          _isValidReferralCode = false;
+                          _phoneNumberController.clear();
                         });
                       },
                       child: Text(

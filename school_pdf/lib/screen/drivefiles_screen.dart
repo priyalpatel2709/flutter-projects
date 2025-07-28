@@ -33,6 +33,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   bool _isBannerAdLoaded = false;
   RewardedAd? _rewardedAd;
   bool _isRewardedAdLoaded = false;
+  String? selectedYear; // Add this for year selection
 
   @override
   void initState() {
@@ -139,13 +140,14 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
 
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-
+        log('data=-------------------${data['tags']}');
         loadedFiles.add(
           DriveFile(
             name: data['name'] ?? '',
             id: data['fileId'] ?? '',
             type: data['type'] ?? 'pdf',
             isFree: data['isFree'] ?? true,
+            tags: data['tags'] ?? [],
           ),
         );
       }
@@ -161,6 +163,35 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
       });
     }
   }
+
+  // Get files filtered by year
+  List<DriveFile> _getFilesByYear(String year) {
+    return files.where((file) {
+      if (file.tags == null) return false;
+      return file.tags!.any((tag) => tag.toString().contains(year));
+    }).toList();
+  }
+
+  // Get all available years from file tags
+  List<String> get _availableYears {
+    Set<String> years = {};
+    for (var file in files) {
+      if (file.tags != null) {
+        for (var tag in file.tags!) {
+          String tagStr = tag.toString();
+          if (tagStr.contains('2023') || tagStr.contains('2024') || tagStr.contains('2025')) {
+            if (tagStr.contains('2023')) years.add('2023');
+            if (tagStr.contains('2024')) years.add('2024');
+            if (tagStr.contains('2025')) years.add('2025');
+          }
+        }
+      }
+    }
+    return years.toList()..sort();
+  }
+
+  // Check if this is a "Last Year Paper With Solution" module
+  bool get _isLastYearPaperModule => widget.module == 'Last Year Paper With Solution';
 
   // Check if user has premium subscription
   bool get _hasPremiumSubscription {
@@ -358,7 +389,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.module,
+                                    _isLastYearPaperModule && selectedYear != null
+                                        ? 'Year $selectedYear'
+                                        : widget.module,
                                     style: theme.textTheme.headlineSmall
                                         ?.copyWith(
                                           color: AppColors.textPrimary,
@@ -366,7 +399,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                         ),
                                   ),
                                   Text(
-                                    '${_files.length} files available',
+                                    _isLastYearPaperModule && selectedYear != null
+                                        ? '${_getFilesByYear(selectedYear!).length} files available'
+                                        : '${_files.length} files available',
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
@@ -380,7 +415,289 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  if (_files.isEmpty)
+
+                  if (_isLastYearPaperModule && selectedYear == null)
+                    // Show year folders
+                    Expanded(
+                      child: _availableYears.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey100,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.folder_open,
+                                      size: 64,
+                                      color: AppColors.grey400,
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No year folders available',
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: _availableYears.length,
+                              itemBuilder: (context, index) {
+                                final year = _availableYears[index];
+                                final yearFiles = _getFilesByYear(year);
+                                
+                                return Card(
+                                  margin: EdgeInsets.only(bottom: 12),
+                                  elevation: 2,
+                                  shadowColor: AppColors.shadowLight,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.all(16),
+                                    leading: Container(
+                                      padding: EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        Icons.folder,
+                                        color: AppColors.primary,
+                                        size: 32,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      'Year $year',
+                                      style: theme.textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      '${yearFiles.length} files available',
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    trailing: Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: AppColors.primary,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      setState(() {
+                                        selectedYear = year;
+                                      });
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                    )
+                  else if (_isLastYearPaperModule && selectedYear != null)
+                    // Show files for selected year
+                    Expanded(
+                      child: Column(
+                        children: [
+                          // Back button
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(bottom: 16),
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  selectedYear = null;
+                                });
+                              },
+                              icon: Icon(Icons.arrow_back),
+                              label: Text('Back to Year Selection'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.surface,
+                                foregroundColor: AppColors.textPrimary,
+                                elevation: 0,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: AppColors.border),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Files list
+                          Expanded(
+                            child: _getFilesByYear(selectedYear!).isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.grey100,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.folder_open,
+                                            size: 64,
+                                            color: AppColors.grey400,
+                                          ),
+                                        ),
+                                        SizedBox(height: 16),
+                                        Text(
+                                          'No files available for $selectedYear',
+                                          style: theme.textTheme.headlineSmall?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    itemCount: _getFilesByYear(selectedYear!).length,
+                                    itemBuilder: (context, index) {
+                                      final file = _getFilesByYear(selectedYear!)[index];
+                                      final canAccess =
+                                          file.isFree || _canAccessPaidContent();
+
+                                      return Card(
+                                        margin: EdgeInsets.only(bottom: 12),
+                                        elevation: 2,
+                                        shadowColor: AppColors.shadowLight,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: ListTile(
+                                          contentPadding: EdgeInsets.all(16),
+                                          leading: Stack(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 24,
+                                                backgroundColor: _getFileColor(file.type),
+                                                child: Icon(
+                                                  _getFileIcon(file.type),
+                                                  color: AppColors.white,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                              if (!file.isFree)
+                                                Positioned(
+                                                  right: 0,
+                                                  top: 0,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(4),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.premium,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: AppColors.white,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.lock,
+                                                      size: 12,
+                                                      color: AppColors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          title: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  file.name,
+                                                  style: theme.textTheme.titleMedium
+                                                      ?.copyWith(
+                                                        fontWeight: FontWeight.w600,
+                                                        color: canAccess
+                                                            ? AppColors.textPrimary
+                                                            : AppColors.textSecondary,
+                                                      ),
+                                                ),
+                                              ),
+                                              if (!file.isFree)
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.premium.withOpacity(
+                                                      0.1,
+                                                    ),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    border: Border.all(
+                                                      color: AppColors.premium.withOpacity(
+                                                        0.3,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    'PREMIUM',
+                                                    style: theme.textTheme.labelSmall
+                                                        ?.copyWith(
+                                                          fontWeight: FontWeight.bold,
+                                                          color: AppColors.premium,
+                                                        ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          subtitle: Padding(
+                                            padding: EdgeInsets.only(top: 4),
+                                            child: Text(
+                                              canAccess
+                                                  ? 'Tap to open in Google Drive'
+                                                  : 'Premium subscription required',
+                                              style: theme.textTheme.bodySmall?.copyWith(
+                                                color: canAccess
+                                                    ? AppColors.textSecondary
+                                                    : AppColors.premium,
+                                              ),
+                                            ),
+                                          ),
+                                          trailing: Container(
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: canAccess
+                                                  ? AppColors.primary.withOpacity(0.1)
+                                                  : AppColors.premium.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              canAccess ? Icons.open_in_new : Icons.lock,
+                                              color: canAccess
+                                                  ? AppColors.primary
+                                                  : AppColors.premium,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          onTap: () => _handleFileTap(file),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (_files.isEmpty)
+                    // Regular empty state for non-last year paper modules
                     Expanded(
                       child: Center(
                         child: Column(
@@ -418,6 +735,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                       ),
                     )
                   else
+                    // Regular files list for non-last year paper modules
                     Expanded(
                       child: ListView.builder(
                         itemCount: _files.length,
@@ -668,11 +986,13 @@ class DriveFile {
   final String id;
   final String type;
   final bool isFree;
+  final List<dynamic>? tags;
 
   const DriveFile({
     required this.name,
     required this.id,
     required this.type,
     required this.isFree,
+    required this.tags,
   });
 }

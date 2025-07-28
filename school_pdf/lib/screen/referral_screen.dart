@@ -93,34 +93,6 @@ class _ReferralScreenState extends State<ReferralScreen> {
     }
   }
 
-  Future<void> _shareReferralCode() async {
-    if (_referralCode.isNotEmpty) {
-      try {
-        await ReferralService.shareReferralCode(_referralCode);
-        _showSuccessDialog('Referral code shared successfully!');
-      } catch (e) {
-        _showErrorDialog('Failed to share referral code: $e');
-      }
-    }
-  }
-
-  Future<void> _redeemRewards() async {
-    final currentRewards = _referralStats['referralRewards'] ?? 0;
-
-    if (currentRewards < 1) {
-      _showErrorDialog('You need at least 1 reward point to redeem.');
-      return;
-    }
-
-    try {
-      await ReferralService.redeemReferralRewards(1);
-      _showSuccessDialog('Successfully redeemed 1 reward point!');
-      _loadReferralData(); // Refresh data
-    } catch (e) {
-      _showErrorDialog('Failed to redeem rewards: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -533,7 +505,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                           ),
                           _buildHowItWorksStep(
                             5,
-                            'Send the screenshot via WhatsApp at +91 1234567890.',
+                            'Send the screenshot via WhatsApp at +91 95867 28752.',
                             Icons.telegram_outlined,
                           ),
                           SizedBox(height: 24),
@@ -541,7 +513,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                             onPressed: () {
                               launchUrl(
                                 Uri.parse(
-                                  "https://wa.me/911234567890?text=Hi%2C%20I%20want%20to%20claim%20my%20referral%20reward.",
+                                  "https://wa.me/919586728752?text=Hi%2C%20I%20want%20to%20claim%20my%20referral%20reward.",
                                 ),
                                 mode: LaunchMode.externalApplication,
                               );

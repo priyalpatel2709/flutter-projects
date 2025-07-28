@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
+import '../services/payment_service.dart';
 import 'dart:async';
 
 class ProfileScreen extends StatefulWidget {
@@ -89,6 +90,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (subscriptionType != AdUnit.freeSubscriptionType && !isClaim) {
       bool paymentSuccess = await _showPaymentSimulation(subscriptionType);
       if (!paymentSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Payment failed'),
+            backgroundColor: AppColors.error,
+          ),
+        );
         return; // User cancelled or payment failed
       }
     }
@@ -144,15 +151,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<bool> _showPaymentSimulation(String subscriptionType) async {
-    return await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => PaymentSimulationDialog(
-            subscriptionType: subscriptionType,
-            price: _subscriptionPrice,
-          ),
-        ) ??
-        false;
+    try {
+      final result = await PaymentService.startPayment(
+        context: context,
+        amount: _subscriptionPrice,
+        subscriptionType: subscriptionType,
+        preferredMethod: PaymentMethod.upi,
+      );
+
+      return result.success;
+    } catch (e) {
+      log('Payment error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Payment failed: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return false;
+    }
   }
 
   Future<void> _checkPromoCode(String code) async {
@@ -682,7 +699,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   InkWell(
                                     onTap: () async {
                                       await FirebaseAuth.instance.signOut();
-                                      Navigator.pushNamed(context, '/');
+                                      if (mounted) {
+                                        setState(() {
+                                          userProfile = null;
+                                          referralStats = null;
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            '/',
+                                          );
+                                        });
+                                      }
                                     },
                                     borderRadius: BorderRadius.circular(12),
                                     child: Container(
@@ -904,306 +930,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Icons.arrow_forward_ios,
                 color: AppColors.textTertiary,
                 size: 16,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PaymentSimulationDialog extends StatefulWidget {
-  final String subscriptionType;
-  final int price; // Add this
-
-  const PaymentSimulationDialog({
-    Key? key,
-    required this.subscriptionType,
-    required this.price,
-  }) : super(key: key);
-
-  @override
-  State<PaymentSimulationDialog> createState() =>
-      _PaymentSimulationDialogState();
-}
-
-class _PaymentSimulationDialogState extends State<PaymentSimulationDialog> {
-  bool isProcessing = false;
-  bool isSuccess = false;
-  bool isFailed = false;
-  String currentStep = 'initial';
-
-  @override
-  void initState() {
-    super.initState();
-    _startPaymentProcess();
-  }
-
-  Future<void> _startPaymentProcess() async {
-    setState(() {
-      isProcessing = true;
-      currentStep = 'processing';
-    });
-
-    // Simulate payment processing steps
-    await Future.delayed(Duration(seconds: 1));
-    setState(() {
-      currentStep = 'validating';
-    });
-
-    await Future.delayed(Duration(seconds: 1));
-    setState(() {
-      currentStep = 'charging';
-    });
-
-    await Future.delayed(Duration(seconds: 1));
-    setState(() {
-      currentStep = 'confirming';
-    });
-
-    await Future.delayed(Duration(seconds: 1));
-
-    // Simulate 90% success rate
-    bool success = DateTime.now().millisecond % 10 < 9; // 90% success rate
-
-    setState(() {
-      isProcessing = false;
-      if (success) {
-        isSuccess = true;
-        currentStep = 'success';
-      } else {
-        isFailed = true;
-        currentStep = 'failed';
-      }
-    });
-
-    // Auto close after showing result
-    await Future.delayed(Duration(seconds: 2));
-    if (mounted) {
-      Navigator.of(context).pop(success);
-    }
-  }
-
-  String _getStepMessage() {
-    switch (currentStep) {
-      case 'processing':
-        return 'Initializing payment...';
-      case 'validating':
-        return 'Validating payment method...';
-      case 'charging':
-        return 'Processing payment...';
-      case 'confirming':
-        return 'Confirming transaction...';
-      case 'success':
-        return 'Payment successful!';
-      case 'failed':
-        return 'Payment failed. Please try again.';
-      default:
-        return 'Processing...';
-    }
-  }
-
-  IconData _getStepIcon() {
-    switch (currentStep) {
-      case 'processing':
-      case 'validating':
-      case 'charging':
-      case 'confirming':
-        return Icons.payment;
-      case 'success':
-        return Icons.check_circle;
-      case 'failed':
-        return Icons.error;
-      default:
-        return Icons.payment;
-    }
-  }
-
-  Color _getStepColor() {
-    switch (currentStep) {
-      case 'processing':
-      case 'validating':
-      case 'charging':
-      case 'confirming':
-        return AppColors.primary;
-      case 'success':
-        return AppColors.success;
-      case 'failed':
-        return AppColors.error;
-      default:
-        return AppColors.primary;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Dialog(
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.payment,
-                    color: AppColors.primary,
-                    size: 20,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Payment Simulation',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-
-            // Subscription Info
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primaryShade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.premium.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(Icons.star, color: AppColors.premium, size: 20),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${widget.subscriptionType.toUpperCase()} Subscription',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          'Life Time access to all premium content',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    '₹${widget.price}',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24),
-
-            // Payment Status
-            Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: _getStepColor().withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _getStepColor().withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  if (isProcessing)
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        _getStepColor(),
-                      ),
-                    )
-                  else
-                    Icon(_getStepIcon(), size: 48, color: _getStepColor()),
-                  SizedBox(height: 16),
-                  Text(
-                    _getStepMessage(),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: _getStepColor(),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24),
-
-            // Action Buttons
-            if (isFailed)
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: AppColors.textSecondary),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          isProcessing = false;
-                          isSuccess = false;
-                          isFailed = false;
-                          currentStep = 'initial';
-                        });
-                        _startPaymentProcess();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
-                      ),
-                      child: Text('Retry'),
-                    ),
-                  ),
-                ],
-              )
-            else if (!isProcessing)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(isSuccess),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isSuccess
-                        ? AppColors.success
-                        : AppColors.primary,
-                    foregroundColor: AppColors.white,
-                  ),
-                  child: Text(isSuccess ? 'Continue' : 'OK'),
-                ),
               ),
           ],
         ),
