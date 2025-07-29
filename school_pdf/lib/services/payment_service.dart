@@ -10,21 +10,10 @@ import '../constants/app_colors.dart';
 import '../constants/razorpay_config.dart';
 
 // Payment status enum
-enum PaymentStatus {
-  pending,
-  success,
-  failed,
-  cancelled,
-}
+enum PaymentStatus { pending, success, failed, cancelled }
 
 // Payment method enum
-enum PaymentMethod {
-  upi,
-  card,
-  netbanking,
-  wallet,
-  other,
-}
+enum PaymentMethod { upi, card, netbanking, wallet, other }
 
 class PaymentService {
   static final Razorpay _razorpay = Razorpay();
@@ -65,12 +54,7 @@ class PaymentService {
   // Handle payment error
   static void _handlePaymentError(PaymentFailureResponse response) {
     log('Payment failed: ${response.message}');
-    _savePaymentRecord(
-      null,
-      null,
-      PaymentStatus.failed,
-      response.message,
-    );
+    _savePaymentRecord(null, null, PaymentStatus.failed, response.message);
   }
 
   // Handle external wallet
@@ -88,16 +72,15 @@ class PaymentService {
       final url = Uri.parse('${RazorpayConfig.baseUrl}/orders');
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ${base64Encode(utf8.encode('${RazorpayConfig.keyId}:${RazorpayConfig.keySecret}'))}',
+        'Authorization':
+            'Basic ${base64Encode(utf8.encode('${RazorpayConfig.keyId}:${RazorpayConfig.keySecret}'))}',
       };
 
       final body = jsonEncode({
-        'amount': amount, // Convert to paise //make changes
+        'amount': amount * 100, // Convert to paise //make changes
         'currency': currency,
         'receipt': receipt,
-        'notes': {
-          'description': 'Subscription payment',
-        },
+        'notes': {'description': 'Subscription payment'},
       });
 
       final response = await http.post(url, headers: headers, body: body);
@@ -183,10 +166,7 @@ class PaymentService {
           'color': '#${AppColors.primary.value.toRadixString(16).substring(2)}',
         },
         'method': {
-          'upi': {
-            'flow': 'intent',
-            'vpa': '',
-          },
+          'upi': {'flow': 'intent', 'vpa': ''},
           'card': {},
           'netbanking': {},
           'wallet': {},
@@ -197,32 +177,24 @@ class PaymentService {
               'banks': {
                 'name': 'Pay using UPI',
                 'instruments': [
-                  {
-                    'method': 'upi',
-                  },
+                  {'method': 'upi'},
                 ],
               },
               'cards': {
                 'name': 'Pay using Cards',
                 'instruments': [
-                  {
-                    'method': 'card',
-                  },
+                  {'method': 'card'},
                 ],
               },
               'wallets': {
                 'name': 'Pay using Wallets',
                 'instruments': [
-                  {
-                    'method': 'wallet',
-                  },
+                  {'method': 'wallet'},
                 ],
               },
             },
             'sequence': ['block.banks', 'block.cards', 'block.wallets'],
-            'prefill': {
-              'method': preferredMethod.name,
-            },
+            'prefill': {'method': preferredMethod.name},
           },
         },
       };
@@ -238,10 +210,7 @@ class PaymentService {
       return result;
     } catch (e) {
       log('Payment error: $e');
-      return PaymentResult(
-        success: false,
-        message: 'Payment failed: $e',
-      );
+      return PaymentResult(success: false, message: 'Payment failed: $e');
     }
   }
 
@@ -312,7 +281,8 @@ class PaymentService {
     try {
       final url = Uri.parse('${RazorpayConfig.baseUrl}/payments/$paymentId');
       final headers = {
-        'Authorization': 'Basic ${base64Encode(utf8.encode('${RazorpayConfig.keyId}:${RazorpayConfig.keySecret}'))}',
+        'Authorization':
+            'Basic ${base64Encode(utf8.encode('${RazorpayConfig.keyId}:${RazorpayConfig.keySecret}'))}',
       };
 
       final response = await http.get(url, headers: headers);
@@ -413,13 +383,15 @@ class _PaymentDialogState extends State<PaymentDialog> {
           isSuccess = true;
           currentStep = 'success';
         });
-        
-        widget.onResult(PaymentResult(
-          success: true,
-          paymentId: response.paymentId,
-          orderId: response.orderId,
-        ));
-        
+
+        widget.onResult(
+          PaymentResult(
+            success: true,
+            paymentId: response.paymentId,
+            orderId: response.orderId,
+          ),
+        );
+
         Navigator.of(context).pop();
       });
 
@@ -430,11 +402,10 @@ class _PaymentDialogState extends State<PaymentDialog> {
           currentStep = 'failed';
           errorMessage = response.message;
         });
-        
-        widget.onResult(PaymentResult(
-          success: false,
-          message: response.message,
-        ));
+
+        widget.onResult(
+          PaymentResult(success: false, message: response.message),
+        );
       });
 
       razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, (response) {
@@ -450,11 +421,8 @@ class _PaymentDialogState extends State<PaymentDialog> {
         currentStep = 'failed';
         errorMessage = e.toString();
       });
-      
-      widget.onResult(PaymentResult(
-        success: false,
-        message: e.toString(),
-      ));
+
+      widget.onResult(PaymentResult(success: false, message: e.toString()));
     }
   }
 
@@ -689,4 +657,4 @@ class _PaymentDialogState extends State<PaymentDialog> {
       ),
     );
   }
-} 
+}

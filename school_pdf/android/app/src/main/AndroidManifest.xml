@@ -1,17 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Internet permission for URL launching -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
 
     <application
         android:label="Student Friend"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"> android:requestLegacyExternalStorage="true"
-         <meta-data
+        android:icon="@mipmap/ic_launcher"> android:requestLegacyExternalStorage="true" <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9456014739614042~4258611457" /> <!-- Your AdMob App ID -->
+            android:value="ca-app-pub-3914527908408281~6944871586" /> <!-- Your AdMob App ID -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

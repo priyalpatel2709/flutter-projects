@@ -1,8 +1,8 @@
 class AdUnit {
-  static const String bannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  static const String bannerAdUnitId = 'ca-app-pub-3914527908408281/2240576913';
 
   static const String rewardedAdUnitId =
-      'ca-app-pub-3940256099942544/5224354917';
+      'ca-app-pub-3914527908408281/8609161258';
 
   static const String freeSubscriptionType = 'FREE';
   static const String premiumSubscriptionType = 'PREMIUM';

@@ -707,18 +707,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   InkWell(
                                     onTap: () async {
-                                      await FirebaseAuth.instance.signOut();
-                                      if (mounted) {
-                                        setState(() {
-                                          userProfile = null;
-                                          referralStats = null;
+                                      final shouldSignOut = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Confirm Logout'),
+                                          content: const Text(
+                                            'Are you sure you want to sign out?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                context,
+                                                false,
+                                              ), // Cancel
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                context,
+                                                true,
+                                              ), // Confirm
+                                              child: const Text('Sign Out'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (shouldSignOut == true) {
+                                        await FirebaseAuth.instance.signOut();
+                                        if (context.mounted) {
+                                          setState(() {
+                                            userProfile = null;
+                                            referralStats = null;
+                                          });
                                           Navigator.pushReplacementNamed(
                                             context,
                                             '/',
                                           );
-                                        });
+                                        }
                                       }
                                     },
+
                                     borderRadius: BorderRadius.circular(12),
                                     child: Container(
                                       padding: EdgeInsets.all(16),
