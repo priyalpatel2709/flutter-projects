@@ -167,9 +167,9 @@ class ReferralService {
   }
 
   // Get list of users referred by current user
-  static Future<List<Map<String, dynamic>>> getReferredUsers() async {
+  static Future<Map<String, dynamic>> getReferredUsers() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return [];
+    if (user == null) return {'email': null, 'users': []};
 
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
@@ -178,6 +178,7 @@ class ReferralService {
     final data = userDoc.data() ?? {};
 
     final List<dynamic> referralUserList = data['referralUserList'] ?? [];
+    final String userEmail = data['email'] ?? [];
 
     List<Map<String, dynamic>> referredUsers = [];
 
@@ -202,7 +203,7 @@ class ReferralService {
       });
     }
 
-    return referredUsers;
+    return {'email': userEmail, 'users': referredUsers};
   }
 
   // Redeem referral rewards

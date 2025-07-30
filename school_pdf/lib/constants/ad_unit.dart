@@ -14,7 +14,7 @@ class AdUnit {
   static const int subscriptionExpiryDays = 730;
   static const int eligibleCount = 2;
 
-  static const int subscriptionPrice = 150;
-  static const int referralSubscriptionPrice = 100;
-  static const int promoSubscriptionPrice = 50;
+  static const int subscriptionPrice = 149;
+  static const int referralSubscriptionPrice = 119;
+  static const int promoSubscriptionPrice = 99;
 }

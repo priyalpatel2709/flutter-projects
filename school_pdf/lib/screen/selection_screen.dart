@@ -76,11 +76,16 @@ class _SelectionScreenState extends State<SelectionScreen> {
     );
   }
 
-  // Helper to wait for rewarded ad to load
+  // Helper to wait for rewarded ad to load with 5 second timeout
   Future<void> _waitForRewardedAd() async {
     if (_isRewardedAdLoaded) return;
-    while (!_isRewardedAdLoaded) {
+
+    int attempts = 0;
+    const maxAttempts = 50; // 50 * 100ms = 5 seconds
+
+    while (!_isRewardedAdLoaded && attempts < maxAttempts) {
       await Future.delayed(Duration(milliseconds: 100));
+      attempts++;
     }
   }
 
@@ -93,32 +98,35 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
   Future<void> _loadModulesFromDatabase() async {
     try {
+      if (!mounted) return;
       setState(() {
         isLoading = true;
       });
 
-      // Query modules from the modules collection
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      // Firestore query
+      final querySnapshot = await FirebaseFirestore.instance
           .collection('modules')
           .where('medium', isEqualTo: 'Gujarati')
           .where('isActive', isEqualTo: true)
           .orderBy('order')
           .get();
 
-      List<Module> loadedModules = [];
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        loadedModules.add(Module.fromFirestore(doc));
-      }
+      final loadedModules = querySnapshot.docs
+          .map((doc) => Module.fromFirestore(doc))
+          .toList();
 
+      if (!mounted) return;
       setState(() {
         modules = loadedModules;
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        modules = [];
-      });
+      log('Error loading modules: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -130,6 +138,9 @@ class _SelectionScreenState extends State<SelectionScreen> {
             .collection('users')
             .doc(user.uid)
             .get();
+
+        if (!mounted) return;
+
         if (doc.exists) {
           setState(() {
             userProfile = doc.data() as Map<String, dynamic>;
@@ -141,15 +152,64 @@ class _SelectionScreenState extends State<SelectionScreen> {
           });
         }
       } catch (e) {
+        log('message: Error loading profile: $e');
+        if (mounted) {
+          setState(() {
+            isLoadingProfile = false;
+          });
+        }
+      }
+    } else {
+      if (mounted) {
         setState(() {
           isLoadingProfile = false;
         });
       }
-    } else {
-      setState(() {
-        isLoadingProfile = false;
-      });
     }
+  }
+
+  void _onReferEarnPressed() {
+    // TODO: Implement refer and earn functionality
+    // You can navigate to a refer screen or show a dialog
+    Navigator.pushNamed(context, '/referrals');
+    // Or show a dialog
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => AlertDialog(
+    //     title: Text('Refer & Earn'),
+    //     content: Text('Share the app with friends and earn rewards!'),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(context),
+    //         child: Text('OK'),
+    //       ),
+    //     ],
+    //   ),
+    // );
+  }
+
+  void _onSubscribePressed() {
+    // TODO: Implement subscription functionality
+    // You can navigate to a subscription screen
+    Navigator.pushNamed(context, '/profile');
+    // Or show a dialog
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => AlertDialog(
+    //     title: Text('Subscribe'),
+    //     content: Text('Get premium access to all content!'),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(context),
+    //         child: Text('Cancel'),
+    //       ),
+    //       ElevatedButton(
+    //         onPressed: () => Navigator.pop(context),
+    //         child: Text('Subscribe'),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   @override
@@ -179,166 +239,214 @@ class _SelectionScreenState extends State<SelectionScreen> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+              // await FirebaseAuth.instance.signOut();
+              final shouldSignOut = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Confirm Logout'),
+                  content: const Text('Are you sure you want to sign out?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false), // Cancel
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true), // Confirm
+                      child: const Text('Sign Out'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (shouldSignOut == true) {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) {
+                  setState(() {
+                    userProfile = null;
+                  });
+                }
+              }
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Section
-            // Container(
-            //   width: double.infinity,
-            //   padding: EdgeInsets.all(20),
-            //   decoration: BoxDecoration(
-            //     color: AppColors.surface,
-            //     borderRadius: BorderRadius.circular(16),
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: AppColors.shadowLight,
-            //         blurRadius: 8,
-            //         offset: Offset(0, 2),
-            //       ),
-            //     ],
-            //   ),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Row(
-            //         children: [
-            //           Container(
-            //             padding: EdgeInsets.all(8),
-            //             decoration: BoxDecoration(
-            //               color: AppColors.primary.withOpacity(0.1),
-            //               borderRadius: BorderRadius.circular(8),
-            //             ),
-            //             child: Icon(
-            //               Icons.folder,
-            //               color: AppColors.primary,
-            //               size: 20,
-            //             ),
-            //           ),
-            //           // SizedBox(width: 12),
-            //           // Expanded(
-            //           //   child: Column(
-            //           //     crossAxisAlignment: CrossAxisAlignment.start,
-            //           //     children: [
-            //           //       Text(
-            //           //         widget.medium,
-            //           //         style: theme.textTheme.headlineSmall?.copyWith(
-            //           //           color: AppColors.textPrimary,
-            //           //           fontWeight: FontWeight.bold,
-            //           //         ),
-            //           //       ),
-            //           //       Text(
-            //           //         'Select a module to continue',
-            //           //         style: theme.textTheme.bodyMedium?.copyWith(
-            //           //           color: AppColors.textSecondary,
-            //           //         ),
-            //           //       ),
-            //           //     ],
-            //           //   ),
-            //           // ),
-            //         ],
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // Title and Subtitle
-            SizedBox(height: 24),
-            Text(
-              'Available Modules',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Choose the type of content you want to access',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            SizedBox(height: 24),
-            Expanded(
-              child: isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primary,
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and Subtitle
+                  SizedBox(height: 24),
+                  Text(
+                    'Available Modules',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Choose the type of content you want to access',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Expanded(
+                    child: isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primary,
+                              ),
+                            ),
+                          )
+                        : modules.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.folder_open,
+                                    size: 64,
+                                    color: AppColors.grey400,
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'No modules available',
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No files found.',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: modules.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              try {
+                                final module = modules[index];
+                                return _buildOptionCard(
+                                  context: context,
+                                  title: module.name,
+                                  subtitle: module.description,
+                                  icon: _getModuleIcon(module.icon),
+                                  route: '/driveFiles',
+                                );
+                              } catch (e) {
+                                return ListTile(
+                                  title: Text('Error loading module'),
+                                  subtitle: Text('$e'),
+                                );
+                              }
+                            },
+                          ),
+                  ),
+                  // Bottom Buttons Section
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadowLight,
+                          blurRadius: 8,
+                          offset: Offset(0, -2),
                         ),
-                      ),
-                    )
-                  : modules.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      ],
+                    ),
+                    child: SafeArea(
+                      child: Row(
                         children: [
-                          Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: AppColors.grey100,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.folder_open,
-                              size: 64,
-                              color: AppColors.grey400,
+                          // Refer & Earn Button
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _onReferEarnPressed,
+                              icon: Icon(
+                                Icons.share,
+                                size: 20,
+                                color: AppColors.white,
+                              ),
+                              label: Text(
+                                'Refer & Earn',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.white,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
                             ),
                           ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No modules available',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'No files found.',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textTertiary,
+                          SizedBox(width: 16),
+                          // Subscribe Button
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _onSubscribePressed,
+                              icon: Icon(
+                                Icons.star,
+                                size: 20,
+                                color: AppColors.white,
+                              ),
+                              label: Text(
+                                'Subscribe',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: AppColors.white,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    )
-                  : ListView.separated(
-                      itemCount: modules.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        try {
-                          final module = modules[index];
-                          return _buildOptionCard(
-                            context: context,
-                            title: module.name,
-                            subtitle: module.description,
-                            icon: _getModuleIcon(module.icon),
-                            route: '/driveFiles',
-                          );
-                        } catch (e) {
-                    
-                          return ListTile(
-                            title: Text('Error loading module'),
-                            subtitle: Text('$e'),
-                          );
-                        }
-                      },
                     ),
-            ),
-            if (_isBannerAdLoaded)
-              SizedBox(
-                height: _bannerAd!.size.height.toDouble(),
-                width: _bannerAd!.size.width.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
+                  ),
+                  if (_isBannerAdLoaded)
+                    SizedBox(
+                      height: _bannerAd!.size.height.toDouble(),
+                      width: _bannerAd!.size.width.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+                ],
               ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -375,7 +483,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () async {
-          if (userProfile?['adFree'] == true) {
+          if (userProfile?['adFree1'] == true) {
             Navigator.pushNamed(
               context,
               route,
@@ -390,9 +498,19 @@ class _SelectionScreenState extends State<SelectionScreen> {
               barrierDismissible: false,
               builder: (_) => Center(child: CircularProgressIndicator()),
             );
-            // Wait for ad to load
+            // Wait for ad to load with 5 second timeout
             await _waitForRewardedAd();
             Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
+
+            // If ad still not loaded after timeout, navigate directly
+            if (!_isRewardedAdLoaded || _rewardedAd == null) {
+              Navigator.pushNamed(
+                context,
+                route,
+                arguments: {'medium': 'Gujarati', 'module': title},
+              );
+              return;
+            }
           }
           if (_isRewardedAdLoaded && _rewardedAd != null) {
             _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(

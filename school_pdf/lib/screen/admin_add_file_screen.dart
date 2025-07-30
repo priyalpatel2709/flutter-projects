@@ -10,6 +10,7 @@ import 'package:media_store_plus/media_store_plus.dart';
 
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
+import '../widget/user_tab.dart';
 
 class AdminAddFileScreen extends StatefulWidget {
   @override
@@ -278,7 +279,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
         children: [
           _buildAddModuleTab(theme),
           _buildAddFileTab(theme),
-          _buildUsersTab(theme),
+          UsersTab(theme: theme),
           _buildAddPromoCodeTab(theme),
         ],
       ),
@@ -673,91 +674,6 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
     );
   }
 
-  Widget _buildUsersTab(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Users',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              // TextField(
-              //   controller: _controller,
-              //   decoration: InputDecoration(
-              //     labelText: 'Enter text',
-              //     hintText: 'Type something...',
-              //     prefixIcon: Icon(Icons.text_fields),
-              //     border: OutlineInputBorder(),
-              //   ),
-              // ),
-              // ElevatedButton.icon(
-              //   onPressed: _downloadUsersCsv,
-              //   // onPressed: () => _downloadUsersExcel(context),
-              //   icon: Icon(Icons.download),
-              //   label: Text('Download CSV'),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: AppColors.primary,
-              //     foregroundColor: AppColors.white,
-              //   ),
-              // ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Expanded(
-            child: FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance.collection('users').get(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No users found.'));
-                }
-                final users = snapshot.data!.docs;
-                return ListView.separated(
-                  itemCount: users.length,
-                  separatorBuilder: (_, __) => Divider(),
-                  itemBuilder: (context, index) {
-                    final user = users[index].data() as Map<String, dynamic>;
-                    return ListTile(
-                      leading: Icon(Icons.person),
-                      title: Text(user['name'] ?? 'No Name'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(user['email'] ?? ''),
-                          if (user['phoneNumber'] != null &&
-                              user['phoneNumber'].toString().isNotEmpty)
-                            Text('Phone: ${user['phoneNumber']}'),
-                          if (user['subscriptionPrice'] != null)
-                            Text('Price: ₹${user['subscriptionPrice']}'),
-                        ],
-                      ),
-                      trailing: Text(
-                        (user['subscription']?.toString() ??
-                            AdUnit.freeSubscriptionType),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () => showReferralDialog(context, user),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Promo Code Tab
   Widget _buildAddPromoCodeTab(ThemeData theme) {
     return SingleChildScrollView(
@@ -980,121 +896,5 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
       default:
         return Icons.folder;
     }
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchReferralDetails(
-    List<dynamic> referralList,
-  ) async {
-    List<Map<String, dynamic>> result = [];
-
-    for (var item in referralList) {
-      final uid = item['userId'];
-      final isRewarded = item['isRewarded'] ?? false;
-
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
-      final data = userDoc.data() ?? {};
-
-      result.add({
-        'uid': uid,
-        'name': data['name'],
-        'email': data['email'],
-        'isRewarded': isRewarded,
-      });
-    }
-
-    return result;
-  }
-
-  Future<void> showReferralDialog(
-    BuildContext context,
-    Map<String, dynamic> user,
-  ) async {
-    final referralList = user['referralUserList'] ?? [];
-    final currentUserId = user['email'];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _fetchReferralDetails(referralList),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return CircularProgressIndicator();
-            final referrals = snapshot.data!;
-
-            if (referrals.isEmpty) {
-              return Text('No referrals found.');
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: referrals.map((refUser) {
-                final isRewarded = refUser['isRewarded'] == true;
-                return ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text(refUser['name'] ?? 'Unknown'),
-                  subtitle: Text(refUser['email'] ?? ''),
-                  trailing: isRewarded
-                      ? const Text(
-                          'Rewarded',
-                          style: TextStyle(color: Colors.green),
-                        )
-                      : ElevatedButton(
-                          onPressed: () async {
-                            await _rewardUser(
-                              currentUserEmail: currentUserId,
-                              referralUserId: refUser['uid'],
-                            );
-                            Navigator.pop(context); // refresh after reward
-                          },
-                          child: const Text('Reward'),
-                        ),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<void> _rewardUser({
-    required String currentUserEmail,
-    required String referralUserId,
-  }) async {
-    final query = await FirebaseFirestore.instance
-        .collection('users')
-        .where('email', isEqualTo: currentUserEmail)
-        .limit(1)
-        .get();
-
-    if (query.docs.isEmpty) {
-      log('No user found for email $currentUserEmail');
-      return;
-    }
-
-    final userDoc = query.docs.first;
-    final userRef = userDoc.reference;
-    final userData = userDoc.data();
-
-    List<dynamic> referralList = userData['referralUserList'] ?? [];
-
-    // Update isRewarded = true for the specific userId
-    final updatedList = referralList.map((entry) {
-      if (entry['userId'] == referralUserId) {
-        return {'userId': referralUserId, 'isRewarded': true};
-      }
-      return entry;
-    }).toList();
-
-    final updatedRewardCount = (userData['referralRewards'] ?? 0) - 1;
-
-    await userRef.update({
-      'referralUserList': updatedList,
-      'referralRewards': updatedRewardCount < 0 ? 0 : updatedRewardCount,
-    });
   }
 }

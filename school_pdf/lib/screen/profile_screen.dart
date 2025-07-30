@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final int _eligibleCount = AdUnit.eligibleCount;
 
   bool _isReferralCodeValid = false;
+  bool _isPromoCodeValid = false;
 
   @override
   void initState() {
@@ -114,6 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'subscription': subscriptionType,
             'subscriptionExpiry': expiryDate?.toIso8601String(),
             'subscriptionPrice': _subscriptionPrice,
+            'adFree': true,
           });
 
       if (subscriptionType != AdUnit.freeSubscriptionType) {
@@ -130,6 +132,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _referralCodeController.text,
             user!.uid,
           );
+        }
+        if (_isPromoCodeValid && _promoCodeController.text.trim() != '') {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user!.uid)
+              .update({'promoCode': _promoCodeController.text.trim()});
         }
       }
 
@@ -173,6 +181,382 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showPremiumPurchaseSheet() {
+    // Reset controllers and validation states
+    _promoCodeController.clear();
+    _referralCodeController.clear();
+    _isPromoCodeValid = false;
+    _isReferralCodeValid = false;
+    _promoCodeError = null;
+    _referralCodeError = null;
+    _subscriptionPrice = AdUnit.subscriptionPrice;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                margin: EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.premium.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.star,
+                              color: AppColors.premium,
+                              size: 24,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Premium Plan',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                ),
+                                Text(
+                                  'Lifetime access to all features',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Price Display
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.premium.withOpacity(0.1),
+                              AppColors.primary.withOpacity(0.1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.premium.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Amount',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '₹$_subscriptionPrice',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            _subscriptionPrice <
+                                                AdUnit.subscriptionPrice
+                                            ? AppColors.success
+                                            : AppColors.premium,
+                                      ),
+                                ),
+                                SizedBox(width: 12),
+                                if (_subscriptionPrice <
+                                    AdUnit.subscriptionPrice) ...[
+                                  Text(
+                                    '₹${AdUnit.subscriptionPrice}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.success,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      'SAVE ₹${AdUnit.subscriptionPrice - _subscriptionPrice}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: AppColors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Promo Code Section
+                      Text(
+                        'Apply Promo Code',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                      ),
+                      SizedBox(height: 12),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                              ? 20
+                              : 0,
+                        ),
+                        child: TextField(
+                          controller: _promoCodeController,
+                          decoration: InputDecoration(
+                            labelText: 'Enter promo code',
+                            errorText: _promoCodeError,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            contentPadding: EdgeInsets.all(16),
+                            suffixIcon: _isCheckingPromo
+                                ? Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              AppColors.primary,
+                                            ),
+                                      ),
+                                    ),
+                                  )
+                                : _isPromoCodeValid
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: AppColors.success,
+                                  )
+                                : IconButton(
+                                    icon: Icon(Icons.check),
+                                    onPressed:
+                                        _promoCodeController.text.isNotEmpty
+                                        ? () => _checkPromoCode(
+                                            _promoCodeController.text.trim(),
+                                          )
+                                        : null,
+                                  ),
+                          ),
+                          onChanged: (value) {
+                            if (value.isEmpty) {
+                              setState(() {
+                                _promoCodeError = null;
+                                _isPromoCodeValid = false;
+                                _updateSubscriptionPrice();
+                              });
+                            } else {
+                              _checkPromoCode(value.trim());
+                            }
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Referral Code Section
+                      Text(
+                        'Apply Referral Code',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                      ),
+                      SizedBox(height: 12),
+                      TextField(
+                        controller: _referralCodeController,
+                        decoration: InputDecoration(
+                          labelText: 'Enter referral code',
+                          errorText: _referralCodeError,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: EdgeInsets.all(16),
+                          suffixIcon: _isCheckingReferral
+                              ? Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : _isReferralCodeValid
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.success,
+                                )
+                              : IconButton(
+                                  icon: Icon(Icons.check),
+                                  onPressed:
+                                      _referralCodeController.text.isNotEmpty
+                                      ? () => _checkReferralCode(
+                                          _referralCodeController.text.trim(),
+                                        )
+                                      : null,
+                                ),
+                        ),
+                        onChanged: (value) {
+                          if (value.isEmpty) {
+                            setState(() {
+                              _referralCodeError = null;
+                              _isReferralCodeValid = false;
+                              _updateSubscriptionPrice();
+                            });
+                          } else {
+                            _checkReferralCode(value.trim());
+                          }
+                        },
+                      ),
+
+                      SizedBox(height: 24),
+
+                      // Pay Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _updateSubscription(
+                              AdUnit.premiumSubscriptionType,
+                              false,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.premium,
+                            foregroundColor: AppColors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: Text(
+                            'Pay ₹$_subscriptionPrice',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.white,
+                                ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Cancel Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _checkPromoCode(String code) async {
     setState(() {
       _isCheckingPromo = true;
@@ -184,16 +568,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .where('code', isEqualTo: code)
         .limit(1)
         .get();
+
     if (promoSnap.docs.isNotEmpty) {
       setState(() {
-        _subscriptionPrice = AdUnit.promoSubscriptionPrice;
+        _isPromoCodeValid = true;
+        _updateSubscriptionPrice();
       });
     } else {
       setState(() {
         _promoCodeError = 'Invalid promo code';
-        _subscriptionPrice = AdUnit.subscriptionPrice;
+        _isPromoCodeValid = false;
+        _updateSubscriptionPrice();
       });
     }
+
     setState(() {
       _isCheckingPromo = false;
     });
@@ -204,23 +592,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isCheckingReferral = true;
       _referralCodeError = null;
     });
+
     final isValid = await ReferralService.isValidReferralCode(code);
+
     if (isValid) {
       setState(() {
-        if (_subscriptionPrice > AdUnit.referralSubscriptionPrice) {
-          _subscriptionPrice = AdUnit.referralSubscriptionPrice;
-          _isReferralCodeValid = true;
-        }
+        _isReferralCodeValid = true;
+        _updateSubscriptionPrice();
       });
     } else {
       setState(() {
         _referralCodeError = 'Invalid referral code';
-        _subscriptionPrice = AdUnit.subscriptionPrice;
         _isReferralCodeValid = false;
+        _updateSubscriptionPrice();
       });
     }
+
     setState(() {
       _isCheckingReferral = false;
+    });
+  }
+
+  String _getDiscountMessage() {
+    if (_isPromoCodeValid && _isReferralCodeValid) {
+      return 'Promo code and referral code applied successfully!';
+    } else if (_isPromoCodeValid) {
+      return 'Promo code applied successfully!';
+    } else if (_isReferralCodeValid) {
+      return 'Referral code applied successfully!';
+    }
+    return '';
+  }
+
+  void _updateSubscriptionPrice() {
+    int newPrice = AdUnit.subscriptionPrice;
+
+    if (_isPromoCodeValid) {
+      newPrice = AdUnit.promoSubscriptionPrice;
+    }
+
+    if (_isReferralCodeValid && AdUnit.referralSubscriptionPrice < newPrice) {
+      newPrice = AdUnit.referralSubscriptionPrice;
+    }
+
+    setState(() {
+      _subscriptionPrice = newPrice;
     });
   }
 
@@ -482,6 +898,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SizedBox(height: 24),
 
                         // Subscription Plans
+                        // Updated Subscription Plans Section
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.all(20),
@@ -527,88 +944,165 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                               SizedBox(height: 20),
-                              Text(
-                                'Apply Referral or Promo Code for Discount',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                              SizedBox(height: 8),
-                              TextField(
-                                controller: _promoCodeController,
 
-                                decoration: InputDecoration(
-                                  labelText: 'Promo Code',
-                                  errorText: _promoCodeError,
-                                  suffixIcon: _isCheckingPromo
-                                      ? SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : IconButton(
-                                          icon: Icon(Icons.check),
-                                          onPressed: () => _checkPromoCode(
-                                            _promoCodeController.text.trim(),
-                                          ),
-                                        ),
-                                ),
-                                onChanged: (v) {
-                                  if (v.isEmpty) {
-                                    setState(() {
-                                      _promoCodeError = null;
-                                      _subscriptionPrice = 150;
-                                    });
-                                  } else {
-                                    _checkPromoCode(v.trim());
-                                  }
-                                },
-                              ),
-                              SizedBox(height: 8),
-                              TextField(
-                                controller: _referralCodeController,
-                                decoration: InputDecoration(
-                                  labelText: 'Referral Code',
-                                  errorText: _referralCodeError,
-                                  suffixIcon: _isCheckingReferral
-                                      ? SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : IconButton(
-                                          icon: Icon(Icons.check),
-                                          onPressed: () => _checkReferralCode(
-                                            _referralCodeController.text.trim(),
-                                          ),
-                                        ),
-                                ),
-                                onChanged: (v) {
-                                  if (v.isEmpty) {
-                                    setState(() {
-                                      _referralCodeError = null;
-                                      _subscriptionPrice =
-                                          AdUnit.subscriptionPrice;
-                                    });
-                                  } else {
-                                    _checkReferralCode(
-                                      _referralCodeController.text.trim(),
-                                    );
-                                  }
-                                },
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Subscription Price: ₹$_subscriptionPrice (lifetime)',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              // Pricing Display Card
+                              // Container(
+                              //   width: double.infinity,
+                              //   padding: EdgeInsets.all(16),
+                              //   decoration: BoxDecoration(
+                              //     gradient: LinearGradient(
+                              //       colors: [
+                              //         AppColors.primary.withOpacity(0.1),
+                              //         AppColors.secondary.withOpacity(0.1),
+                              //       ],
+                              //       begin: Alignment.topLeft,
+                              //       end: Alignment.bottomRight,
+                              //     ),
+                              //     borderRadius: BorderRadius.circular(12),
+                              //     border: Border.all(
+                              //       color: AppColors.primary.withOpacity(0.2),
+                              //     ),
+                              //   ),
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     children: [
+                              //       Row(
+                              //         children: [
+                              //           Icon(
+                              //             Icons.local_offer,
+                              //             color: AppColors.primary,
+                              //             size: 20,
+                              //           ),
+                              //           SizedBox(width: 8),
+                              //           Text(
+                              //             'Premium Lifetime Plan',
+                              //             style: theme.textTheme.titleLarge
+                              //                 ?.copyWith(
+                              //                   fontWeight: FontWeight.bold,
+                              //                   color: AppColors.primary,
+                              //                 ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //       SizedBox(height: 12),
 
-                              SizedBox(height: 12),
+                              //       // Price Display
+                              //       Row(
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.end,
+                              //         children: [
+                              //           // Current Price
+                              //           Text(
+                              //             '₹$_subscriptionPrice',
+                              //             style: theme.textTheme.headlineMedium
+                              //                 ?.copyWith(
+                              //                   fontWeight: FontWeight.bold,
+                              //                   color:
+                              //                       _subscriptionPrice <
+                              //                           AdUnit.subscriptionPrice
+                              //                       ? AppColors.success
+                              //                       : AppColors.textPrimary,
+                              //                 ),
+                              //           ),
+                              //           SizedBox(width: 8),
 
+                              //           // Original Price (crossed out if discounted)
+                              //           if (_subscriptionPrice <
+                              //               AdUnit.subscriptionPrice) ...[
+                              //             Text(
+                              //               '₹${AdUnit.subscriptionPrice}',
+                              //               style: theme.textTheme.titleMedium
+                              //                   ?.copyWith(
+                              //                     decoration: TextDecoration
+                              //                         .lineThrough,
+                              //                     color:
+                              //                         AppColors.textSecondary,
+                              //                     fontWeight: FontWeight.w400,
+                              //                   ),
+                              //             ),
+                              //             SizedBox(width: 8),
+                              //             Container(
+                              //               padding: EdgeInsets.symmetric(
+                              //                 horizontal: 8,
+                              //                 vertical: 4,
+                              //               ),
+                              //               decoration: BoxDecoration(
+                              //                 color: AppColors.success,
+                              //                 borderRadius:
+                              //                     BorderRadius.circular(12),
+                              //               ),
+                              //               child: Text(
+                              //                 'SAVE ₹${AdUnit.subscriptionPrice - _subscriptionPrice}',
+                              //                 style: theme.textTheme.labelSmall
+                              //                     ?.copyWith(
+                              //                       color: AppColors.white,
+                              //                       fontWeight: FontWeight.bold,
+                              //                     ),
+                              //               ),
+                              //             ),
+                              //           ],
+                              //         ],
+                              //       ),
+
+                              //       SizedBox(height: 4),
+                              //       Text(
+                              //         'One-time payment • Lifetime access',
+                              //         style: theme.textTheme.bodyMedium
+                              //             ?.copyWith(
+                              //               color: AppColors.textSecondary,
+                              //             ),
+                              //       ),
+
+                              //       // Discount Information
+                              //       if (_subscriptionPrice <
+                              //           AdUnit.subscriptionPrice) ...[
+                              //         SizedBox(height: 12),
+                              //         Container(
+                              //           padding: EdgeInsets.all(12),
+                              //           decoration: BoxDecoration(
+                              //             color: AppColors.success.withOpacity(
+                              //               0.1,
+                              //             ),
+                              //             borderRadius: BorderRadius.circular(
+                              //               8,
+                              //             ),
+                              //             border: Border.all(
+                              //               color: AppColors.success
+                              //                   .withOpacity(0.3),
+                              //             ),
+                              //           ),
+                              //           child: Row(
+                              //             children: [
+                              //               Icon(
+                              //                 Icons.check_circle,
+                              //                 color: AppColors.success,
+                              //                 size: 20,
+                              //               ),
+                              //               SizedBox(width: 8),
+                              //               Expanded(
+                              //                 child: Text(
+                              //                   _getDiscountMessage(),
+                              //                   style: theme
+                              //                       .textTheme
+                              //                       .bodyMedium
+                              //                       ?.copyWith(
+                              //                         color: AppColors.success,
+                              //                         fontWeight:
+                              //                             FontWeight.w500,
+                              //                       ),
+                              //                 ),
+                              //               ),
+                              //             ],
+                              //           ),
+                              //         ),
+                              //       ],
+                              //     ],
+                              //   ),
+                              // ),
+
+                              // SizedBox(height: 20),
+
+                              // Subscription Options
                               _buildSubscriptionOption(
                                 AdUnit.freeSubscriptionType,
                                 'Basic access to files',
@@ -624,7 +1118,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 'Full access + priority support',
                                 Icons.star_outline,
                                 AppColors.premium,
-
                                 !isFree
                                     ? () {
                                         ScaffoldMessenger.of(
@@ -637,21 +1130,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         );
                                       }
-                                    : () => _updateSubscription(
-                                        AdUnit.premiumSubscriptionType,
-                                        false,
-                                      ),
+                                    : () => _showPremiumPurchaseSheet(),
                               ),
-
-                              SizedBox(height: 12),
-
-                              // _buildSubscriptionOption(
-                              //   'Pro',
-                              //   'All features + advanced analytics',
-                              //   Icons.diamond_outlined,
-                              //   Colors.purple,
-                              //   () => _updateSubscription('pro'),
-                              // ),
                             ],
                           ),
                         ),
@@ -893,84 +1373,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
     bool isCurrentSubscription = userProfile?['subscription'] == title;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isCurrentSubscription
-              ? color.withOpacity(0.1)
-              : AppColors.grey50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isCurrentSubscription ? color : AppColors.border,
-            width: isCurrentSubscription ? 2 : 1,
-          ),
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isCurrentSubscription
+            ? color.withOpacity(0.1)
+            : AppColors.grey50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isCurrentSubscription ? color : AppColors.border,
+          width: isCurrentSubscription ? 2 : 1,
         ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isCurrentSubscription ? color : AppColors.textSecondary,
-              size: 24,
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isCurrentSubscription
-                              ? color
-                              : AppColors.textPrimary,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: isCurrentSubscription ? color : AppColors.textSecondary,
+            size: 24,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isCurrentSubscription
+                            ? color
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    if (isCurrentSubscription) ...[
+                      SizedBox(width: 8),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Current',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                      if (isCurrentSubscription) ...[
-                        SizedBox(width: 8),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'Current',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
+                  ],
+                ),
+                SizedBox(height: 4),
+                Text(
+                  description,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (!isCurrentSubscription)
-              Icon(
-                Icons.arrow_forward_ios,
-                color: AppColors.textTertiary,
-                size: 16,
+          ),
+          if (!isCurrentSubscription && title == AdUnit.premiumSubscriptionType)
+            ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-          ],
-        ),
+              child: Text(
+                'Buy',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+            )
+          else if (!isCurrentSubscription)
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.textTertiary,
+              size: 16,
+            ),
+        ],
       ),
     );
   }

@@ -83,11 +83,16 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     );
   }
 
-  // Helper to wait for rewarded ad to load
+  // Helper to wait for rewarded ad to load with 5 second timeout
   Future<void> _waitForRewardedAd() async {
     if (_isRewardedAdLoaded) return;
-    while (!_isRewardedAdLoaded) {
+    
+    int attempts = 0;
+    const maxAttempts = 50; // 50 * 100ms = 5 seconds
+    
+    while (!_isRewardedAdLoaded && attempts < maxAttempts) {
       await Future.delayed(Duration(milliseconds: 100));
+      attempts++;
     }
   }
 
@@ -245,9 +250,15 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
         barrierDismissible: false,
         builder: (_) => Center(child: CircularProgressIndicator()),
       );
-      // Wait for ad to load
+      // Wait for ad to load with 5 second timeout
       await _waitForRewardedAd();
       Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
+      
+      // If ad still not loaded after timeout, open file directly
+      if (!_isRewardedAdLoaded || _rewardedAd == null) {
+        _openDriveFile(file.id);
+        return;
+      }
     }
     if (_isRewardedAdLoaded && _rewardedAd != null) {
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(

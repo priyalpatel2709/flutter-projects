@@ -15,6 +15,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   List<Map<String, dynamic>> _referredUsers = [];
   bool _isLoading = true;
   String _referralCode = '';
+  String userEmail = '';
 
   @override
   void initState() {
@@ -33,7 +34,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
 
       setState(() {
         _referralStats = stats;
-        _referredUsers = users;
+        _referredUsers = users['users'] ?? [];
+        userEmail = users['email'] ?? '';
         _referralCode = stats['referralCode'] ?? '';
         _isLoading = false;
       });
@@ -495,17 +497,17 @@ class _ReferralScreenState extends State<ReferralScreen> {
                           ),
                           _buildHowItWorksStep(
                             3,
-                            'Your friends get ₹50 off, and you earn ₹30 as a reward.',
+                            'Your friends get ₹30 off, and you earn a reward of ₹30 to ₹50.',
                             Icons.stars,
                           ),
                           _buildHowItWorksStep(
                             4,
-                            'To claim your reward, send us a screenshot of your friend’s purchase.',
+                            'To claim your reward, send us a screenshot of your friend’s purchase, along with their name and email.',
                             Icons.redeem,
                           ),
                           _buildHowItWorksStep(
                             5,
-                            'Send the screenshot via WhatsApp at +91 95867 28752.',
+                            'Send the screenshot via WhatsApp to +91 96242 06675.',
                             Icons.telegram_outlined,
                           ),
                           SizedBox(height: 24),
@@ -513,7 +515,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                             onPressed: () {
                               launchUrl(
                                 Uri.parse(
-                                  "https://wa.me/919586728752?text=Hi%2C%20I%20want%20to%20claim%20my%20referral%20reward.",
+                                  "https://wa.me/919624206675?text=Hi%2C%20I%20want%20to%20claim%20my%20referral%20reward%20My%20mail%20Address%20Is%20$userEmail%20And%20My%20Friend%20mail%20is",
                                 ),
                                 mode: LaunchMode.externalApplication,
                               );
