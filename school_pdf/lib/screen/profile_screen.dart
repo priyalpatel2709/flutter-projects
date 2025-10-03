@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
@@ -21,6 +22,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
   final TextEditingController _promoCodeController = TextEditingController();
   final TextEditingController _referralCodeController = TextEditingController();
+
+  final FocusNode _promoCodeFocusNode = FocusNode();
+  final FocusNode _referralCodeFocusNode = FocusNode();
+
   String? _promoCodeError;
   String? _referralCodeError;
   int _subscriptionPrice = AdUnit.subscriptionPrice;
@@ -31,17 +36,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool _isReferralCodeValid = false;
   bool _isPromoCodeValid = false;
+  
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerAdLoaded = false;
+  bool _isBottomBannerAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
+    _loadTopBannerAd();
+    _loadBottomBannerAd();
+  }
+
+  void _loadTopBannerAd() {
+    _topBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isTopBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  void _loadBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
   }
 
   @override
   void dispose() {
     _promoCodeController.dispose();
     _referralCodeController.dispose();
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
     super.dispose();
   }
 
@@ -378,6 +428,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : 0,
                         ),
                         child: TextField(
+                          focusNode: _promoCodeFocusNode,
                           controller: _promoCodeController,
                           decoration: InputDecoration(
                             labelText: 'Enter promo code',
@@ -386,35 +437,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             contentPadding: EdgeInsets.all(16),
-                            suffixIcon: _isCheckingPromo
-                                ? Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              AppColors.primary,
-                                            ),
-                                      ),
-                                    ),
-                                  )
-                                : _isPromoCodeValid
-                                ? Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.success,
-                                  )
-                                : IconButton(
-                                    icon: Icon(Icons.check),
-                                    onPressed:
-                                        _promoCodeController.text.isNotEmpty
-                                        ? () => _checkPromoCode(
-                                            _promoCodeController.text.trim(),
-                                          )
-                                        : null,
-                                  ),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.check),
+                              onPressed: () => _applyPromoCode(
+                                _promoCodeController.text.trim(),
+                              ),
+                            ),
+                            // suffixIcon: _isCheckingPromo
+                            //     ? Padding(
+                            //         padding: EdgeInsets.all(12),
+                            //         child: SizedBox(
+                            //           width: 20,
+                            //           height: 20,
+                            //           child: CircularProgressIndicator(
+                            //             strokeWidth: 2,
+                            //             valueColor:
+                            //                 AlwaysStoppedAnimation<Color>(
+                            //                   AppColors.primary,
+                            //                 ),
+                            //           ),
+                            //         ),
+                            //       )
+                            //     : _isPromoCodeValid
+                            //     ? Icon(
+                            //         Icons.check_circle,
+                            //         color: AppColors.success,
+                            //       )
+                            //     : IconButton(
+                            //         icon: Icon(Icons.check),
+                            //         onPressed: () => _checkPromoCode(
+                            //           _promoCodeController.text.trim(),
+                            //         ),
+                            //       ),
                           ),
                           onChanged: (value) {
                             if (value.isEmpty) {
@@ -443,6 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       SizedBox(height: 12),
                       TextField(
+                        focusNode: _referralCodeFocusNode,
                         controller: _referralCodeController,
                         decoration: InputDecoration(
                           labelText: 'Enter referral code',
@@ -451,34 +506,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           contentPadding: EdgeInsets.all(16),
-                          suffixIcon: _isCheckingReferral
-                              ? Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.primary,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : _isReferralCodeValid
-                              ? Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.success,
-                                )
-                              : IconButton(
-                                  icon: Icon(Icons.check),
-                                  onPressed:
-                                      _referralCodeController.text.isNotEmpty
-                                      ? () => _checkReferralCode(
-                                          _referralCodeController.text.trim(),
-                                        )
-                                      : null,
-                                ),
+                          suffix: IconButton(
+                            icon: Icon(Icons.check),
+                            onPressed: () => _applyReferralCode(
+                              _referralCodeController.text.trim(),
+                            ),
+                          ),
+                          // suffixIcon: _isCheckingReferral
+                          //     ? Padding(
+                          //         padding: EdgeInsets.all(12),
+                          //         child: SizedBox(
+                          //           width: 20,
+                          //           height: 20,
+                          //           child: CircularProgressIndicator(
+                          //             strokeWidth: 2,
+                          //             valueColor: AlwaysStoppedAnimation<Color>(
+                          //               AppColors.primary,
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       )
+                          //     : _isReferralCodeValid
+                          //     ? Icon(
+                          //         Icons.check_circle,
+                          //         color: AppColors.success,
+                          //       )
+                          //     : IconButton(
+                          //         icon: Icon(Icons.check),
+                          //         onPressed:
+                          //             _referralCodeController.text.isNotEmpty
+                          //             ? () => _checkReferralCode(
+                          //                 _referralCodeController.text.trim(),
+                          //               )
+                          //             : null,
+                          //       ),
                         ),
                         onChanged: (value) {
                           if (value.isEmpty) {
@@ -557,6 +618,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _applyPromoCode(String code) async {
+    // Close keyboard
+
+    _promoCodeFocusNode.unfocus();
+
+    // Add a small delay to ensure keyboard closes before proceeding
+    await Future.delayed(Duration(milliseconds: 100));
+
+    _checkPromoCode(code);
+  }
+
   Future<void> _checkPromoCode(String code) async {
     setState(() {
       _isCheckingPromo = true;
@@ -585,6 +657,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isCheckingPromo = false;
     });
+  }
+
+  Future<void> _applyReferralCode(String code) async {
+    _referralCodeFocusNode.unfocus();
+    // await Future.delayed(Duration(milliseconds: 100));
+    _checkReferralCode(code);
   }
 
   Future<void> _checkReferralCode(String code) async {

@@ -25,4 +25,4 @@
 -keep class proguard.annotation.KeepClassMembers { *; }
 
 # Keep your MainActivity to prevent it being stripped
--keep class com.example.school_pdf.MainActivity { *; }
+-keep class com.schfrd.school_pdf.MainActivity { *; }

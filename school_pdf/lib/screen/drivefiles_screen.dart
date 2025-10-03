@@ -29,10 +29,12 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   bool isLoading = true;
   List<DriveFile> files = [];
   bool isLoadingFiles = true;
-  BannerAd? _bannerAd;
-  bool _isBannerAdLoaded = false;
-  RewardedAd? _rewardedAd;
-  bool _isRewardedAdLoaded = false;
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerAdLoaded = false;
+  bool _isBottomBannerAdLoaded = false;
+  NativeAd? _nativeAd;
+  bool _isNativeAdLoaded = false;
   String? selectedYear; // Add this for year selection
 
   @override
@@ -40,19 +42,20 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     super.initState();
     _loadUserProfile();
     _loadFilesFromDatabase();
-    _loadBannerAd();
-    _loadRewardedAd();
+    _loadTopBannerAd();
+    _loadBottomBannerAd();
+    _loadNativeAd();
   }
 
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
+  void _loadTopBannerAd() {
+    _topBannerAd = BannerAd(
       adUnitId: AdUnit.bannerAdUnitId,
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _isBannerAdLoaded = true;
+            _isTopBannerAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
@@ -62,38 +65,48 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
     )..load();
   }
 
-  void _loadRewardedAd() {
-    RewardedAd.load(
-      adUnitId: AdUnit.rewardedAdUnitId, // Use test ad unit for development
+  void _loadBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
       request: AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
+      listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _rewardedAd = ad;
-            _isRewardedAdLoaded = true;
+            _isBottomBannerAdLoaded = true;
           });
         },
-        onAdFailedToLoad: (error) {
-          setState(() {
-            _rewardedAd = null;
-            _isRewardedAdLoaded = false;
-          });
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
         },
       ),
-    );
+    )..load();
   }
 
-  // Helper to wait for rewarded ad to load with 5 second timeout
-  Future<void> _waitForRewardedAd() async {
-    if (_isRewardedAdLoaded) return;
-    
-    int attempts = 0;
-    const maxAttempts = 50; // 50 * 100ms = 5 seconds
-    
-    while (!_isRewardedAdLoaded && attempts < maxAttempts) {
-      await Future.delayed(Duration(milliseconds: 100));
-      attempts++;
-    }
+  void _loadNativeAd() {
+    _nativeAd = NativeAd(
+      adUnitId: AdUnit.nativeAdUnitId,
+      factoryId: 'nativeTemplateStyle',
+      request: AdRequest(),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isNativeAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
+    _nativeAd?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserProfile() async {
@@ -145,7 +158,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
 
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        log('data=-------------------${data['tags']}');
+
         loadedFiles.add(
           DriveFile(
             name: data['name'] ?? '',
@@ -184,7 +197,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
       if (file.tags != null) {
         for (var tag in file.tags!) {
           String tagStr = tag.toString();
-          if (tagStr.contains('2023') || tagStr.contains('2024') || tagStr.contains('2025')) {
+          if (tagStr.contains('2023') ||
+              tagStr.contains('2024') ||
+              tagStr.contains('2025')) {
             if (tagStr.contains('2023')) years.add('2023');
             if (tagStr.contains('2024')) years.add('2024');
             if (tagStr.contains('2025')) years.add('2025');
@@ -196,7 +211,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   }
 
   // Check if this is a "Last Year Paper With Solution" module
-  bool get _isLastYearPaperModule => widget.module == 'Last Year Paper With Solution';
+  bool get _isLastYearPaperModule =>
+      widget.module == 'Last Year Paper With Solution';
 
   // Check if user has premium subscription
   bool get _hasPremiumSubscription {
@@ -233,51 +249,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
       if (userProfile?['adFree'] == true) {
         _openDriveFile(file.id);
       } else {
-        _showAdAndOpenFile(file);
-      }
-    }
-  }
-
-  Future<void> _showAdAndOpenFile(DriveFile file) async {
-    if (userProfile?['adFree'] == true) {
-      _openDriveFile(file.id);
-      return;
-    }
-    if (!_isRewardedAdLoaded || _rewardedAd == null) {
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => Center(child: CircularProgressIndicator()),
-      );
-      // Wait for ad to load with 5 second timeout
-      await _waitForRewardedAd();
-      Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
-      
-      // If ad still not loaded after timeout, open file directly
-      if (!_isRewardedAdLoaded || _rewardedAd == null) {
         _openDriveFile(file.id);
-        return;
       }
-    }
-    if (_isRewardedAdLoaded && _rewardedAd != null) {
-      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-        onAdDismissedFullScreenContent: (ad) {
-          _loadRewardedAd(); // Preload next ad
-        },
-        onAdFailedToShowFullScreenContent: (ad, error) {
-          _loadRewardedAd();
-        },
-      );
-      _rewardedAd!.show(
-        onUserEarnedReward: (ad, reward) {
-          _openDriveFile(file.id);
-        },
-      );
-      setState(() {
-        _rewardedAd = null;
-        _isRewardedAdLoaded = false;
-      });
     }
   }
 
@@ -380,6 +353,12 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_isTopBannerAdLoaded)
+                          SizedBox(
+                            height: _topBannerAd!.size.height.toDouble(),
+                            width: _topBannerAd!.size.width.toDouble(),
+                            child: AdWidget(ad: _topBannerAd!),
+                          ),
                         Row(
                           children: [
                             Container(
@@ -400,7 +379,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _isLastYearPaperModule && selectedYear != null
+                                    _isLastYearPaperModule &&
+                                            selectedYear != null
                                         ? 'Year $selectedYear'
                                         : widget.module,
                                     style: theme.textTheme.headlineSmall
@@ -410,7 +390,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                         ),
                                   ),
                                   Text(
-                                    _isLastYearPaperModule && selectedYear != null
+                                    _isLastYearPaperModule &&
+                                            selectedYear != null
                                         ? '${_getFilesByYear(selectedYear!).length} files available'
                                         : '${_files.length} files available',
                                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -450,9 +431,10 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                   SizedBox(height: 16),
                                   Text(
                                     'No year folders available',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
+                                    style: theme.textTheme.headlineSmall
+                                        ?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -462,7 +444,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                               itemBuilder: (context, index) {
                                 final year = _availableYears[index];
                                 final yearFiles = _getFilesByYear(year);
-                                
+
                                 return Card(
                                   margin: EdgeInsets.only(bottom: 12),
                                   elevation: 2,
@@ -475,7 +457,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                     leading: Container(
                                       padding: EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.1),
+                                        color: AppColors.primary.withOpacity(
+                                          0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Icon(
@@ -486,21 +470,25 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                     ),
                                     title: Text(
                                       'Year $year',
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.textPrimary,
-                                      ),
+                                      style: theme.textTheme.titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary,
+                                          ),
                                     ),
                                     subtitle: Text(
                                       '${yearFiles.length} files available',
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
                                     ),
                                     trailing: Container(
                                       padding: EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.1),
+                                        color: AppColors.primary.withOpacity(
+                                          0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
@@ -553,7 +541,8 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                             child: _getFilesByYear(selectedYear!).isEmpty
                                 ? Center(
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Container(
                                           padding: EdgeInsets.all(20),
@@ -570,26 +559,34 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                         SizedBox(height: 16),
                                         Text(
                                           'No files available for $selectedYear',
-                                          style: theme.textTheme.headlineSmall?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
+                                          style: theme.textTheme.headlineSmall
+                                              ?.copyWith(
+                                                color: AppColors.textSecondary,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   )
                                 : ListView.builder(
-                                    itemCount: _getFilesByYear(selectedYear!).length,
+                                    itemCount: _getFilesByYear(
+                                      selectedYear!,
+                                    ).length,
                                     itemBuilder: (context, index) {
-                                      final file = _getFilesByYear(selectedYear!)[index];
+                                      final file = _getFilesByYear(
+                                        selectedYear!,
+                                      )[index];
                                       final canAccess =
-                                          file.isFree || _canAccessPaidContent();
+                                          file.isFree ||
+                                          _canAccessPaidContent();
 
                                       return Card(
                                         margin: EdgeInsets.only(bottom: 12),
                                         elevation: 2,
                                         shadowColor: AppColors.shadowLight,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: ListTile(
                                           contentPadding: EdgeInsets.all(16),
@@ -597,7 +594,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                             children: [
                                               CircleAvatar(
                                                 radius: 24,
-                                                backgroundColor: _getFileColor(file.type),
+                                                backgroundColor: _getFileColor(
+                                                  file.type,
+                                                ),
                                                 child: Icon(
                                                   _getFileIcon(file.type),
                                                   color: AppColors.white,
@@ -605,23 +604,30 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                                 ),
                                               ),
                                               if (!file.isFree)
-                                                Positioned(
-                                                  right: 0,
-                                                  top: 0,
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(4),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.premium,
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        color: AppColors.white,
-                                                        width: 2,
+                                                Visibility(
+                                                  visible: !canAccess,
+                                                  child: Positioned(
+                                                    right: 0,
+                                                    top: 0,
+                                                    child: Container(
+                                                      padding: EdgeInsets.all(
+                                                        4,
                                                       ),
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.lock,
-                                                      size: 12,
-                                                      color: AppColors.white,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            AppColors.premium,
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color:
+                                                              AppColors.white,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.lock,
+                                                        size: 12,
+                                                        color: AppColors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -632,39 +638,53 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                               Expanded(
                                                 child: Text(
                                                   file.name,
-                                                  style: theme.textTheme.titleMedium
+                                                  style: theme
+                                                      .textTheme
+                                                      .titleMedium
                                                       ?.copyWith(
-                                                        fontWeight: FontWeight.w600,
+                                                        fontWeight:
+                                                            FontWeight.w600,
                                                         color: canAccess
-                                                            ? AppColors.textPrimary
-                                                            : AppColors.textSecondary,
+                                                            ? AppColors
+                                                                  .textPrimary
+                                                            : AppColors
+                                                                  .textSecondary,
                                                       ),
                                                 ),
                                               ),
                                               if (!file.isFree)
-                                                Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.premium.withOpacity(
-                                                      0.1,
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(
-                                                      color: AppColors.premium.withOpacity(
-                                                        0.3,
+                                                Visibility(
+                                                  visible: !canAccess,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.premium
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: AppColors.premium
+                                                            .withOpacity(0.3),
                                                       ),
                                                     ),
-                                                  ),
-                                                  child: Text(
-                                                    'PREMIUM',
-                                                    style: theme.textTheme.labelSmall
-                                                        ?.copyWith(
-                                                          fontWeight: FontWeight.bold,
-                                                          color: AppColors.premium,
-                                                        ),
+                                                    child: Text(
+                                                      'PREMIUM',
+                                                      style: theme
+                                                          .textTheme
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: AppColors
+                                                                .premium,
+                                                          ),
+                                                    ),
                                                   ),
                                                 ),
                                             ],
@@ -675,23 +695,30 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                               canAccess
                                                   ? 'Tap to open in Google Drive'
                                                   : 'Premium subscription required',
-                                              style: theme.textTheme.bodySmall?.copyWith(
-                                                color: canAccess
-                                                    ? AppColors.textSecondary
-                                                    : AppColors.premium,
-                                              ),
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: canAccess
+                                                        ? AppColors
+                                                              .textSecondary
+                                                        : AppColors.premium,
+                                                  ),
                                             ),
                                           ),
                                           trailing: Container(
                                             padding: EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: canAccess
-                                                  ? AppColors.primary.withOpacity(0.1)
-                                                  : AppColors.premium.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(8),
+                                                  ? AppColors.primary
+                                                        .withOpacity(0.1)
+                                                  : AppColors.premium
+                                                        .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Icon(
-                                              canAccess ? Icons.open_in_new : Icons.lock,
+                                              canAccess
+                                                  ? Icons.open_in_new
+                                                  : Icons.lock,
                                               color: canAccess
                                                   ? AppColors.primary
                                                   : AppColors.premium,
@@ -749,21 +776,47 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                     // Regular files list for non-last year paper modules
                     Expanded(
                       child: ListView.builder(
-                        itemCount: _files.length,
+                        itemCount: _files.length + (_isNativeAdLoaded ? 1 : 0),
                         itemBuilder: (context, index) {
-                          final file = _files[index];
+                          // Insert ad at 2nd position (index = 1)
+                          if (_isNativeAdLoaded && index == 1) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: Card(
+                                elevation: 2,
+                                shadowColor: AppColors.shadowLight,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: SizedBox(
+                                  height: 80,
+                                  child: AdWidget(ad: _nativeAd!),
+                                ),
+                              ),
+                            );
+                          }
+
+                          // Adjust file index (shift by 1 if ad is inserted before this index)
+                          final fileIndex = index > 1 && _isNativeAdLoaded
+                              ? index - 1
+                              : index;
+                          if (fileIndex >= _files.length) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final file = _files[fileIndex];
                           final canAccess =
                               file.isFree || _canAccessPaidContent();
 
                           return Card(
-                            margin: EdgeInsets.only(bottom: 12),
+                            margin: const EdgeInsets.only(bottom: 12),
                             elevation: 2,
                             shadowColor: AppColors.shadowLight,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
-                              contentPadding: EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                               leading: Stack(
                                 children: [
                                   CircleAvatar(
@@ -776,23 +829,26 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                     ),
                                   ),
                                   if (!file.isFree)
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Container(
-                                        padding: EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.premium,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: AppColors.white,
-                                            width: 2,
+                                    Visibility(
+                                      visible: !canAccess,
+                                      child: Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.premium,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: AppColors.white,
+                                              width: 2,
+                                            ),
                                           ),
-                                        ),
-                                        child: Icon(
-                                          Icons.lock,
-                                          size: 12,
-                                          color: AppColors.white,
+                                          child: const Icon(
+                                            Icons.lock,
+                                            size: 12,
+                                            color: AppColors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -813,35 +869,39 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                     ),
                                   ),
                                   if (!file.isFree)
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.premium.withOpacity(
-                                          0.1,
+                                    Visibility(
+                                      visible: !canAccess,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
                                         ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
+                                        decoration: BoxDecoration(
                                           color: AppColors.premium.withOpacity(
-                                            0.3,
+                                            0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColors.premium
+                                                .withOpacity(0.3),
                                           ),
                                         ),
-                                      ),
-                                      child: Text(
-                                        'PREMIUM',
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.premium,
-                                            ),
+                                        child: Text(
+                                          'PREMIUM',
+                                          style: theme.textTheme.labelSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.premium,
+                                              ),
+                                        ),
                                       ),
                                     ),
                                 ],
                               ),
                               subtitle: Padding(
-                                padding: EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.only(top: 4),
                                 child: Text(
                                   canAccess
                                       ? 'Tap to open in Google Drive'
@@ -854,7 +914,7 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                                 ),
                               ),
                               trailing: Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: canAccess
                                       ? AppColors.primary.withOpacity(0.1)
@@ -875,11 +935,12 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                         },
                       ),
                     ),
-                  if (_isBannerAdLoaded)
+
+                  if (_isBottomBannerAdLoaded)
                     SizedBox(
-                      height: _bannerAd!.size.height.toDouble(),
-                      width: _bannerAd!.size.width.toDouble(),
-                      child: AdWidget(ad: _bannerAd!),
+                      height: _bottomBannerAd!.size.height.toDouble(),
+                      width: _bottomBannerAd!.size.width.toDouble(),
+                      child: AdWidget(ad: _bottomBannerAd!),
                     ),
                 ],
               ),

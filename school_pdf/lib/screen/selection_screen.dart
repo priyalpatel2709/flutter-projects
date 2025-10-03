@@ -21,10 +21,10 @@ class SelectionScreen extends StatefulWidget {
 class _SelectionScreenState extends State<SelectionScreen> {
   List<Module> modules = [];
   bool isLoading = true;
-  BannerAd? _bannerAd;
-  bool _isBannerAdLoaded = false;
-  RewardedAd? _rewardedAd;
-  bool _isRewardedAdLoaded = false;
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerAdLoaded = false;
+  bool _isBottomBannerAdLoaded = false;
   Map<String, dynamic>? userProfile;
   bool isLoadingProfile = true;
 
@@ -32,20 +32,20 @@ class _SelectionScreenState extends State<SelectionScreen> {
   void initState() {
     super.initState();
     _loadModulesFromDatabase();
-    _loadBannerAd();
-    _loadRewardedAd(); // Preload rewarded ad on screen load
+    _loadTopBannerAd();
+    _loadBottomBannerAd();
     _loadUserProfile();
   }
 
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
+  void _loadTopBannerAd() {
+    _topBannerAd = BannerAd(
       adUnitId: AdUnit.bannerAdUnitId,
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _isBannerAdLoaded = true;
+            _isTopBannerAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
@@ -55,44 +55,28 @@ class _SelectionScreenState extends State<SelectionScreen> {
     )..load();
   }
 
-  void _loadRewardedAd() {
-    RewardedAd.load(
-      adUnitId: AdUnit.rewardedAdUnitId, // Use test ad unit for development
+  void _loadBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
       request: AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
+      listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _rewardedAd = ad;
-            _isRewardedAdLoaded = true;
+            _isBottomBannerAdLoaded = true;
           });
         },
-        onAdFailedToLoad: (error) {
-          setState(() {
-            _rewardedAd = null;
-            _isRewardedAdLoaded = false;
-          });
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
         },
       ),
-    );
-  }
-
-  // Helper to wait for rewarded ad to load with 5 second timeout
-  Future<void> _waitForRewardedAd() async {
-    if (_isRewardedAdLoaded) return;
-
-    int attempts = 0;
-    const maxAttempts = 50; // 50 * 100ms = 5 seconds
-
-    while (!_isRewardedAdLoaded && attempts < maxAttempts) {
-      await Future.delayed(Duration(milliseconds: 100));
-      attempts++;
-    }
+    )..load();
   }
 
   @override
   void dispose() {
-    _bannerAd?.dispose();
-    _rewardedAd?.dispose();
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
     super.dispose();
   }
 
@@ -279,6 +263,12 @@ class _SelectionScreenState extends State<SelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title and Subtitle
+                  if (_isTopBannerAdLoaded)
+                    SizedBox(
+                      height: _topBannerAd!.size.height.toDouble(),
+                      width: _topBannerAd!.size.width.toDouble(),
+                      child: AdWidget(ad: _topBannerAd!),
+                    ),
                   SizedBox(height: 24),
                   Text(
                     'Available Modules',
@@ -436,11 +426,12 @@ class _SelectionScreenState extends State<SelectionScreen> {
                       ),
                     ),
                   ),
-                  if (_isBannerAdLoaded)
+
+                  if (_isBottomBannerAdLoaded)
                     SizedBox(
-                      height: _bannerAd!.size.height.toDouble(),
-                      width: _bannerAd!.size.width.toDouble(),
-                      child: AdWidget(ad: _bannerAd!),
+                      height: _bottomBannerAd!.size.height.toDouble(),
+                      width: _bottomBannerAd!.size.width.toDouble(),
+                      child: AdWidget(ad: _bottomBannerAd!),
                     ),
                 ],
               ),
@@ -491,50 +482,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
             );
             return;
           }
-          if (!_isRewardedAdLoaded || _rewardedAd == null) {
-            // Show loading dialog
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => Center(child: CircularProgressIndicator()),
-            );
-            // Wait for ad to load with 5 second timeout
-            await _waitForRewardedAd();
-            Navigator.of(context, rootNavigator: true).pop(); // Dismiss dialog
-
-            // If ad still not loaded after timeout, navigate directly
-            if (!_isRewardedAdLoaded || _rewardedAd == null) {
-              Navigator.pushNamed(
-                context,
-                route,
-                arguments: {'medium': 'Gujarati', 'module': title},
-              );
-              return;
-            }
-          }
-          if (_isRewardedAdLoaded && _rewardedAd != null) {
-            _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-              onAdDismissedFullScreenContent: (ad) {
-                _loadRewardedAd(); // Preload next ad
-              },
-              onAdFailedToShowFullScreenContent: (ad, error) {
-                _loadRewardedAd();
-              },
-            );
-            _rewardedAd!.show(
-              onUserEarnedReward: (ad, reward) {
-                Navigator.pushNamed(
-                  context,
-                  route,
-                  arguments: {'medium': 'Gujarati', 'module': title},
-                );
-              },
-            );
-            setState(() {
-              _rewardedAd = null;
-              _isRewardedAdLoaded = false;
-            });
-          }
+          Navigator.pushNamed(
+            context,
+            route,
+            arguments: {'medium': 'Gujarati', 'module': title},
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(

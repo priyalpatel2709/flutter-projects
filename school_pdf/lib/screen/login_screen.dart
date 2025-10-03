@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../services/referral_service.dart';
@@ -23,6 +24,53 @@ class _LoginScreenState extends State<LoginScreen> {
   final _phoneNumberController = TextEditingController();
   bool _isLoading = false;
   bool _isSignUp = false;
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerAdLoaded = false;
+  bool _isBottomBannerAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTopBannerAd();
+    _loadBottomBannerAd();
+  }
+
+  void _loadTopBannerAd() {
+    _topBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isTopBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  void _loadBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
 
   @override
   void dispose() {
@@ -30,6 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     _nameController.dispose();
     _phoneNumberController.dispose();
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
     super.dispose();
   }
 
@@ -371,225 +421,253 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(32.0),
-            child: Container(
-              padding: EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.shadowMedium,
-                    blurRadius: 20,
-                    offset: Offset(0, 8),
-                  ),
-                ],
+        child: Column(
+          children: [
+            // Top Banner Ad
+            if (_isTopBannerAdLoaded)
+              Container(
+                width: double.infinity,
+                height: _topBannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _topBannerAd!),
               ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo Section
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryShade50,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
+            // Main Content
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(32.0),
+                  child: Container(
+                    padding: EdgeInsets.all(24.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadowMedium,
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Logo Section
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryShade50,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.2),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Image.asset(
+                              'assets/images/logo_bg.png',
+                              height: 100,
+                              scale: 1.5,
+                              // color: Color.fromARGB(255, 15, 147, 59),
+                              // opacity: const AlwaysStoppedAnimation<double>(0.5),
+                            ),
+                            // Image(
+                            //   image:
+                            //   AssetImage(
+                            //     'assets/images/logo_bg.png',
+                            //     height: 100,
+                            //     width: 100,
+                            //     fit: BoxFit.cover,
+                            //   ),
+                            // ),
+                          ),
+                          SizedBox(height: 24),
+                          Text(
+                            'Student Friend',
+                            style: theme.textTheme.headlineLarge?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            _isSignUp ? 'Create your account' : 'Welcome back',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          SizedBox(height: 32),
+                          if (_isSignUp) ...[
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                labelText: 'Full Name',
+                                labelStyle: TextStyle(color: AppColors.primary),
+                                prefixIcon: Icon(
+                                  Icons.person,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your name';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                          TextFormField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              labelStyle: TextStyle(color: AppColors.primary),
+                              prefixIcon: Icon(
+                                Icons.email,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          if (_isSignUp) ...[
+                            SizedBox(height: 16),
+                            TextFormField(
+                              controller: _phoneNumberController,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number',
+                                labelStyle: TextStyle(color: AppColors.primary),
+                                prefixIcon: Icon(
+                                  Icons.phone,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  final phoneRegExp = RegExp(r'^[6-9]\d{9}$');
+                                  if (!phoneRegExp.hasMatch(value)) {
+                                    return 'Enter a valid 10-digit phone number';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                          SizedBox(height: 32),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              labelStyle: TextStyle(color: AppColors.primary),
+                              prefixIcon: Icon(
+                                Icons.lock,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 32),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : (_isSignUp ? _signUp : _signIn),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                                shadowColor: AppColors.shadowMedium,
+                              ),
+                              child: _isLoading
+                                  ? CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      _isSignUp ? 'Sign Up' : 'Sign In',
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.white,
+                                          ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isSignUp = !_isSignUp;
+                                _phoneNumberController.clear();
+                              });
+                            },
+                            child: Text(
+                              _isSignUp
+                                  ? 'Already have an account? Sign In'
+                                  : 'Don\'t have an account? Sign Up',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          // SizedBox(height: 8),
+                          Visibility(
+                            visible: !_isSignUp,
+                            child: TextButton(
+                              onPressed: _forgotPassword,
+                              child: Text(
+                                'Forgot Password?',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: Image.asset(
-                        'assets/images/logo_bg.png',
-                        height: 100,
-                        scale: 1.5,
-                        // color: Color.fromARGB(255, 15, 147, 59),
-                        // opacity: const AlwaysStoppedAnimation<double>(0.5),
-                      ),
-                      // Image(
-                      //   image:
-                      //   AssetImage(
-                      //     'assets/images/logo_bg.png',
-                      //     height: 100,
-                      //     width: 100,
-                      //     fit: BoxFit.cover,
-                      //   ),
-                      // ),
                     ),
-                    SizedBox(height: 24),
-                    Text(
-                      'Student Friend',
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      _isSignUp ? 'Create your account' : 'Welcome back',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    SizedBox(height: 32),
-                    if (_isSignUp) ...[
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          labelStyle: TextStyle(color: AppColors.primary),
-                          prefixIcon: Icon(
-                            Icons.person,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(color: AppColors.primary),
-                        prefixIcon: Icon(Icons.email, color: AppColors.primary),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    if (_isSignUp) ...[
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _phoneNumberController,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Phone Number',
-                          labelStyle: TextStyle(color: AppColors.primary),
-                          prefixIcon: Icon(
-                            Icons.phone,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value != null && value.isNotEmpty) {
-                            final phoneRegExp = RegExp(r'^[6-9]\d{9}$');
-                            if (!phoneRegExp.hasMatch(value)) {
-                              return 'Enter a valid 10-digit phone number';
-                            }
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                    SizedBox(height: 32),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: AppColors.primary),
-                        prefixIcon: Icon(Icons.lock, color: AppColors.primary),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 32),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : (_isSignUp ? _signUp : _signIn),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                          shadowColor: AppColors.shadowMedium,
-                        ),
-                        child: _isLoading
-                            ? CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColors.white,
-                                ),
-                              )
-                            : Text(
-                                _isSignUp ? 'Sign Up' : 'Sign In',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _isSignUp = !_isSignUp;
-                          _phoneNumberController.clear();
-                        });
-                      },
-                      child: Text(
-                        _isSignUp
-                            ? 'Already have an account? Sign In'
-                            : 'Don\'t have an account? Sign Up',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    // SizedBox(height: 8),
-                    Visibility(
-                      visible: !_isSignUp,
-                      child: TextButton(
-                        onPressed: _forgotPassword,
-                        child: Text(
-                          'Forgot Password?',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            // Bottom Banner Ad
+            if (_isBottomBannerAdLoaded)
+              Container(
+                width: double.infinity,
+                height: _bottomBannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bottomBannerAd!),
+              ),
+          ],
         ),
       ),
     );

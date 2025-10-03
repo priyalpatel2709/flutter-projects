@@ -155,7 +155,7 @@ class PaymentService {
         'amount': amount * 100, // Convert to paise
         'currency': currency,
         'name': RazorpayConfig.appName,
-        'description': '$subscriptionType Subscription',
+        'description': 'Buy Premium',
         'order_id': orderId,
         'prefill': {
           'contact': '',

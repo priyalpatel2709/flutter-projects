@@ -1,8 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../constants/app_colors.dart';
+import '../constants/ad_unit.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  BannerAd? _topBannerAd;
+  BannerAd? _bottomBannerAd;
+  bool _isTopBannerAdLoaded = false;
+  bool _isBottomBannerAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTopBannerAd();
+    _loadBottomBannerAd();
+  }
+
+  void _loadTopBannerAd() {
+    _topBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isTopBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  void _loadBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdUnit.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _topBannerAd?.dispose();
+    _bottomBannerAd?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -32,6 +94,13 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
+          // Top Banner Ad
+          if (_isTopBannerAdLoaded)
+            Container(
+              width: double.infinity,
+              height: _topBannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _topBannerAd!),
+            ),
           // Options Section
           Expanded(
             child: Padding(
@@ -87,6 +156,13 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+          // Bottom Banner Ad
+          if (_isBottomBannerAdLoaded)
+            Container(
+              width: double.infinity,
+              height: _bottomBannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bottomBannerAd!),
+            ),
         ],
       ),
     );
