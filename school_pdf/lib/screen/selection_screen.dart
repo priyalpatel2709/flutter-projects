@@ -474,6 +474,14 @@ class _SelectionScreenState extends State<SelectionScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () async {
+          if (title == 'Last Year Paper With Solution') {
+            Navigator.pushNamed(
+              context,
+              '/year-selection',
+              arguments: {'medium': 'Gujarati', 'module': title},
+            );
+            return;
+          }
           if (userProfile?['adFree1'] == true) {
             Navigator.pushNamed(
               context,

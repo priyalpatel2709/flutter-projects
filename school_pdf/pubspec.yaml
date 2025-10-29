@@ -37,18 +37,18 @@ dependencies:
   firebase_core: ^3.15.1
 
   firebase_auth: ^5.6.2
-  firebase_storage: ^12.4.9
-  firebase_messaging: ^15.2.9
-  google_sign_in: ^7.1.0
+  # firebase_storage: ^12.4.9
+  # firebase_messaging: ^15.2.9
+  # google_sign_in: ^7.1.0
   cloud_firestore: ^5.6.11
   url_launcher: ^6.3.2 
   google_mobile_ads: ^6.0.0
-  excel: ^4.0.6
-  path_provider: ^2.1.5
+  # excel: ^4.0.6
+  # path_provider: ^2.1.5
   file_saver: ^0.3.1
   permission_handler: ^12.0.1
-  media_store_plus: ^0.1.3
-  in_app_purchase: ^3.1.7
+  # media_store_plus: ^0.1.3
+  # in_app_purchase: ^3.1.7
   razorpay_flutter: ^1.4.0
   http: ^1.4.0
   flutter_dotenv: ^5.2.1
