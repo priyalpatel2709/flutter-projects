@@ -1,5 +1,14 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:excel/excel.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:saf/saf.dart';
+import 'package:share_plus/share_plus.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 
@@ -50,6 +59,16 @@ class _UsersTabState extends State<UsersTab> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              ElevatedButton.icon(
+                // onPressed: _downloadPromodoesCsv,
+                onPressed: () => _downloadUsersExcel(context),
+                icon: Icon(Icons.download),
+                label: Text('Download CSV'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                ),
+              ),
             ],
           ),
           SizedBox(height: 16),
@@ -77,6 +96,135 @@ class _UsersTabState extends State<UsersTab> {
         ],
       ),
     );
+  }
+
+  Future<void> _downloadUsersExcel(BuildContext context) async {
+    try {
+
+
+      // Step 2: Fetch Firestore users
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .get();
+      final users = snapshot.docs.map((doc) => doc.data()).toList();
+
+      if (users.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No users found')));
+        return;
+      }
+
+      // Step 3: Create Excel workbook
+      var excel = Excel.createExcel();
+
+      // Remove default sheet and create new one
+      excel.delete('Sheet1');
+      var sheet = excel['Users'];
+
+      // Step 4: Define headers
+      final headers = [
+        'Name',
+        'Email',
+        'Phone Number',
+        'Subscription',
+        'Subscription Price',
+        'Referral Code',
+        'Referral Count',
+        'Referral Rewards',
+        'Promo Code',
+        'Referred By (Email)',
+        'Referred At',
+        'Joined (Created At)',
+        'Is Admin',
+      ];
+
+      // Insert header row
+      for (var i = 0; i < headers.length; i++) {
+        sheet
+            .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
+            .value = TextCellValue(
+          headers[i],
+        );
+      }
+
+      // Step 5: Populate rows
+      int rowIndex = 1; // Start from row 1 (row 0 is headers)
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+
+        final createdAt = data['createdAt'] is Timestamp
+            ? (data['createdAt'] as Timestamp).toDate().toString()
+            : '';
+
+        final referredAt = data['referredAt'] is Timestamp
+            ? (data['referredAt'] as Timestamp).toDate().toString()
+            : '';
+
+        String referredBy = '';
+        if (data['referredBy'] != null) {
+          final referredUser = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(data['referredBy'])
+              .get();
+          referredBy = referredUser.data()?['email'] ?? '';
+        }
+
+        final rowData = [
+          data['name'] ?? '',
+          data['email'] ?? '',
+          data['phoneNumber'] ?? '',
+          data['subscription'] ?? '',
+          data['subscriptionPrice']?.toString() ?? '',
+          data['referralCode'] ?? '',
+          data['referralCount']?.toString() ?? '0',
+          data['referralRewards']?.toString() ?? '0',
+          data['promoCode'] ?? '',
+          referredBy,
+          referredAt,
+          createdAt,
+          (data['isAdmin'] ?? false) ? 'Yes' : 'No',
+        ];
+
+        // Insert data row
+        for (var i = 0; i < rowData.length; i++) {
+          sheet
+              .cell(
+                CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex),
+              )
+              .value = TextCellValue(
+            rowData[i],
+          );
+        }
+
+        rowIndex++;
+      }
+
+      // Step 6: Encode Excel file to bytes
+      final excelBytes = excel.encode();
+      if (excelBytes == null) {
+        throw Exception('Failed to encode Excel file');
+      }
+
+      // Step 7: Save to Downloads folder
+      final directory = Directory('/storage/emulated/0/Download');
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      String fileName = 'users_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      final filePath = '${directory.path}/$fileName';
+      final file = File(filePath);
+      await file.writeAsBytes(excelBytes);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✅ File saved to Downloads/$fileName')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 
   Widget _buildUserList() {
@@ -108,8 +256,7 @@ class _UsersTabState extends State<UsersTab> {
           margin: EdgeInsets.symmetric(vertical: 4),
           child: ExpansionTile(
             leading: CircleAvatar(
-              backgroundColor:
-                  isAdmin ? AppColors.premium : AppColors.primary,
+              backgroundColor: isAdmin ? AppColors.premium : AppColors.primary,
               child: Icon(
                 isAdmin ? Icons.admin_panel_settings : Icons.person,
                 color: Colors.white,
@@ -258,8 +405,7 @@ class _UsersTabState extends State<UsersTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: () =>
-                              showReferralDialog(context, user),
+                          onPressed: () => showReferralDialog(context, user),
                           icon: Icon(Icons.share, size: 16),
                           label: Text('View Referrals'),
                           style: ElevatedButton.styleFrom(
@@ -325,8 +471,10 @@ class _UsersTabState extends State<UsersTab> {
   }
 
   Future<Map<String, dynamic>> _getUserByIid(String userUid) async {
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userUid).get();
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userUid)
+        .get();
     return userDoc.data() ?? {};
   }
 

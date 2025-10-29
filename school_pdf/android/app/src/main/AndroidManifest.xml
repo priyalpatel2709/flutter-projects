@@ -4,7 +4,7 @@
 
 
     <application
-        android:label="Student Friend"
+        android:label="Student Friend Admin"
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"> android:requestLegacyExternalStorage="true" <meta-data

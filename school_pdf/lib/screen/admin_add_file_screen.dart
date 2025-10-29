@@ -693,8 +693,8 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: _downloadPromodoesCsv,
-                  // onPressed: () => _downloadUsersExcel(context),
+                  // onPressed: _downloadPromodoesCsv,
+                  onPressed: () => downloadPromocodesCsv(context),
                   icon: Icon(Icons.download),
                   label: Text('Download CSV'),
                   style: ElevatedButton.styleFrom(
@@ -767,70 +767,67 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
     );
   }
 
-  Future<void> _downloadUsersCsv() async {
-    final snapshot = await FirebaseFirestore.instance.collection('users').get();
-    final users = snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
-    if (users.isEmpty) return;
+  Future<void> downloadPromocodesCsv(BuildContext context) async {
+    try {
 
-    final headers = [
-      'Name',
-      'Email',
-      'Subscription',
-      'Referral Code',
-      'Created At',
-    ];
-    final rows = [
-      headers.join(','),
-      ...users.map(
-        (u) => [
-          '"${u['name'] ?? ''}"',
-          '"${u['email'] ?? ''}"',
-          '"${u['subscription'] ?? ''}"',
-          '"${u['referralCode'] ?? ''}"',
-          '"${u['createdAt']?.toDate()?.toString() ?? ''}"',
-        ].join(','),
-      ),
-    ];
-    final csv = rows.join('\n');
 
-    // For web, trigger download. For mobile, share/save file (not implemented here)
-    // This example uses clipboard for simplicity
-    await Clipboard.setData(ClipboardData(text: csv));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('CSV copied to clipboard! Paste into Excel.')),
-    );
-  }
+      // Fetch Firestore data
+      final snapshot = await FirebaseFirestore.instance
+          .collection('promocodes')
+          .get();
 
-  Future<void> _downloadPromodoesCsv() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('promocodes')
-        .get();
-    final users = snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
-    if (users.isEmpty) return;
+      final promocodes = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
 
-    final headers = ['code', 'createdAt', 'description'];
-    final rows = [
-      headers.join(','),
-      ...users.map(
-        (u) => [
-          '"${u['code'] ?? ''}"',
-          '"${u['description'] ?? ''}"',
-          '"${u['createdAt']?.toDate()?.toString() ?? ''}"',
-        ].join(','),
-      ),
-    ];
-    final csv = rows.join('\n');
+      if (promocodes.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No promocodes found')));
+        return;
+      }
 
-    // For web, trigger download. For mobile, share/save file (not implemented here)
-    // This example uses clipboard for simplicity
-    await Clipboard.setData(ClipboardData(text: csv));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('CSV copied to clipboard! Paste into Excel.')),
-    );
+      // Build CSV data
+      final headers = ['Code', 'Created At', 'Description'];
+      final rows = [
+        headers.join(','),
+        ...promocodes.map((promo) {
+          final createdAt = promo['createdAt'] is Timestamp
+              ? (promo['createdAt'] as Timestamp).toDate().toString()
+              : '';
+
+          return [
+            '"${promo['code'] ?? ''}"',
+            '"$createdAt"',
+            '"${promo['description'] ?? ''}"',
+          ].join(',');
+        }),
+      ];
+      final csv = rows.join('\n');
+
+      // Get downloads directory
+      final directory = Directory('/storage/emulated/0/Download');
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      // Create file path
+      final fileName =
+          'promocodes_${DateTime.now().millisecondsSinceEpoch}.csv';
+      final filePath = '${directory.path}/$fileName';
+
+      // Write CSV to file
+      final file = File(filePath);
+      await file.writeAsString(csv);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✅ CSV saved to Downloads/$fileName')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 
   Future<void> _addPromoCode() async {

@@ -1,4 +1,4 @@
-package com.schfrd.school_pdf
+package com.download.school_pdf
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
