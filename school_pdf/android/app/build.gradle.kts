@@ -16,16 +16,16 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.schfrd.school_pdf"
+    namespace = "com.pns.school_pd"
     compileSdk = 35 // or whatever your Flutter compileSdk is
     ndkVersion = "25.1.8937393" // Optional: match with Flutter's ndkVersion if needed
 
     defaultConfig {
-        applicationId = "com.schfrd.school_pdf"
+        applicationId = "com.pns.school_pd"
         minSdk = 23
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.1.3"
+        versionCode = 1
+        versionName = "1.1.1"
     }
 
     signingConfigs {
