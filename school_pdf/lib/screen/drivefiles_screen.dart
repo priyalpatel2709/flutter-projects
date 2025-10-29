@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,12 +10,14 @@ class DriveFilesScreen extends StatefulWidget {
   final String title;
   final String medium;
   final String module;
+  final String selectedYear;
 
   const DriveFilesScreen({
     super.key,
     required this.title,
     required this.medium,
     required this.module,
+    required this.selectedYear,
   });
 
   @override
@@ -110,6 +110,9 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   }
 
   Future<void> _loadUserProfile() async {
+    setState(() {
+      selectedYear = widget.selectedYear;
+    });
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
@@ -129,7 +132,6 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
           });
         }
       } catch (e) {
-        print('Error loading profile: $e');
         setState(() {
           isLoading = false;
         });
@@ -222,17 +224,6 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
   }
 
   // Check if subscription is expired
-  bool get _isSubscriptionExpired {
-    final expiryDate = userProfile?['subscriptionExpiry'];
-    if (expiryDate == null) return true;
-
-    try {
-      final expiry = DateTime.parse(expiryDate);
-      return DateTime.now().isAfter(expiry);
-    } catch (e) {
-      return true;
-    }
-  }
 
   // Check if user can access paid content
   bool _canAccessPaidContent() {
@@ -513,29 +504,29 @@ class _DriveFilesScreenState extends State<DriveFilesScreen> {
                       child: Column(
                         children: [
                           // Back button
-                          Container(
-                            width: double.infinity,
-                            margin: EdgeInsets.only(bottom: 16),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  selectedYear = null;
-                                });
-                              },
-                              icon: Icon(Icons.arrow_back),
-                              label: Text('Back to Year Selection'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.surface,
-                                foregroundColor: AppColors.textPrimary,
-                                elevation: 0,
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: AppColors.border),
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Container(
+                          //   width: double.infinity,
+                          //   margin: EdgeInsets.only(bottom: 16),
+                          //   child: ElevatedButton.icon(
+                          //     onPressed: () {
+                          //       setState(() {
+                          //         selectedYear = null;
+                          //       });
+                          //     },
+                          //     icon: Icon(Icons.arrow_back),
+                          //     label: Text('Back to Year Selection'),
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: AppColors.surface,
+                          //       foregroundColor: AppColors.textPrimary,
+                          //       elevation: 0,
+                          //       padding: EdgeInsets.symmetric(vertical: 12),
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(12),
+                          //         side: BorderSide(color: AppColors.border),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           // Files list
                           Expanded(
                             child: _getFilesByYear(selectedYear!).isEmpty

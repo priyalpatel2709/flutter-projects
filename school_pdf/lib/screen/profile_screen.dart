@@ -30,17 +30,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _referralCodeError;
   int _subscriptionPrice = AdUnit.subscriptionPrice;
 
-  bool _isCheckingPromo = false;
-  bool _isCheckingReferral = false;
-  final int _eligibleCount = AdUnit.eligibleCount;
+  // bool _isCheckingPromo = false;
+  // bool _isCheckingReferral = false;
+  // final int _eligibleCount = AdUnit.eligibleCount;
 
   bool _isReferralCodeValid = false;
   bool _isPromoCodeValid = false;
   
   BannerAd? _topBannerAd;
   BannerAd? _bottomBannerAd;
-  bool _isTopBannerAdLoaded = false;
-  bool _isBottomBannerAdLoaded = false;
+  // bool _isTopBannerAdLoaded = false;
+  // bool _isBottomBannerAdLoaded = false;
 
   @override
   void initState() {
@@ -58,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _isTopBannerAdLoaded = true;
+            // _isTopBannerAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            _isBottomBannerAdLoaded = true;
+            // _isBottomBannerAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
@@ -631,7 +631,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _checkPromoCode(String code) async {
     setState(() {
-      _isCheckingPromo = true;
+      // _isCheckingPromo = true;
       _promoCodeError = null;
     });
 
@@ -655,7 +655,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     setState(() {
-      _isCheckingPromo = false;
+      // _isCheckingPromo = false;
     });
   }
 
@@ -667,7 +667,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _checkReferralCode(String code) async {
     setState(() {
-      _isCheckingReferral = true;
+      // _isCheckingReferral = true;
       _referralCodeError = null;
     });
 
@@ -687,20 +687,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     setState(() {
-      _isCheckingReferral = false;
+      // _isCheckingReferral = false;
     });
   }
 
-  String _getDiscountMessage() {
-    if (_isPromoCodeValid && _isReferralCodeValid) {
-      return 'Promo code and referral code applied successfully!';
-    } else if (_isPromoCodeValid) {
-      return 'Promo code applied successfully!';
-    } else if (_isReferralCodeValid) {
-      return 'Referral code applied successfully!';
-    }
-    return '';
-  }
+  // String _getDiscountMessage() {
+  //   if (_isPromoCodeValid && _isReferralCodeValid) {
+  //     return 'Promo code and referral code applied successfully!';
+  //   } else if (_isPromoCodeValid) {
+  //     return 'Promo code applied successfully!';
+  //   } else if (_isReferralCodeValid) {
+  //     return 'Referral code applied successfully!';
+  //   }
+  //   return '';
+  // }
 
   void _updateSubscriptionPrice() {
     int newPrice = AdUnit.subscriptionPrice;

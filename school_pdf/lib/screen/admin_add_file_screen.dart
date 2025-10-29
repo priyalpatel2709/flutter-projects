@@ -1,14 +1,6 @@
-import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
-import 'package:excel/excel.dart';
-import 'package:media_store_plus/media_store_plus.dart';
-
-import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
 import '../widget/user_tab.dart';
 
@@ -27,7 +19,7 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
   final _fileIdController = TextEditingController();
   final _fileDescriptionController = TextEditingController();
   final _fileSizeController = TextEditingController();
-  final TextEditingController _controller = TextEditingController();
+  // final TextEditingController _controller = TextEditingController();
   // Module form controllers
   final _moduleFormKey = GlobalKey<FormState>();
   final _moduleNameController = TextEditingController();
@@ -764,42 +756,6 @@ class _AdminAddFileScreenState extends State<AdminAddFileScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Future<void> _downloadUsersCsv() async {
-    final snapshot = await FirebaseFirestore.instance.collection('users').get();
-    final users = snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
-    if (users.isEmpty) return;
-
-    final headers = [
-      'Name',
-      'Email',
-      'Subscription',
-      'Referral Code',
-      'Created At',
-    ];
-    final rows = [
-      headers.join(','),
-      ...users.map(
-        (u) => [
-          '"${u['name'] ?? ''}"',
-          '"${u['email'] ?? ''}"',
-          '"${u['subscription'] ?? ''}"',
-          '"${u['referralCode'] ?? ''}"',
-          '"${u['createdAt']?.toDate()?.toString() ?? ''}"',
-        ].join(','),
-      ),
-    ];
-    final csv = rows.join('\n');
-
-    // For web, trigger download. For mobile, share/save file (not implemented here)
-    // This example uses clipboard for simplicity
-    await Clipboard.setData(ClipboardData(text: csv));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('CSV copied to clipboard! Paste into Excel.')),
     );
   }
 

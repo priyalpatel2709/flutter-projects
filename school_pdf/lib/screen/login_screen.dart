@@ -1,9 +1,6 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../constants/ad_unit.dart';
 import '../constants/app_colors.dart';
@@ -278,96 +275,6 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  Future<void> _resendVerificationEmail() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _showErrorDialog('No user found. Please sign up first.');
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      await user.sendEmailVerification();
-      if (mounted) {
-        _showSuccessDialog(
-          'Verification email sent! Please check your inbox and click the verification link.',
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      _showErrorDialog('Failed to send verification email. Please try again.');
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorDialog('Something went wrong. Please try again.');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  void _showVerificationDialog() {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Row(
-          children: [
-            Icon(Icons.email, color: AppColors.primary),
-            SizedBox(width: 8),
-            Text(
-              'Email Verification',
-              style: TextStyle(color: AppColors.primary),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Please verify your email address to complete your registration:',
-              style: TextStyle(color: AppColors.textPrimary),
-            ),
-            SizedBox(height: 12),
-            Text(
-              '1. Check your email inbox\n2. Click the verification link\n3. Return to the app and sign in',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Didn\'t receive the email?',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK', style: TextStyle(color: AppColors.primary)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _resendVerificationEmail();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
-            ),
-            child: Text('Resend Email'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showErrorDialog(String message) {

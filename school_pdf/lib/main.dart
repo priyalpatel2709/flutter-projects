@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:school_pdf/screen/admin_add_file_screen.dart';
+import 'package:school_pdf/screen/year_secltion.dart';
 
 import 'constants/app_theme.dart';
 import 'services/payment_service.dart';
@@ -19,10 +20,10 @@ void main() async {
   await dotenv.load();
   MobileAds.instance.initialize();
   await Firebase.initializeApp();
-  
+
   // Initialize payment service
   PaymentService.initialize();
-  
+
   runApp(MyApp());
 }
 
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
                 title: '$medium/$module',
                 medium: medium,
                 module: module,
+                selectedYear: '',
               ),
             );
 
@@ -66,6 +68,18 @@ class MyApp extends StatelessWidget {
 
           case '/payment':
             return MaterialPageRoute(builder: (_) => PaymentExampleScreen());
+
+          case '/year-selection':
+            final args = settings.arguments as Map<String, dynamic>?;
+            final medium = args?['medium'] ?? 'Option 2 Files';
+            final module = args?['module'] ?? 'Option 2 Files';
+            return MaterialPageRoute(
+              builder: (_) => YearSelectionScreen(
+                title: '$medium/$module',
+                medium: medium,
+                module: module,
+              ),
+            );
 
           default:
             return MaterialPageRoute(
